@@ -186,7 +186,7 @@ var gallery = {
 			// функция изменения ширины столбцов
 			resize : function(pageX) {
 				var self = this;
-				
+
 				if( typeof( window.innerWidth ) == 'number' ) {
 					//Non-IE
 					self.myWidth = window.innerWidth;
@@ -196,27 +196,27 @@ var gallery = {
 					self.myHeight = ietruebody().clientHeight;
 					self.myWidth = ietruebody().clientWidth;
 				}
-				
+
 				$('#sidebar').width(pageX + 2);
 
 				$('#sidebar .block').width(pageX-26);
-				
+
 				$('#sidebar #statistics').width(pageX-66);
-				
+
 				$('#content').width(self.myWidth - $('#sidebar').width() ).css('margin-left', pageX + 2);
 				$('#list_panel').width($('#content').width()-38);
 
-				var hc; 
-				
+				var hc;
+
 				if(MSIE){
 					hc = $('#content').height() - $('#win_top').height() - $('#toolbar').height();
 					hc -=30 ;
-					
+
 				}else{
 					hc = $('#content').height() - gallery.hcameras - $('#toolbar').height();
 					hc-=23;
 				}
-				
+
 				$('#win_bot').height(hc);
 
 				if(MSIE){
@@ -224,11 +224,11 @@ var gallery = {
 				}else{
 					$('#page').width($('#sidebar').width()+$('#content').width());
 				}
-				
+
 			},
 			// функция инициализации
 			init: function(){
-				
+
 				var self = this;
 				if( typeof( window.innerWidth ) == 'number' ) {
 					//Non-IE
@@ -242,8 +242,8 @@ var gallery = {
 
 				$('.block','#sidebar').width($('#sidebar').width()-9);
 				$('#statistics','#sidebar').width($('.block','#sidebar').width()-20);
-				
-				
+
+
 				// обработка изменение ширины используя вертикальный разделитель
 				$('#handler_vertical')
 				.mousedown(function(e){
@@ -266,11 +266,11 @@ var gallery = {
 				// востанавливаем расположения из куков
 				try{
 					pageX = parseInt(gallery.cookie.get('resize_column'));
-					
+
 				}catch (e) {
 					pageX = false;
 				}
-			
+
 				if (pageX) {
 					self.resize(pageX);
 				} else {
@@ -278,13 +278,13 @@ var gallery = {
 				}
 			}
 		},
-		
+
 		reload_events : function(){
 			var count = 0;
 			var cook = '';
 			//если включен режим детального просмотра - включаем режим превью
 			if(matrix.mode == 'detail')	matrix.preview();
-			
+
 			$('input[name="type_event"]').each(function(){
 				if ($(this).attr('checked')) {
 					count++;
@@ -296,13 +296,13 @@ var gallery = {
 				gallery.cookie.set('type_event', cook);
 				// обновляем дерево
 				gallery.tree_event.reload();
-				
+
 				if(MSIE){
 					//Устанавливаем матрицу на начало диапазона
 					matrix.num = 0;
 					scroll.setposition(0);
 				}
-				
+
 			} else {
 				// не дадим пользователю снять последний чекбокс
 				//$(this).attr('checked', 'checked');
@@ -334,7 +334,7 @@ var gallery = {
 				matrix.num = 0;
 				scroll.setposition(0);
 			}
-			
+
 			if (count >0 ){
 				//переключаем чекбокс всех камер в 'Отменить выбор всех камер'
 				$('#cam_selector').attr('checked', true).parent().attr('style','background-position: 0px -14px');
@@ -396,20 +396,20 @@ var gallery = {
 						for (n in obj) {
 							v = obj[n]; t = typeof(v);
 							if (t == "string") v = '"'+v+'"';
-							else if (t == "object" && v !== null) 
+							else if (t == "object" && v !== null)
 								v = JSON.stringify(v);
 							json.push((arr ? "" : '"' + n + '":') + String(v));
 						}
 							return (arr ? "[" : "{") + String(json) + (arr ? "]" : "}");
 						}
 					};
-				
+
 				}else{
 					stringify = JSON.stringify;
 				}
 				//->
 				var strcook = Base64.encode(stringify(objcook));
-				
+
 				SetCookie(self.config.name, strcook, self.config.days, self.config.path);
 			},
 			set : function (name, value) {
@@ -443,7 +443,7 @@ var gallery = {
 				var self = this;
 				// получения настроек формирование дерева
 				var variable = {};
-				
+
 				$('input[name="type_event"]').each(function(){
 					if ($(this).attr('checked')) {
 						// по типу (изображения, видео, аудио)
@@ -471,7 +471,7 @@ var gallery = {
 				// предыдущий год, месяц, день
 				var o0 = false, o1 = false, o2 = false;
 				var ii = 0;
-				
+
 				$.each(matrix.tree_events, function( i,value) {
 					// временной диапазон
 					var key = value.date;
@@ -479,7 +479,7 @@ var gallery = {
 					var size = 0;
 					// количество файлов во временном диапазоне
 					var count = 0;
-					
+
 					//считаем размер и количество файлов в временном диапазоне в выбранных настройках
 					$.each(variable, function(k, v) {
 						if (typeof(value[k+'_size']) != 'undefined' ) {
@@ -489,7 +489,7 @@ var gallery = {
 							count += parseInt(value[k+'_count']);
 						}
 					});
-										
+
 					// если не пусто, то строим дерево
 					if (count > 0 && size > 0) {
 						// разбиваем дату на год месяц день
@@ -499,14 +499,14 @@ var gallery = {
 						var month = (e[1]>9)?e[1]:e[1].replace('0','');
 						var day = e[2];
 						//час истечения диапазона
-						var hour_to = parseInt((e[3]>9)?e[3]:e[3].replace('0',''))+1; 
-						
+						var hour_to = parseInt((e[3]>9)?e[3]:e[3].replace('0',''))+1;
+
 						// определяем самый первый диапазон для всего дерева
 						if (ii == 0) {
 							matrix.curent_tree_events['all'].from = e[3]+':00 ' + e[2] + ' ' + monthNames[month]+ ' ' + e[0];
 							ii++;
 						}
-						
+
 						// обновляем самый последний диапазон для всего дерева
 						matrix.curent_tree_events['all'].to = hour_to+':00 ' + e[2] + ' ' + monthNames[month]+ ' ' + e[0];
 
@@ -516,9 +516,9 @@ var gallery = {
 							var o = old_value.split('_');
 
 							var o_manth = (o[1]>9)?o[1]:o[1].replace('0','');
-							
+
 							//предыдущий час истечения диапазона
-							var o_hour_to = parseInt((o[3]>9)?o[3]:o[3].replace('0',''))+1; 
+							var o_hour_to = parseInt((o[3]>9)?o[3]:o[3].replace('0',''))+1;
 
 							// и оно не относиться к дню текущего события, то закрываем день
 							if (e[0]+'_'+e[1]+'_'+e[2] != o[0]+'_'+o[1]+'_'+o[2]) {
@@ -540,7 +540,7 @@ var gallery = {
 								matrix.curent_tree_events[o[0]]['to'] = o_hour_to+':00 ' + o[2] + ' ' + monthNames[parseInt(o_manth)]+ ' ' + o[0];
 								matrix.curent_tree_events[o[0]].next = e[0];
 								o0 = o[0];
-								
+
 							}
 						}
 						// обновляем размер и количество файлов всего дерева
@@ -560,7 +560,7 @@ var gallery = {
 									top: 'all',
 									under: e[0]+'_'+e[1]
 							};
-							
+
 							// строим дерево
 							html += '<li id="tree_'+e[0]+'"><a href="#">'+e[0]+'</a><ul>';
 						} else {
@@ -593,7 +593,7 @@ var gallery = {
 
 						// если нет дня текущего события, то..
 						if (typeof(matrix.curent_tree_events[e[0]+'_'+e[1]+'_'+e[2]]) == 'undefined' ) {
-							
+
 							//записываем новые данные в кеш
 							matrix.curent_tree_events[e[0]+'_'+e[1]+'_'+e[2]] = {
 									size : size,
@@ -604,7 +604,7 @@ var gallery = {
 									top: e[0]+'_'+e[1],
 									under: e[0]+'_'+e[1]+'_'+e[2]+'_'+e[3]
 							};
-						
+
 							// строим дерево
 							html += '<li id="tree_'+e[0]+'_'+e[1]+'_'+e[2]+'"><a href="#">'+e[2]+'</a><ul>';
 						}else {
@@ -614,7 +614,7 @@ var gallery = {
 							matrix.curent_tree_events[e[0]+'_'+e[1]+'_'+e[2]].to = hour_to+':00 ' + e[2] + ' ' + monthNames[month]+ ' ' + e[0];
 						}
 
-						
+
 						//записываем новые данные о события
 						matrix.curent_tree_events[key] = {
 								size : size,
@@ -635,7 +635,7 @@ var gallery = {
 						old_value = key;
 					}
 				});
-				
+
 				html += '</ul></ul>';
 				// высчитываем новый выбранный диапазон событий если старого в новом дереве нет
 				if (matrix.tree != 'all' && typeof(matrix.curent_tree_events[matrix.tree]) == 'undefined') {
@@ -669,7 +669,7 @@ var gallery = {
 						if (matrix.mode == 'detail') {
 							matrix.preview();
 						}
-						
+
 					var	tree = data.rslt.obj.attr("id").replace('tree_', '');
 
 //					if(matrix.keyBoardTree != tree) {
@@ -678,9 +678,9 @@ var gallery = {
 
 					//если диапазон не изменился - ничего не делаем
 					if(matrix.keyBoardTree == tree) return;
-						
+
 					matrix.keyBoardTree = tree;
-					
+
 
 						var found = tree.split('_');
 
@@ -691,7 +691,7 @@ var gallery = {
 							s += found[i];
 							$('#tree_'+s+' > a').addClass('jstree-clicked');
 						}
-						
+
 						if(keyBoard.boxesEnum.current()!=keyBoard.boxesEnum.TREE || typeof(data.args[2])!=='undefined') {
 							// если новый диапазон, перестраиваем матрицу
 							if (matrix.tree != tree) {
@@ -699,7 +699,7 @@ var gallery = {
 								matrix.keyBoardTree = tree;
 
 								matrix.build();
-								
+
 								if(MSIE){
 									scroll.setposition(scroll.position);
 								}
@@ -707,7 +707,7 @@ var gallery = {
 
 						}
 
-						
+
 						$.jstree._focused().set_focus("#tree_"+tree);
 						$("#tree_"+tree).jstree("set_focus");
 
@@ -740,9 +740,9 @@ var gallery = {
 			init: function(holder, ajax_params) {
 				var self = this;
 				self.holder = holder;
-				
+
 				if(ajax_params==null)ajax_params={'method': 'get_tree_events', 'on_dbld_evt':'inform_user'};
-				
+
 				// получаем данные о постройке дерева события
 				$.ajax({
 					  type: "POST",
@@ -761,108 +761,108 @@ var gallery = {
 							//если вовремя заполнения EVENTS_TREE были обнаружены дублированные события
 					  		else if (data.status == 'error' && data.code=='1') {
 					  			$('#matrix_load').hide();
-					  			
+
 						  			var header = "Ошибка";
-						  			
+
 						  			var message = "<h2 style='color: #000;'>" +"В диапазоне ["+data.range_start+" : "+data.range_end
 						  			+"] в базе данных обнаружено "+data.qtty
 						  			+" записей о ссылках на файлы с одинаковым временем создания и номером камеры (дубли).<br /><br />"
 				  					+"<table>"
 				  					+"<tr >"
-						  			+"<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Удалить'- </td>" 
+						  			+"<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Удалить'- </td>"
 						  			+"<td style='color:black;'>удаление дублирующих записей. <br />"
-				  					+"В случае выбора этой опции, будут удалены из базы данных только записи-дубли, " 
-				  					+"при этом сами записи об этих событиях будут сохранены в единственном варианте " 
+				  					+"В случае выбора этой опции, будут удалены из базы данных только записи-дубли, "
+				  					+"при этом сами записи об этих событиях будут сохранены в единственном варианте "
 				  					+"и будут доступны для дальнейшего использования.<br />"
 				  					//+"Для дальнейшего анализа ситуации вам будут предоставлен список удаденных записей-дублей в виде текстового файла."
 				  					+"</tr>"
 				  					+"<tr><td>&nbsp;</td><td>&nbsp;</td></tr>"
 				  					+"<tr>"
-				  					+"<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Игнорировать'- </td>" 
+				  					+"<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Игнорировать'- </td>"
 				  					+"<td style='color:black;'>игнорировать дублирующие записи.</h2><br />"
-						  			+"В случае выбора этой опции, дублирующие записи остануться в базе данных, " 
-				  					+"но это никак не повлияет на дальнейшую работу, поскольку их наличие будет " 
-				  					+"учитываться. Однако, в случае обновления данных за период, который содержит " 
-				  					+"дублирующие записи, снова появится это уведомление." 
+						  			+"В случае выбора этой опции, дублирующие записи остануться в базе данных, "
+				  					+"но это никак не повлияет на дальнейшую работу, поскольку их наличие будет "
+				  					+"учитываться. Однако, в случае обновления данных за период, который содержит "
+				  					+"дублирующие записи, снова появится это уведомление."
 						  			+"</td>"
 						  			+"</tr>";
 						  			//+"</table>";
-						  			
+
 						  			//+"</table>";
-						  		
+
 						  			message_box.yes_delegate = function(event){
 						  				gallery.tree_event.init(holder, {'method': 'get_tree_events', 'on_dbld_evt':'clear'});
 						  			};
-						  			
+
 						  			message_box.no_delegate = function(event){
 						  				gallery.tree_event.init(holder, {'method': 'get_tree_events', 'on_dbld_evt':'ignore'});
 						  			};
-						  			
+
 						  			message_box.buttons_name.No = "Игнорировать";
 						  			message_box.buttons_name.Yes = "Удалить";
-						  			
+
 						  			message_box.show(message, header, message_box.message_type.error, message_box.button_type.YesNo);
-				  			
+
 					  		}
 							//если вовремя очистки не были удалены все дубли
 					  		else if (data.status == 'error' && data.code=='2') {
 					  			$('#matrix_load').hide();
-					  			
+
 						  			var header = "Ошибка.";
-						  			
-						  			var message = "<h2 style='color: #000;'>" +"Не удалось удалить все дублирующие записи.<br />" 
+
+						  			var message = "<h2 style='color: #000;'>" +"Не удалось удалить все дублирующие записи.<br />"
 						  			+"Было удалено "+ data.qtty+ "записей-дублей. <br />"
 						  			+" В диапазоне ["+data.range_start+" : "+data.range_end
 						  			+"]  "
 						  			+"остались записи о ссылках на файлы с одинаковым временем создания и номером камеры (дубли).<br /><br />"
 				  					+"<table>"
 				  					+"<tr >"
-						  			+"<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Удалить'- </td>" 
+						  			+"<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Удалить'- </td>"
 						  			+"<td style='color:black;'>удаление дублирующих записей. <br />"
-				  					+"В случае выбора этой опции, будут удалены из базы данных только записи-дубли, " 
-				  					+"при этом сами записи об этих событиях будут сохранены в единственном варианте " 
+				  					+"В случае выбора этой опции, будут удалены из базы данных только записи-дубли, "
+				  					+"при этом сами записи об этих событиях будут сохранены в единственном варианте "
 				  					+"и будут доступны для дальнейшего использования.<br />"
 				  					+"Для дальнейшего анализа ситуации вам будут предоставлен список удаденных записей-дублей в виде текстового файла."
 				  					+"</tr>"
 				  					+"<tr><td>&nbsp;</td><td>&nbsp;</td></tr>"
 				  					+"<tr>"
-				  					+"<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Игнорировать'- </td>" 
+				  					+"<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Игнорировать'- </td>"
 				  					+"<td style='color:black;'>игнорировать дублирующие записи.</h2><br />"
-						  			+"В случае выбора этой опции, дублирующие записи остануться в базе данных, " 
-				  					+"но это никак не повлияет на дальнейшую работу, поскольку их наличие будет " 
-				  					+"учитываться. Однако, в случае обновления данных за период, который содержит " 
-				  					+"дублирующие записи, снова появится это уведомление." 
+						  			+"В случае выбора этой опции, дублирующие записи остануться в базе данных, "
+				  					+"но это никак не повлияет на дальнейшую работу, поскольку их наличие будет "
+				  					+"учитываться. Однако, в случае обновления данных за период, который содержит "
+				  					+"дублирующие записи, снова появится это уведомление."
 						  			+"</td>"
 						  			+"</tr>";
 						  			//+"</table>";
-						  			
+
 						  			message_box.yes_delegate = function(event){
 						  				gallery.tree_event.init(holder, {'method': 'get_tree_events', 'on_dbld_evt':'clear'});
 						  			};
-						  			
+
 						  			message_box.no_delegate = function(event){
 						  				gallery.tree_event.init(holder, {'method': 'get_tree_events', 'on_dbld_evt':'ignore'});
 						  			};
-						  			
+
 						  			message_box.buttons_name.No = "Игнорировать";
 						  			message_box.buttons_name.Yes = "Удалить";
-						  			
+
 						  			message_box.show(message, header, message_box.message_type.error, message_box.button_type.YesNo);
 
 					  		}
 						}
 					});
-				
+
 			}
 		},
-		
-		
-		
-		
-		
-		
-		
-		
+
+
+
+
+
+
+
+
 		// объект управлением цветом камер
 		cameras_color : {
 			camera_id : '', // ид выбранной камеры
@@ -928,7 +928,7 @@ var gallery = {
 					self.close();
 				});
 			}
-			
+
 		},
 		// объект, показывающий сообщения хочет ли пользователь перейти на следующий временной диапазон
 		nextwindow : {
@@ -999,7 +999,7 @@ var gallery = {
 		},
 		// инициализация галереи
 		init : function(config) {
-			
+
 			var self = this;
 			// обновление настроек
 			if (config && typeof(config) == 'object') {
@@ -1007,12 +1007,12 @@ var gallery = {
 			}
 
 			$('#matrix_load').show();
-			
+
 			//инициализация месседж-бокса
 			message_box.init();
-			
+
 			self.cookie.init({path:WwwPrefix+'/offline/gallery.php'});
-			
+
 			//Загрузка изображений контролов
 			//Кнопки свернуть/развернуть
 			gallery.images['preview'] = new Image();
@@ -1020,7 +1020,7 @@ var gallery = {
 			//Кнопки свернуть/развернуть
 			gallery.images['detail'] = new Image();
 			gallery.images['detail'].src =  WwwPrefix+'/offline/gallery/img/slide2.png';
-			
+
 			var wcheck = 0;
 			var cams_chek = $('#cameras_selector .new_Check').each(function(i,val){
 				if($(val).width()>wcheck){
@@ -1028,9 +1028,9 @@ var gallery = {
 				}
 			});
 			$(cams_chek).width(wcheck);
-			
-			
-			
+
+
+
 			// организация увеличение размера списка камер
 			if ($('#win_top').height() > 100) {
 				$('#more_cam').show();
@@ -1049,7 +1049,7 @@ var gallery = {
 						}
 				);
 			}
-		
+
 			// обработка выбора чекбокса камеры
 			$('input[name="cameras"]').change(function(){
 				var rez = gallery.reload_cams();
@@ -1094,15 +1094,15 @@ var gallery = {
 					$(this).children().attr('checked', 'checked');
 				}
 			});
-			
+
 			//Кнопка смены режима просмотра - детальный/миниатюры
 			var btnCangeMode =	$('<div class="select_mode"> <img src="'+gallery.images['preview'].src +'" /></div>');
-			
+
 			$(btnCangeMode)
 			.find("img")
 			.width(220)
 			.height(35);
-			
+
 			$(btnCangeMode)
 			.click(function(e){
 				var im = $(btnCangeMode).find('img');
@@ -1114,20 +1114,20 @@ var gallery = {
 			});
 
 			$("#toolbar>#toolbar_left:first-child").prepend(btnCangeMode);
-			
+
 			//кнопка установки оригинального размера
 			var btn_orig_size = $("<div id='btn_orig_size' class='btn_img_size' style='left:45px;' ><img style='height: 30px; width: 30px;' src='"+WwwPrefix+"/img/1to1.png' title='Оригинальный размер' /> </div>")
 					.click(function(event){
 						var nr = matrix.num;
 						var val = matrix.events[nr];
 						if (typeof(val) == 'undefined') return;
-						
+
 						var height = val[3];
 						var width = val[4];
 
 						if(scale2.position != 0) scale2.setposition(0);
 
-						//Изменение положения ползунка масштаба 	
+						//Изменение положения ползунка масштаба
 						if($('.active .refBox').aplayerIsImage()) //Если картинка
 						{
 							//формирование src ресайза картинки
@@ -1138,7 +1138,7 @@ var gallery = {
 							.aplayerSetImgSrc(ResizedImgSrc)
 							.aplayerResizeContanerOnlyToParent()
 							.aplayerSetSizeMediaElt({'height': height, 'width': width});
-							
+
 							//визуализируем скролл масштаба режима просмотра
 							$('#scale2').show();
 							//показываем чекбокс пропорций
@@ -1147,7 +1147,7 @@ var gallery = {
 						else if( value[7]=='audio' ) //Если внедренный объект  аудио
 						{
 						}
-						else 
+						else
 						{
 							if( $('.active .refBox').aplayerIsEmbededObject() )// если ембед
 							{
@@ -1157,8 +1157,8 @@ var gallery = {
 								height = parseInt(height)+25;
 							}
 							//установка размеров плеера в соответствии с размерами родительского элемента
-							$('.active .refBox').aplayerResizeContanerOnlyToParent(); 
-							//Изменение размеров медиа-элемента плеера 
+							$('.active .refBox').aplayerResizeContanerOnlyToParent();
+							//Изменение размеров медиа-элемента плеера
 							$('.active .refBox').aplayerSetSizeMediaElt({
 								'width':  parseInt(width),
 								'height': parseInt(height)
@@ -1178,33 +1178,33 @@ var gallery = {
 			$("#btn_cell_size, #btn_orig_size" );
 
 			//установка в панель инструментов
-			$("#toolbar>#toolbar_right").prepend(btn_cell_size, btn_orig_size);				
-		
+			$("#toolbar>#toolbar_right").prepend(btn_cell_size, btn_orig_size);
+
 			// инициализация изменения размеров столбцов
 			self.resize_column.init();
 
 			// инициализация матрицы
 			matrix.init(self.config.matrix);
-			
+
 			// инициализация дерева событий
 			self.tree_event.init('#tree_new');
-	
+
 			// инициализация выбора цвета камеры
 			self.cameras_color.init();
-			
+
 			// инициализация перехода на следующий временной диапазон
 			self.nextwindow.init();
 
 			// инициализация событий клавиатуры
 			keyBoard.init();
-			
-			
+
+
 			if(MSIE){
 				var wt = $('#win_top');
 				//установка высоты списка камер
 				gallery.hcameras = $(wt).height()+parseInt($(wt).css('border-top-width'))+parseInt($(wt).css('border-bottom-width')) ;
 			}
-			
+
 			//Установка начального состояния чекбокса "выбрать/отменить все камеры"
 			var cntr=0;
 			var col_cams = $('#cameras_selector .niceCheck').each(function(i,val){
@@ -1212,7 +1212,7 @@ var gallery = {
 					cntr++;
 				}
 			});
-			
+
 			if(cntr==col_cams.length){
 				$('#cam_selector').attr('checked', false).parent().attr('style','background-position: 0px 0px');
 				$('#lbl_cam_selector').html('Выбрать все камеры');
@@ -1226,7 +1226,7 @@ var gallery = {
 					$('#select_all_cam>.new_Check').css('opacity', 1);
 				}
 			}
-			
+
 			//установка обработчика чекбокса "Выбрать/отменить все камеры"
 			$('#select_all_cam').bind('click', function(e){
 				$('#cameras_selector .niceCheck').each(function(i,val){
@@ -1251,14 +1251,14 @@ var gallery = {
 					$('#cam_selector')
 					.attr('checked', false)
 					.parent().attr('style','background-position: 0px 0px');
-					
+
 				}else{
 					$('#cam_selector')
 					.attr('checked', true)
 					.parent().attr('style','background-position: 0px -14px');
 				}
 			});
-			
+
 		}
 };
 

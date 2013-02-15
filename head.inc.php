@@ -33,7 +33,10 @@ header('Pragma: no-cache'); // HTTP/1.0
 header('Content-Type: text/html; charset=' . $chset);
 if ( isset($ie6_quirks_mode) && $ie6_quirks_mode && preg_match('/MSIE\s*6/',$_SERVER['HTTP_USER_AGENT']) )
    print '<?xml version="1.0" encoding="'.$chset.'"?>'."\n";
-print '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">'."\n";
+if (strstr($_SERVER['SCRIPT_NAME'], 'gallery.php'))
+    print '<!DOCTYPE HTML>';
+else
+    print '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">'."\n";
 print '<html><head>'."\n";
 print '<link rel="SHORTCUT ICON" href="'.$conf['prefix'].'/favicon.ico">'."\n";
 print '<title>';
