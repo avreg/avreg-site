@@ -55,8 +55,6 @@ if (in_array('-m',$argv) && isset($argv[array_search('-m', $argv)+1]) && in_arra
 	}
 
 	require ('/etc/avreg/site-defaults.php');
-
-
 	$res=confparse($conf, 'avreg-site');
 	if (!$res) {
 	   die();

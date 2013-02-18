@@ -44,7 +44,7 @@ if ( $redir_page ) {
 
 echo '<h2 class="header" align="center">' . sprintf($fmtVidServ, $named) .
 '&nbsp;&nbsp;(<a class="main_links" style="font-size: 85%;" href="'.sprintf($conf['prefix'].'/admin/key.php?sip=%s&amp;named=%s',$sip,$named).'">'.$license.'</a>)</h2>' ."\n";
-print "<div  class='header' align='center'>$strYou: <a class='main_links' href='index.php?logout=1' title='$strLogout'>$login_user@$remote_addr</a></div>\n";
+print "<div  class='header' align='center'>$strYou: <a class='main_links' href='" . $conf['protocol'].$conf['url_demon']."index.php?logout=1' title='$strLogout'>$login_user@$remote_addr</a></div>\n";
 
 /*
 if (empty($_SERVER['SSL_PROTO']))

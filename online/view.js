@@ -1342,7 +1342,7 @@ function canvas_growth() {
    	//переход на страницу просмотра и управления пользовательскими раскладками 
    	function clients_layouts_list(){
 		//Передаем параметры пользовательских раскладок
-   		var url = 'http://'+SERVER_ADR+'/avreg/admin/web_mon_list.php';
+   		var url = PROTOCOL + SERVER_ADR+'/admin/web_mon_list.php';
 	   	if(user_layouts.isLocalStorageAvailable()){
    			if(user_layouts.client_layouts_json){
                 var lay_user = JSON.stringify(user_layouts.client_layouts);
@@ -1389,7 +1389,7 @@ function canvas_growth() {
             $("#toolbar table tr").html('<td> <table><tr id="tb_contn"><td>'+ layouts_to_list()+'</td></tr></table></td>');
            //добавляем кнопку на главную
            if(REF_MAIN){
-        	   $('#tb_contn').prepend('<td><div class="to_main"> <a href="http://'+SERVER_ADR+'/avreg/index.php" >На главную </a> </div> </td>');
+        	   $('#tb_contn').prepend('<td><div class="to_main"> <a href="'+PROTOCOL+SERVER_ADR+'/index.php" >На главную </a> </div> </td>');
            }
 // TODO Кнопка пользовательских раскладок
            $('#tb_contn').append('<td><div id="user_layouts" class="user_layouts" onclick="clients_layouts_list();" > <a href="#" >Раскладки</a> </div> </td>');

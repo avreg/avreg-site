@@ -37,7 +37,6 @@ while (@ob_end_flush());
 print '<table id="main_tab" width="860" height="500"  cellspacing="20" border="0" cellpadding="0" align="center">'."\n";
 print '<tbody>'."\n";
 print '<tr>'."\n";
-
 //pda
 print '<td align="center" valign="top" nowrap class="main_td_ref" >'."\n";
 if ($allow_pda) {
@@ -51,8 +50,8 @@ print '</td>'."\n";
 //online
 print '<td align="center" valign="top" class="main_td_ref" >'."\n";
 print  '<div style="position:relative;" ><div class="mode_item" style="position:absolute; " >'."\n";
-print '<a class="main_links" onclick="online(\''.$conf['prefix'].'/online/index.php\');" href="#" title="'.$a_webcam.'"><img   src="'.$conf['prefix'].'/img/online.jpg" width="251" height="165" border="0"></a>'."\n";
-print '<p><a class="main_links" onclick="online(\''.$conf['prefix'].'/online/index.php\');" href="#">'.$a_webcam.'</a></p>'."\n";
+print '<a class="main_links" onclick="online(\''.$conf['protocol'].$conf['url_domen'].$conf['prefix'].'/online/index.php\');" href="#" title="'.$a_webcam.'"><img   src="'.$conf['prefix'].'/img/online.jpg" width="251" height="165" border="0"></a>'."\n";
+print '<p><a class="main_links" onclick="online(\''.$conf['protocol'].$conf['url_domen'].$conf['prefix'].'/online/index.php\');" href="#">'.$a_webcam.'</a></p>'."\n";
 print  '</div ></div >'."\n";
 print '</td>'."\n";
 //админка
@@ -108,5 +107,6 @@ if ( $conf['debug'] ) {
    tohtml($conf);
    // phpinfo(INFO_VARIABLES);
 }
+
 require ($wwwdir.'/foot.inc.php');
 ?>

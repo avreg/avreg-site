@@ -16,6 +16,25 @@
  */
 
 require ('/etc/avreg/site-defaults.php');
+
+// Проверяем, используется ли протокол https
+if (isset($_SERVER['SSL_TLS_SNI']))
+{
+    $protocol = 'https';
+}
+else
+{
+    $protocol = 'http';
+}
+
+// Получаю домен
+$domen = $_SERVER['HTTP_HOST'];
+
+$conf['protocol'] = $protocol.'://';
+$conf['url_domen'] = $domen;
+//  $url_site = $_SERVER[]
+
+
 /// Путь к директории сайта
 $wwwdir = $conf['site-dir'] . '/';
 
@@ -1576,9 +1595,9 @@ if ( !empty($logout) ) {
    } else {
       $https = (0 === strpos($_SERVER['SERVER_PROTOCOL'], 'HTTPS'));
       header(sprintf('Location: %s://%s%s%s%s',
-         !empty($_SERVER['SSL_PROTO']) ? 'https' : 'http',
+         !empty($_SERVER['SSL_PROTOCOL']) ? 'https' : 'http',
          $_SERVER['SERVER_NAME'],
-         (!empty($_SERVER['SSL_PROTO']) || ($_SERVER['SERVER_PORT'] != 80)) ? (':'.$_SERVER['SERVER_PORT']) : '',
+         (!empty($_SERVER['SSL_PROTOCOL']) || ($_SERVER['SERVER_PORT'] != 80)) ? (':'.$_SERVER['SERVER_PORT']) : '',
          $conf['prefix'],
          '/index.php'));
       setcookie('avreg_logout', 0 );

@@ -7,7 +7,6 @@
 *
 */
 
-
 if ( !isset($NOBODY) ) {
    $custom_footer = preg_replace('%^'.$conf['prefix'].'(/.+)\.php$%', '\1_footer.inc.php', $_SERVER['SCRIPT_NAME']);
    if ( 0 != strcmp($_SERVER['SCRIPT_NAME'], $custom_footer ) ) {

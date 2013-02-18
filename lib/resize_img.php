@@ -1,6 +1,5 @@
 <?php 
 	require ('/etc/avreg/site-defaults.php');
-
 	//Загрузка исходнгого изображения
 	$id = $_GET['url'];
 

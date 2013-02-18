@@ -48,6 +48,7 @@ $(document).ready(function(){
 //пререход на онлайн
 var online =  function(url){
 	//переадресуем на онлайн просмотр
+    //alert(url);
 	user_layouts.redirect(url, true);
 };
 
