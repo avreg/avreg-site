@@ -2852,7 +2852,6 @@ var scroll = {
 				
 				// задаем высоту скрола
 				$(scroll.id + ' .scroll_body_v').height(scroll.height);
-                alert(scroll.height);
 				// высчитываем высоту ползунка в зависимости от элементов в матрице и всех элементов в диапазоне
 				h = Math.floor((scroll.height/(scroll.cell_count>0?scroll.cell_count:1))*scroll.matrix_count);
 				
