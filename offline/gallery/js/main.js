@@ -285,7 +285,7 @@ var gallery = {
                 //alert();
                 if (MSIE)
                 {
-                    //alert(#scroll_v .scroll_body_v);
+
                 }
 			}
 		},
@@ -2842,9 +2842,9 @@ var scroll = {
 			    $.extend(scroll, config);
 			}
 			if(MSIE){
-				
-				scroll.height = ietruebody().clientHeight-$('#win_top').height()-$('#toolbar').height()-
-				$('.scroll_bot_v').height() - $('.scroll_top_v').height() - $('.scroll_polz_v_Top').height()-25;
+                var wheight=(window.innerHeight)?window.innerHeight:((document.all)?document.body.offsetHeight:null);
+				scroll.height = ietruebody().clientHeight-100-$('#toolbar').height()-
+				$('.scroll_bot_v').height() - $('.scroll_top_v').height() - $('.scroll_polz_v_Top').height() - 25;
 				
 				//Установка изображений через img
 				$('#scroll_v .scroll_polz_v_Top').html('<img src="./gallery/img/topScrolll.png" >');
@@ -2852,6 +2852,7 @@ var scroll = {
 				
 				// задаем высоту скрола
 				$(scroll.id + ' .scroll_body_v').height(scroll.height);
+                alert(scroll.height);
 				// высчитываем высоту ползунка в зависимости от элементов в матрице и всех элементов в диапазоне
 				h = Math.floor((scroll.height/(scroll.cell_count>0?scroll.cell_count:1))*scroll.matrix_count);
 				
