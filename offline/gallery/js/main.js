@@ -228,6 +228,10 @@ var gallery = {
 			// функция инициализации
 			init: function(){
 
+                if (MSIE)
+                {
+                    $("#content #win_bot, #content #win_bot_detail").css("top", $("#content #win_top").height() - 10);
+                }
 				var self = this;
 				if( typeof( window.innerWidth ) == 'number' ) {
 					//Non-IE
@@ -275,6 +279,14 @@ var gallery = {
 				} else {
 					gallery.cookie.set('resize_column', 300);
 				}
+
+                // Устанавливаю отступ блока просмотра контента от блока выбора камер
+                //$("#win_bot").css("position", "absolute");
+                //alert();
+                if (MSIE)
+                {
+                    //alert(#scroll_v .scroll_body_v);
+                }
 			}
 		},
 
@@ -1810,7 +1822,7 @@ var matrix = {
 			var sp = scroll.position;
 			
 			scroll.init({
-				height:matrix.height-82, 
+				height:matrix.height-82,
 				cell_count:Math.ceil(matrix.count_item/matrix.count_column), 
 				row_count: matrix.count_column, 
 				matrix_count: Math.ceil(matrix.cell_count/matrix.count_column)
@@ -2834,7 +2846,6 @@ var scroll = {
 				scroll.height = ietruebody().clientHeight-$('#win_top').height()-$('#toolbar').height()-
 				$('.scroll_bot_v').height() - $('.scroll_top_v').height() - $('.scroll_polz_v_Top').height()-25;
 				
-				
 				//Установка изображений через img
 				$('#scroll_v .scroll_polz_v_Top').html('<img src="./gallery/img/topScrolll.png" >');
 				$('#scroll_v .scroll_polz_v_Bottom').html('<img src="./gallery/img/bottomScrolll.png" >');
@@ -2876,7 +2887,6 @@ var scroll = {
 			$(scroll.id + ' .scroll_polz_v').height(h);
 			
 			}
-			
 			// обработка нажатия стрелки вверх на скроле
 			$(scroll.id + ' .scroll_top_v').unbind('click');
 			$(scroll.id + ' .scroll_top_v').click(function() {
@@ -2971,8 +2981,6 @@ var scroll = {
 					$('#cell_'+matrix.num).addClass('active');
 			});
 
-			
-			
 			scroll.position = 0;
 			$(scroll.id).show();
 		},

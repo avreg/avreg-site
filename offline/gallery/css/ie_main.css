@@ -106,9 +106,22 @@ a {
 	border: 1px solid #676767 !important;
 	background: url(../img/shadow.gif) repeat-x 0 0;
 }
-#content #win_top, #content #win_bot,  #content #win_bot_detail, #content #toolbar{
-	position: relative;
+
+#content #win_top
+{
+    position: fixed;
 }
+
+#content #win_bot, #content #win_bot_detail{
+	position: absolute;
+    /*top: 20%;*/
+}
+
+#content #toolbar
+{
+    position: relative;
+}
+
 
 #content #win_top .options {
 	clear: both;
@@ -129,13 +142,13 @@ a {
 #content #win_top  {
 	/*background: url(../img/shadow.gif) repeat-x 0 0;	
 	background-position: bottom;*/
-	height:auto !important;
-	height:100px;
+	/*height:auto !important;*/
+	/*height:100px;*/
 	background-color:#333;
 	overflow: hidden;
 	/*top:3px;
 	height: 70px;*/
-	width: 100%;
+	/*width: 100%;*/
 	/*position: absolute;*/
 	z-index: 10;
 	border: 2px solid #676767;
@@ -245,7 +258,7 @@ a {
   	border-radius: 10px 10px 10px 10px;
  	margin: 10px;
 	padding-right: 0 !important;
-	width: 100% !important;
+	/*width: 100% !important;*/
 }
 #sidebar #favorite {
 	/*background: url(../img/shadow.gif) repeat-x 0 0;*/
@@ -255,8 +268,8 @@ a {
 	margin: 10px;
 	background: none repeat scroll 0 0 #A29DB3;
     border-radius: 10px 10px 0 0;
-    width: 100% !important;
-/*	min-width: 240px;	
+    /*width: 100% !important;*/
+/*	min-width: 240px;
 	width:auto !important;
 	width:240px;
 */}
@@ -289,7 +302,7 @@ a {
 	color: #000 !important;
 }
 #handler_vertical {
-	position:absolute;
+	/*position:absolute;*/
 	height: 100%;
 	float: right;
 	width: 26px;
@@ -313,24 +326,24 @@ a {
 
 #scroll_v {
 	width:36px; 
-	height:auto; 
-	float:right; 
+	height:auto;
+	float:right;
 	display:none;
 	background-color: grey;
 	padding: 0;
-	position:absolute;
+	/*position:absolute;*/
 	top: 0;
 	cursor:default;
 }
 
 #scroll_v .scroll_top_v {
 	width:38px; 
-	height:42px; 
+	height:42px;
 	background:url(../img/scroll_top.png) no-repeat;
 	margin-left: -2px;
 }
 #scroll_v .scroll_body_v {
-	width:38px; 
+	width:38px;
 	position:relative;
 	}
 
@@ -776,7 +789,7 @@ div.block {
 	font-weight: 100;	
 }
 #tree {	
-	position:relative;	
+	position:relative;
 }
 .borderBot {
 	width:100%;
@@ -922,8 +935,8 @@ a, label,h2, button,span,div
 
 #content #win_top{
 	min-height: 80px;
-	height:auto !important;
-	height:80px;
+	/*height:auto !important;
+	height:80px;*/
 }
 #content #win_top.selectBox {
 	background-image: url('./images/BG_light.png');
@@ -1073,7 +1086,7 @@ a.set_camera_color:hover {
 /*	margin-right: -10px;*/
 }
 
-.to_main {	
+.to_main {
 	text-align: center;
 	opacity: 0.7;
 	width: 100%;
@@ -1091,5 +1104,3 @@ a.set_camera_color:hover {
 .aplayer {
 	margin: 2px 0 0 2px;
 }
-
-
