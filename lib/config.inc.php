@@ -18,7 +18,7 @@
 require ('/etc/avreg/site-defaults.php');
 
 // Проверяем, используется ли протокол https
-if (isset($_SERVER['SSL_TLS_SNI']))
+if (isset($_SERVER['HTTPS']))
 {
     $protocol = 'https';
 }

@@ -31,8 +31,11 @@ require ('../head.inc.php');
 
 //получение пользовательских раскладок
 $clients_layouts = array();
-$layouts_cookie = $_COOKIE['layouts'];
-unset($_COOKIE['layouts']);
+if (isset($_COOKIE['layouts']))
+{
+    $layouts_cookie = $_COOKIE['layouts'];
+    unset($_COOKIE['layouts']);
+}
 if (isset($layouts_cookie))
 {
     $tmp = json_decode($layouts_cookie, true);
@@ -44,35 +47,34 @@ if (isset($layouts_cookie))
         $l_cook = $tmp;
     }
 }
-else
-    $tmp = array();
 
-foreach ($tmp as $client_mon_nr=>$l_val){
-	$_data = array();
-	foreach ($l_val as $par_name=>$par_data){
-		$_data[$par_name]=$par_data;
-	}
-	$tmp_data = json_decode($_data['w']);
-	$_data['wins'] = array();
-	foreach ($tmp_data as $cell_nr=>$cell_data){
-		$_data['wins'][$cell_nr]=$cell_data;
-	}
-	
-	$clients_layouts[(int)$client_mon_nr] = array(
-// 			"BIND_MAC"=> "local",
-// 			"CHANGE_HOST"=> "anyhost",
-			"CHANGE_USER"=>$_data['u'],
-			"CHANGE_TIME"=>$_data['dd'],
-			"MON_NR"=>$client_mon_nr,
-			'MON_TYPE' => $_data['t'],
-			'SHORT_NAME' => $_data['n'],
-			'PRINT_CAM_NAME' => $_data['cn'],
-			'PROPORTION' => $_data['p'],
-			'RECONNECT_TOUT'=>$_data['rt'],
-			'IS_DEFAULT' => $_data['d'],
-			'WINS' => $_data['w']
-			);
-}
+if (isset($tmp))
+    foreach ($tmp as $client_mon_nr=>$l_val){
+        $_data = array();
+        foreach ($l_val as $par_name=>$par_data){
+            $_data[$par_name]=$par_data;
+        }
+        $tmp_data = json_decode($_data['w']);
+        $_data['wins'] = array();
+        foreach ($tmp_data as $cell_nr=>$cell_data){
+            $_data['wins'][$cell_nr]=$cell_data;
+        }
+
+        $clients_layouts[(int)$client_mon_nr] = array(
+    // 			"BIND_MAC"=> "local",
+    // 			"CHANGE_HOST"=> "anyhost",
+                "CHANGE_USER"=>$_data['u'],
+                "CHANGE_TIME"=>$_data['dd'],
+                "MON_NR"=>$client_mon_nr,
+                'MON_TYPE' => $_data['t'],
+                'SHORT_NAME' => $_data['n'],
+                'PRINT_CAM_NAME' => $_data['cn'],
+                'PROPORTION' => $_data['p'],
+                'RECONNECT_TOUT'=>$_data['rt'],
+                'IS_DEFAULT' => $_data['d'],
+                'WINS' => $_data['w']
+                );
+    }
 
 //Загрузка установленных раскладок
 $result = $adb->web_get_monitors($login_user);
@@ -87,7 +89,7 @@ if(!count($result)) {
 //Номер камеры по умолчанию
 $def_cam = null;
 $cur_layout = 0;
-
+$is_clients_layout_default = false;
 if(isset($_GET['layout_nr']) ){
 	//устанавливаем запрошенную раскладку
 	foreach($result as $key=>&$value){
@@ -101,20 +103,19 @@ if(isset($_GET['layout_nr']) ){
 	}
 }else{
 	//Поиск раскладки по умолчанию и определение реконнект таймаута
-	if (!is_array($l_cook))
-	   $l_cook = array();
-    foreach ($l_cook as $key=>$value)
-    {
-        if ($l_cook[$key]['d'] == 'true')
+	if (isset($l_cook))
+        foreach ($l_cook as $key=>$value)
         {
-            $is_clients_layout_default = true;
-            $cur_layout = (int)$key;
-            $def_cam = $value;
+            if ($l_cook[$key]['d'] == 'true')
+            {
+                $is_clients_layout_default = true;
+                $cur_layout = (int)$key;
+                $def_cam = $value;
+            }
+            if( !isset($value['RECONNECT_TOUT']) ){
+                $value['RECONNECT_TOUT'] = isset($conf['reconnect-timeout'])? $conf['reconnect-timeout'] : 0 ;
+            }
         }
-        if( !isset($value['RECONNECT_TOUT']) ){
-            $value['RECONNECT_TOUT'] = isset($conf['reconnect-timeout'])? $conf['reconnect-timeout'] : 0 ;
-        }
-    }
     if (!$is_clients_layout_default)
         foreach($result as $key=>&$value){
             if($value['IS_DEFAULT']!='0'){
@@ -159,8 +160,13 @@ if (!isset($mon_type) || empty($mon_type) || !array_key_exists($mon_type, $layou
 $l_defs = &$layouts_defs[$mon_type];
 $wins_nr = count($l_defs[3]);//определяет количество камер в раскладке
 
-$_cookie_value = sprintf('%s-%u-%u-%u-%s',
-$def_cam['WINS'], // implode('.', $cams_in_wins),
+$def_cam_wins = '';
+if (isset($def_cam['WINS']))
+    $def_cam_wins = $def_cam['WINS'];
+else
+    $def_cam_wins = $def_cam['w'];
+
+$_cookie_value = sprintf('%s-%u-%u-%u-%s', $def_cam_wins, // implode('.', $cams_in_wins),
 isset($OpenInBlankPage),
 isset($PrintCamNames),
 isset($EnableReconnect),
@@ -193,6 +199,7 @@ print "var cur_layout = $cur_layout; \n";
 
 // Устанавливаю путь
 print "var url_domen = '" . $conf['protocol'].$conf['url_domen'] . "';\n";
+print "var pref_domen = '" . $conf['prefix'] . "';\n";
 
 //Передаем в JS список существующих раскладок
 print "var layouts_list = ".json_encode($result).";\n";

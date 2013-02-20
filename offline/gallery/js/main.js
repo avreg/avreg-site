@@ -230,7 +230,7 @@ var gallery = {
 
                 if (MSIE)
                 {
-                    $("#content #win_bot, #content #win_bot_detail").css("top", $("#content #win_top").height() - 10);
+                    $("#content #win_bot, #content #win_bot_detail").css("top", 105);
                 }
 				var self = this;
 				if( typeof( window.innerWidth ) == 'number' ) {
