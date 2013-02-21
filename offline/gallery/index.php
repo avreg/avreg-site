@@ -301,6 +301,8 @@ $(function(){
 
 	// инициализация галереи	
 	gallery.init(conf);
+    document.ready = function(e){
+    }
 });
 </script>
 		

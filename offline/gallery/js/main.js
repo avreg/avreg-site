@@ -208,14 +208,21 @@ var gallery = {
 				var hc;
 
 				if(MSIE){
-					hc = $('#content').height() - $('#win_top').height() - $('#toolbar').height();
+					hc = $('#content').height() - 100/*$('#win_top').height()*/ - $('#toolbar').height();
 					hc -=30 ;
 
 				}else{
 					hc = $('#content').height() - gallery.hcameras - $('#toolbar').height();
 					hc-=23;
 				}
-
+                /*
+                alert('Вызвано в инициализации:\n' +
+                            'winbot height = ' + $('#win_bot').height() +
+                            '\nheight new = ' + hc +
+                            '\ntoolbar height = ' + $('#toolbar').height() +
+                            '\nwintop height = ' + $("#win_top").height() +
+                            '\ncontent height = ' + $("#content").height());
+                            //*/
 				$('#win_bot').height(hc);
 
 				if(MSIE){
@@ -223,7 +230,6 @@ var gallery = {
 				}else{
 					$('#page').width($('#sidebar').width()+$('#content').width());
 				}
-
 			},
 			// функция инициализации
 			init: function(){
@@ -1733,7 +1739,7 @@ var matrix = {
 
 		// обновляем ширину колонок
 		gallery.resize_column.resize($('#sidebar').width()-2);
-	
+
 		$('#tree').height($('#sidebar').height() - $('#type_event').height() - $('#favorite').height() - $('#statistics').height()-90);
 
 		// высчитываем размеры табнейлов
@@ -1757,15 +1763,23 @@ var matrix = {
 		var hc;
 		// обновляем размеры детального просмотра
 		if(MSIE){
-			hc = $('#content').height() - $('#win_top').height() - $('#toolbar').height();
+			hc = $('#content').height() - 100 - $('#toolbar').height();
 			hc -=30 ;
 			
 		}else{
 			hc = $('#content').height() - gallery.hcameras - $('#toolbar').height();
 			hc-=23;
 		}
-		
-		$('#win_bot').height(hc);
+        /*
+        alert('Вызвано в matrix resize:\n' +
+            'winbot height = ' + $('#win_bot').height() +
+            '\nheight new = ' + hc +
+            '\ntoolbar height = ' + $('#toolbar').height() +
+            '\nwintop height = ' + $("#win_top").height() +
+            '\ncontent height = ' + $("#content").height());
+            //*/
+
+        $('#win_bot').height(hc);
 		
 		$('#scroll_v').height(hc);
 		
