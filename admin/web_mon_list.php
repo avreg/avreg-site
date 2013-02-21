@@ -134,7 +134,7 @@ $clients_layouts = array();
 if (isset($_COOKIE['layouts']))
 {
     $layouts_cookie = $_COOKIE['layouts'];
-    unset($_COOKIE['layouts']);
+    //unset($_COOKIE['layouts']);
 }
 
 if (isset($layouts_cookie))

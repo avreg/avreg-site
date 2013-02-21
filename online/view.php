@@ -82,12 +82,22 @@ $result = $adb->web_get_monitors($login_user);
 //$result_ = $clients_layouts + $result;
 $result_tmp = array_merge($clients_layouts, $result);
 $result = $result_tmp;
-unset($result_tmp);
+
 //Если нет установленных раскладок
 if(!count($result)) {
 	print "NO AVAILABLE LAYOUTS";
 	exit();
 }
+
+$curr_mon_nr = 0;
+foreach ($result as $key=>$value)
+{
+    $result[$key]['MON_NR_ACTUALLY'] = $curr_mon_nr;
+    $curr_mon_nr += 1;
+}
+
+//print_r($result);
+
 //Номер камеры по умолчанию
 $def_cam = null;
 $cur_layout = 0;
@@ -95,9 +105,9 @@ $is_clients_layout_default = false;
 if(isset($_GET['layout_nr']) ){
 	//устанавливаем запрошенную раскладку
 	foreach($result as $key=>&$value){
-		if($value["MON_NR"]==$_GET['layout_nr']){
+		if($value["MON_NR_ACTUALLY"]==$_GET['layout_nr']){
 			$def_cam = $value;
-			$cur_layout = (int)$value["MON_NR"];
+			$cur_layout = (int)$value["MON_NR_ACTUALLY"];
 		}
 		if( !isset($value['RECONNECT_TOUT']) ){
 			$value['RECONNECT_TOUT'] = isset($conf['reconnect-timeout'])? $conf['reconnect-timeout'] : 0 ;
@@ -124,13 +134,9 @@ if(isset($_GET['layout_nr']) ){
                 $def_cam = $value;
                 $cur_layout = (int) $value["MON_NR"];
             }
-        }
-    }
-
-    foreach ($result as $key=>$value)
-    {
-        if (!isset($value['RECONNECT_TOUT'])){
-            $value['RECONNECT_TOUT'] = isset($conf['reconnect-timeout'])?$conf['reconnect-timeout']:5;
+            if (!isset($value['RECONNECT_TOUT'])){
+                $value['RECONNECT_TOUT'] = isset($conf['reconnect-timeout'])?$conf['reconnect-timeout']:5;
+            }
         }
     }
 }

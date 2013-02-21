@@ -1128,13 +1128,13 @@ function canvas_growth() {
 	   var html = '<div id="nav"><span>';
        console.log(layouts_list);
    	$.each(layouts_list, function(i, value){
-   		html+='<div class="layout'+((cur_layout==value.MON_NR)? ' selectedLayout':'' )+'" >';
+   		html+='<div class="layout'+((cur_layout==value.MON_NR_ACTUALLY)? ' selectedLayout':'' )+'" >';
    		html+='<a id="layout_'+value.MON_NR+'" class="layout_link"';
    		//html+=' onclick="change_layout('+value.MON_NR+')"  href="#">'; //динамическая смена раскладки - отключена
    		// html+=' href="?layout_nr='+value.MON_NR+'">';  //нединаимическая смена раскладки без использованиz пользовательских раскладок
 		
    		//нединаимическая смена раскладки c использованием пользовательских раскладок
-   		html+=' onclick="user_layouts.redirect(\''+url_domen+WwwPrefix+'/online/view.php?layout_nr='+value.MON_NR+'\', true);"  href="#">';
+   		html+=' onclick="user_layouts.redirect(\''+url_domen+WwwPrefix+'/online/view.php?layout_nr='+value.MON_NR_ACTUALLY+'\', true);"  href="#">';
    		
    		//переадресуем на онлайн просмотр
 // 		self.redirect(location.protocol+'//'+location.hostname+WwwPrefix+'/online/view.php', true);
