@@ -79,8 +79,10 @@ if (isset($tmp))
 //Загрузка установленных раскладок
 $result = $adb->web_get_monitors($login_user);
 
-$result = $clients_layouts + $result;
-
+//$result_ = $clients_layouts + $result;
+$result_tmp = array_merge($clients_layouts, $result);
+$result = $result_tmp;
+unset($result_tmp);
 //Если нет установленных раскладок
 if(!count($result)) {
 	print "NO AVAILABLE LAYOUTS";
@@ -116,16 +118,21 @@ if(isset($_GET['layout_nr']) ){
                 $value['RECONNECT_TOUT'] = isset($conf['reconnect-timeout'])? $conf['reconnect-timeout'] : 0 ;
             }
         }
-    if (!$is_clients_layout_default)
+    if (!$is_clients_layout_default){
         foreach($result as $key=>&$value){
             if($value['IS_DEFAULT']!='0'){
                 $def_cam = $value;
                 $cur_layout = (int) $value["MON_NR"];
             }
-            if( !isset($value['RECONNECT_TOUT']) ){
-                $value['RECONNECT_TOUT'] = isset($conf['reconnect-timeout'])? $conf['reconnect-timeout'] : 0 ;
-            }
         }
+    }
+
+    foreach ($result as $key=>$value)
+    {
+        if (!isset($value['RECONNECT_TOUT'])){
+            $value['RECONNECT_TOUT'] = isset($conf['reconnect-timeout'])?$conf['reconnect-timeout']:5;
+        }
+    }
 }
 
 //Если раскладка не определена - используем первую
