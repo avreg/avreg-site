@@ -156,7 +156,7 @@ function img_click(clicked_div) {
    var current_src=null;
    
    //если номер камеры не определен
-   if(win_nr == null ) return;
+   if(win_nr == null ){ return;}
    
    if ( FS_WIN_DIV ) {
       // current - fullscreen
@@ -204,7 +204,6 @@ function img_click(clicked_div) {
         $(clicked_div).css({'left': WIN_DIV_LEFT + 'px', 'top': WIN_DIV_TOP + 'px' });
          
       }
-
       for (i=0;i<WIN_DIVS.length;i++) {
           tmp_div=WIN_DIVS[i];
           if ( tmp_div == clicked_div ){
@@ -214,7 +213,6 @@ function img_click(clicked_div) {
          	 $(tmp_div).show();
           }
        }
-      
   	//меняем кнопку на Развернуть
       $('img.fs_tc', '#cell_header_'+win_nr)
       .height($('#cell_header_'+win_nr).height()-4)
@@ -246,7 +244,6 @@ function img_click(clicked_div) {
       WIN_DIV_TOP=clicked_div.offsetTop;
       IMG_IN_DIV_W=pl_cont.width();
       IMG_IN_DIV_H=pl_cont.height();
-
       //Сохраняем текущее значение высоты хидера
       CUR_WIN_HEADER_H = $('.cell_header', clicked_div_jq).height();
       if(CUR_WIN_HEADER_H==null)CUR_WIN_HEADER_H=0;
@@ -327,7 +324,6 @@ function img_click(clicked_div) {
  * @param header_height
  */
 function set_win_header_size(clicked_div_jq, header_height){
-	
 	if (PrintCamNames && $('.cell_header', clicked_div_jq).height()!= header_height ) {
 		var header = $('.cell_header', clicked_div_jq);
 		$(header).height(header_height); //Высота заголовка
@@ -365,7 +361,7 @@ function brout(win_nr, win_div, win_geo) {
 		'scale':'on', 
 		'mediaType' : 'mjpeg', 
 		'autostart':'on', 
-		'aplayer_rtsp_php':'http://'+SERVER_ADR+'/avreg/lib/js/aplayer_rtsp.php',
+		'aplayer_rtsp_php':'http://'+SERVER_ADR+WwwPrefix+'/lib/js/aplayer_rtsp.php',
 		'crossorigin' : (WEBKIT)? true:false
 	}); 
 			
@@ -1051,7 +1047,7 @@ function change_wins_geo() {
 
       win_def = WINS_DEF[win_nr];
       
-      if(win_def == null)return;
+      if(win_def == null) return;
       
       if ( win_def.rowspan == 1 && win_def.colspan == 1 ){
          win_geo = base_win_geo;
@@ -1218,7 +1214,7 @@ function canvas_growth() {
    		case '0':
    		case '1': //avregd
 
-   			cam_url = CAMS_URLS[cam_nr]['avregd'] ;// get_cam_http_url(conf, cam_nr,'mjpeg', true);
+   			cam_url = CAMS_URLS[cam_nr]['avregd'];// get_cam_http_url(conf, cam_nr,'mjpeg', true);
    	   		active_cams_srcs[i]['type']='avregd';
    	   		active_cams_srcs[i]['cell']=cam_url;
    	   		active_cams_srcs[i]['fs']=cam_url;

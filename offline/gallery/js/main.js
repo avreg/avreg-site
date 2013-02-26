@@ -1957,8 +1957,7 @@ var matrix = {
 		if (typeof( matrix.events[el_num]) == 'undefined') {
 			matrix.get_events(scroll.position);
 		}
-					
-	
+
 		if (typeof( matrix.events[el_num]) != 'undefined'){
 			value = matrix.events[el_num];
 

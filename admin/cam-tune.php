@@ -159,13 +159,13 @@ if ( isset($categories) )
 
                if ( $cam_nr>0 && array_key_exists($parname1, $def_params) ) {
                         list($DEF_VALUE, $DEF_CHANGE_HOST, $DEF_CHANGE_USER, $DEF_CHANGE_TIME) =
-               split('~',$def_params[$parname1]);
+               explode('~',$def_params[$parname1]);
                } else {
          $DEF_VALUE = NULL; $DEF_CHANGE_HOST=NULL; $DEF_CHANGE_USER=NULL; $DEF_CHANGE_TIME=NULL;
                }
                if ( array_key_exists($parname1, $cam_params) ) {
                         list($VALUE, $CHANGE_HOST, $CHANGE_USER, $CHANGE_TIME) =
-               split('~',$cam_params[$parname1]);
+               explode('~',$cam_params[$parname1]);
                         //print $cam_params[$parname1]."\n";
                } else {
          $VALUE = NULL; $CHANGE_HOST=NULL; $CHANGE_USER=NULL; $CHANGE_TIME=NULL;
