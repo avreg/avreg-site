@@ -18,7 +18,9 @@
  * - @ref pda 
  * 
  */
-
+session_start();
+if (isset($_SESSION['is_admin_mode']))
+    unset($_SESSION['is_admin_mode']);
 $NO_OB_END_FLUSH = true;
 
 $USE_JQUERY = true;

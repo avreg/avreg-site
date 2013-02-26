@@ -1,6 +1,7 @@
 <?php
 
-
+session_start();
+$_SESSION['is_admin_mode'] = true;
 /**
  * @file admin/index.php 
  * @brief Стартовая страница модуля 
@@ -24,7 +25,7 @@
  *  
  *  
  */
-
+require_once('../lib/config.inc.php');
 /// показывать body елемент
 $NOBODY=1;
 /// Тайтл страницы в файле переводов

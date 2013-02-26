@@ -6,6 +6,9 @@
  * Формирует страницу с раскладкой камер для наблюдения в режиме online
  * 
  */
+session_start();
+if (isset($_SESSION['is_admin_mode']))
+    unset($_SESSION['is_admin_mode']);
 $NO_OB_END_FLUSH = true; // for setcookie()
 $pageTitle = 'WebCam';
 $body_style='overflow: hidden;  overflow-y: hidden !important; padding: 0; margin: 0; width: 100%; height: 100%;';
@@ -132,7 +135,11 @@ if(isset($_GET['layout_nr']) ){
         foreach($result as $key=>&$value){
             if($value['IS_DEFAULT']!='0'){
                 $def_cam = $value;
-                $cur_layout = (int) $value["MON_NR"];
+                if (isset($l_cook))
+                    $cnt_client_lay = count($l_cook);
+                else
+                    $cnt_client_lay = 0;
+                $cur_layout = (int) $value["MON_NR"] + $cnt_client_lay;
             }
             if (!isset($value['RECONNECT_TOUT'])){
                 $value['RECONNECT_TOUT'] = isset($conf['reconnect-timeout'])?$conf['reconnect-timeout']:5;
@@ -208,11 +215,7 @@ if (isset($conf['aplayerConfig']) && !empty($conf['aplayerConfig']) && is_array(
 print "var online_check_period = {$conf['online-check-period']};\n";
 
 //устанавливаем номер текущей раскладки
-print "var cur_layout = $cur_layout; \n";
-
-// Устанавливаю путь
-print "var url_domen = '" . $conf['protocol'].$conf['url_domen'] . "';\n";
-print "var pref_domen = '" . $conf['prefix'] . "';\n";
+print "var cur_layout = $cur_layout;\n";
 
 //Передаем в JS список существующих раскладок
 print "var layouts_list = ".json_encode($result).";\n";
