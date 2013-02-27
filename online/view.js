@@ -361,10 +361,10 @@ function brout(win_nr, win_div, win_geo) {
 		'scale':'on', 
 		'mediaType' : 'mjpeg', 
 		'autostart':'on', 
-		'aplayer_rtsp_php':'http://'+SERVER_ADR+WwwPrefix+'/lib/js/aplayer_rtsp.php',
+		'aplayer_rtsp_php': url_domen+WwwPrefix+'/lib/js/aplayer_rtsp.php',
 		'crossorigin' : (WEBKIT)? true:false
-	}); 
-			
+	});
+
 	if ( MSIE ){
 		$(win_div).width(win_geo.win_w+CORRECT_W).height(win_geo.win_h+CORRECT_H);
 		$('.pl_cont',cont).aplayerSetSize({'height':win_geo.cam_h+CORRECT_H+2 , 'width': win_geo.cam_w+CORRECT_W+2});
@@ -1121,8 +1121,8 @@ function canvas_growth() {
 
    function layouts_to_list(){
 	   var html = '<div id="nav"><span>';
-       console.log(layouts_list);
-   	$.each(layouts_list, function(i, value){
+       //console.log(layouts_list);
+   	    $.each(layouts_list, function(i, value){
    		html+='<div class="layout'+((cur_layout==value.MON_NR_ACTUALLY)? ' selectedLayout':'' )+'" >';
    		html+='<a id="layout_'+value.MON_NR+'" class="layout_link"';
    		//html+=' onclick="change_layout('+value.MON_NR+')"  href="#">'; //динамическая смена раскладки - отключена

@@ -71,7 +71,7 @@ if($admin_user){
 ?>
 <script type="text/javascript">
 //JS-для установки раскладки по умолчанию
-function SetByDefault(layoutNum){alert(layoutNum);
+function SetByDefault(layoutNum){
 	$.ajax({"url":"web_set_def.php?layout="+layoutNum+" "})
 	.done(function(data){
 	if(data!='NULL'){
@@ -326,7 +326,15 @@ if ( !isset($mon_nr) || $mon_nr =='')
    //Выравниваем таблицы раскладок по центру элемента
    print '<script type="text/javascript"> $(".camlayout table").attr("align", "center");  </script>';
    
-   $mon_nr++;
+    // Выбираю максимальный индекс раскладки в базе данных
+    $max_mon_nr = 0;
+    foreach($LD as $key=>$value)
+    {
+        //if ($LD[$key]['MON_NR'] > $max_mon_nr)
+        $max_mon_nr = ($LD[$key]['MON_NR'] > $max_mon_nr)?$LD[$key]['MON_NR']:$max_mon_nr;
+    }
+    $mon_nr = $max_mon_nr + 1;
+
    //Создать новую раскладку
    print "<div style='clear:left;'><br>\n";
    if ( $admin_user)
