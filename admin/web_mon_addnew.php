@@ -99,7 +99,8 @@ if ( isset($cmd) ) {
 				$a = getSelectHtmlByName('mon_wins[]',	$wins_array, FALSE , 1, 1, '', TRUE, 'sel_change(this); show_sub_select(this);', '', NULL, $cams_srcs);
 
 				if($storage=='client'){ //Если раскладка создается на клиенте
-					print '<form action="'.$conf['protocol'].$conf['url_domen'].$conf['prefix'].'/online/'.'" onSubmit="return user_layouts.add_new();" method="POST">'."\n";
+					print '<form action="../online/'.'" onSubmit="return user_layouts.add_new();"
+					 method="POST">'."\n";
 				}else{ //Если раскладка создается на сервере
 					print '<form action="'.$_SERVER['PHP_SELF'].'"  onSubmit="return validate();" method="POST">'."\n";
 				}

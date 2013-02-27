@@ -6,7 +6,7 @@
 		$as_guest = 'guest';
 	}
 
-    $url_redirect = $conf['protocol'].$conf['url_domen']."/index.php?user=".$as_guest;
+    $url_redirect = "../index.php?user=".$as_guest;
 	header("location:".$url_redirect);
 	exit();
 ?>

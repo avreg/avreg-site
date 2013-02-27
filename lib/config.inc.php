@@ -17,23 +17,6 @@
 
 require ('/etc/avreg/site-defaults.php');
 
-// Проверяем, используется ли протокол https
-if (isset($_SERVER['HTTPS']))
-{
-    $protocol = 'https';
-}
-else
-{
-    $protocol = 'http';
-}
-
-// Получаю домен
-$domen = $_SERVER['HTTP_HOST'];
-
-$conf['protocol'] = $protocol.'://';
-$conf['url_domen'] = $domen;
-
-
 /// Путь к директории сайта
 $wwwdir = $conf['site-dir'] . '/';
 

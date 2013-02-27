@@ -43,8 +43,8 @@ print '<tr>'."\n";
 print '<td align="center" valign="top" nowrap class="main_td_ref" >'."\n";
 if ($allow_pda) {
 	print  '<div style="position:relative;" ><div class="mode_item" style="position:absolute; " >'."\n";
-	print '<a class="main_links" href="'.$conf['prefix'].'/pda/"><img   src="'.$conf['prefix'].'/img/pda.gif" border="0px" /></a>'."\n";
-	print '<p><a class="main_links" href="'.$conf['prefix'].'/pda/">PDA-версия</a></p>'."\n";
+	print '<a class="main_links" href="./pda/"><img   src="./img/pda.gif" border="0px" /></a>'."\n";
+	print '<p><a class="main_links" href="./pda/">PDA-версия</a></p>'."\n";
 	print  '</div ></div >'."\n";
 }
 print '</td>'."\n";
@@ -52,8 +52,9 @@ print '</td>'."\n";
 //online
 print '<td align="center" valign="top" class="main_td_ref" >'."\n";
 print  '<div style="position:relative;" ><div class="mode_item" style="position:absolute; " >'."\n";
-print '<a class="main_links" onclick="online(\''.$conf['protocol'].$conf['url_domen'].$conf['prefix'].'/online/index.php\');" href="#" title="'.$a_webcam.'"><img   src="'.$conf['prefix'].'/img/online.jpg" width="251" height="165" border="0"></a>'."\n";
-print '<p><a class="main_links" onclick="online(\''.$conf['protocol'].$conf['url_domen'].$conf['prefix'].'/online/index.php\');" href="#">'.$a_webcam.'</a></p>'."\n";
+print '<a class="main_links" onclick="online(\'./online/index.php\');" href="#" title="'.$a_webcam.'"><img
+src="./img/online.jpg" width="251" height="165" border="0"></a>'."\n";
+print '<p><a class="main_links" onclick="online(\''.'./online/index.php\');" href="#">'.$a_webcam.'</a></p>'."\n";
 print  '</div ></div >'."\n";
 print '</td>'."\n";
 //админка
@@ -61,7 +62,7 @@ print '<td align="center" valign="top" class="main_td_ref" >'."\n";
 if ( $admin_user /* config.inc.php */ ) {
    $href3=sprintf($conf['prefix'].'/admin/index.php?sip=%s&amp;named=%s',$sip,$named);
    print  '<div style="position:relative;" ><div class="mode_item" style="position:absolute; " >'."\n";
-   print '<a class="main_links" href="'.$href3.'" title="'.$a_adminv.'"><img   src="'.$conf['prefix'].'/img/admin.jpg" width="251" height="165" border="0"></a>'."\n";
+   print '<a class="main_links" href="'.$href3.'" title="'.$a_adminv.'"><img   src="./img/admin.jpg" width="251" height="165" border="0"></a>'."\n";
    print '<p align="center"><a class="main_links" href="'.$href3.'">'.$a_adminv.'</a></p>'."\n";
    print  '</div ></div >'."\n";
 } else {
@@ -77,24 +78,24 @@ if ( $arch_user ) {
    //Архив :: поиск
    print '<td align="center" valign="top" class="main_td_ref" >'."\n";
    print  '<div style="position:relative;" ><div class="mode_item" style="position:absolute; " >'."\n";
-   print '<a class="main_links" href="'.$conf['prefix'].'/offline/index.php" title="'.$a_archive.'"><img   src="'.$conf['prefix'].'/img/offline.jpg" width="251" height="165" border="0"></a>'."\n";
-   print '<p><a class="main_links" href="'.$conf['prefix'].'/offline/index.php">'.$a_archive.'</a></p>'."\n";
+   print '<a class="main_links" href="./offline/index.php" title="'.$a_archive.'"><img   src="./img/offline.jpg" width="251" height="165" border="0"></a>'."\n";
+   print '<p><a class="main_links" href="./offline/index.php">'.$a_archive.'</a></p>'."\n";
    print  '</div ></div >'."\n";
    print '</td>'."\n";
    
    //Архив :: плейлист
    print '<td align="center" valign="top" class="main_td_ref" >'."\n";
    print  '<div style="position:relative;" ><div class="mode_item" style="position:absolute; " >'."\n";
-   print '<a class="main_links" href="'.$conf['prefix'].'/offline/playlist.php"><img   src="'.$conf['prefix'].'/img/offline_playlist.jpg" width="251" height="165" border="0"></a>'."\n";
-   print '<p align="center"><a class="main_links" href="'.$conf['prefix'].'/offline/playlist.php">'.$a_archive_playlist.'</a></p>'."\n";
+   print '<a class="main_links" href="./offline/playlist.php"><img   src="./img/offline_playlist.jpg" width="251" height="165" border="0"></a>'."\n";
+   print '<p align="center"><a class="main_links" href="./offline/playlist.php">'.$a_archive_playlist.'</a></p>'."\n";
    print  '</div ></div >'."\n";
    print '</td>'."\n";
    
    //Gallery
    print '<td align="center" valign="top" class="main_td_ref" >'."\n";
    print  '<div style="position:relative;" ><div class="mode_item" style="position:absolute; " >'."\n";
-   print '<a class="main_links" href="'.$conf['prefix'].'/offline/gallery.php"><img src="'.$conf['prefix'].'/img/offline_gallery.png" width="251" height="165" border="0"></a>'."\n";
-   print '<p align="center"><a class="main_links" href="'.$conf['prefix'].'/offline/gallery.php">'.$a_archive_gallery.'</a></p>'."\n";
+   print '<a class="main_links" href="./offline/gallery.php"><img src="./img/offline_gallery.png" width="251" height="165" border="0"></a>'."\n";
+   print '<p align="center"><a class="main_links" href="./offline/gallery.php">'.$a_archive_gallery.'</a></p>'."\n";
    print  '</div ></div >'."\n";
     
    print '</td>'."\n";

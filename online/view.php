@@ -437,9 +437,6 @@ print 'var ___abenc="'.base64_encode($user_info['USER'].':'.$_SERVER["PHP_AUTH_P
 print "var WINS_NR = $wins_nr;\n";
 print "var ROWS_NR = $l_defs[1];\n";
 print "var COLS_NR = $l_defs[2];\n";
-echo "var PROTOCOL = '" . $conf['protocol']."';\n";
-echo "var SERVER_ADR = '" . $conf['url_domen'].$conf['prefix']."';\n";
-//print "var SERVER_ADR = '{$conf['url_domen']}';\n";
 
 print "var REF_MAIN = ".(($install_user || $admin_user || $arch_user )? 'true':'false').";\n";
 

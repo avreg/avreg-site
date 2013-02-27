@@ -285,7 +285,9 @@ if ( !isset($mon_nr) || $mon_nr =='')
             return 0;
         return ($val1['count_cells'] < $val2['count_cells']) ? -1 : 1;
     }
+
    $sort = usort($LD, 'cmp');
+
    //Создание перечня готовых раскладок
    $mon_nr=0;
    $counter = 1;
@@ -316,7 +318,7 @@ if ( !isset($mon_nr) || $mon_nr =='')
         print '</div>'. "\n";
         if ( $admin_user ) {
         	print '<br><a href="'.$_SERVER['PHP_SELF'].'?cmd=DEL&display='.$display.'&mon_nr='.$LD[$mon_nr]['MON_NR'].'&mon_name='.$LD[$mon_nr]['layout_name'].'&counter='.$counter.'">'. $GLOBALS['strDelete'] . '</a>&nbsp;/&nbsp;';
-        	print '<a href="'.$GLOBALS['conf']['prefix'].'/admin/web_mon_tune.php?display='.$display.'&mon_nr='.$mon_nr.'&mon_name='.$LD[$mon_nr]['layout_name'].'&mon_type='.$LD[$mon_nr]['layout_type'].'&counter='.$counter.'">'. $GLOBALS['strEdit'] . '</a>' . "\n";
+        	print '<a href="'.$GLOBALS['conf']['prefix'].'/admin/web_mon_tune.php?display='.$display.'&mon_nr='.$LD[$mon_nr]['MON_NR'].'&mon_name='.$LD[$mon_nr]['layout_name'].'&mon_type='.$LD[$mon_nr]['layout_type'].'&counter='.$counter.'">'. $GLOBALS['strEdit'] . '</a>' . "\n";
         }
     }
       print "</div></form>\n";

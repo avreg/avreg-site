@@ -79,11 +79,6 @@ if ( isset($USE_JQUERY) ) {
     }
     <?php
     printf("var WwwPrefix  = '%s';\n", addcslashes($conf['prefix'], '\'"/\\'));
-    printf("var Protocol = '%s';\n",   addcslashes($conf['protocol'], '\'"/\\' ));
-    printf("var HostName = '%s';\n",   addcslashes($conf['url_domen'], '\'"/\\'));
-    // Устанавливаю путь
-    print "var url_domen = '" . $conf['protocol'].$conf['url_domen'] . "';\n";
-    print "var pref_domen = '" . $conf['prefix'] . "';\n";
 ?>
 </script>
 
