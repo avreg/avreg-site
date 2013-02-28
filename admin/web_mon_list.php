@@ -55,6 +55,8 @@ $link_javascripts=array(
 				'lib/js/user_layouts.js',
 				'lib/js/json2.js');
 
+/* Если не установлено ни одной раскладки (как клиентом, так и администратором),
+перенаправляем на создание пользовательской раскладки*/
 require ('../head.inc.php');
 require ('../admin/mon-type.inc.php');
 $user_l_cook = "user_layouts.setCookie('layouts',
@@ -138,7 +140,6 @@ if (!isset($_SESSION['is_admin_mode']))
     if (isset($_COOKIE['layouts']))
     {
         $layouts_cookie = $_COOKIE['layouts'];
-        //unset($_COOKIE['layouts']);
     }
 
     if (isset($layouts_cookie))
@@ -287,7 +288,6 @@ if ( !isset($mon_nr) || $mon_nr =='')
     }
 
    $sort = usort($LD, 'cmp');
-
    //Создание перечня готовых раскладок
    $mon_nr=0;
    $counter = 1;
@@ -332,7 +332,6 @@ if ( !isset($mon_nr) || $mon_nr =='')
     $max_mon_nr = 0;
     foreach($LD as $key=>$value)
     {
-        //if ($LD[$key]['MON_NR'] > $max_mon_nr)
         $max_mon_nr = ($LD[$key]['MON_NR'] > $max_mon_nr)?$LD[$key]['MON_NR']:$max_mon_nr;
     }
     $mon_nr = $max_mon_nr + 1;

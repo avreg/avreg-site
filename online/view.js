@@ -1391,7 +1391,7 @@ function canvas_growth() {
 
         	   $('#tb_contn').prepend('<td><div class="to_main"> <a href="../index.php" >На главную </a> </div> </td>');
            }
-// TODO Кнопка пользовательских раскладок
+            // TODO Кнопка пользовательских раскладок
            $('#tb_contn').append('<td><div id="user_layouts" class="user_layouts" onclick="clients_layouts_list();" > <a href="#" >Раскладки</a> </div> </td>');
            
            canvas_growth();

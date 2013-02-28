@@ -88,8 +88,8 @@ $result = $result_tmp;
 
 //Если нет установленных раскладок
 if(!count($result)) {
-	print "NO AVAILABLE LAYOUTS";
-	exit();
+    echo "<script type=text/javascript>user_layouts.redirect('../admin/web_mon_addnew.php?storage=client&mon_nr=0&counter=1');</script>";
+    exit();
 }
 
 $curr_mon_nr = 0;
