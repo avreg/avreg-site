@@ -18,7 +18,7 @@ function prt_l ($display, $l_nr, $l_def, $is_admin, $layout_word, $counter, $Asp
 	if($PrintCamNames==1 || $PrintCamNames=="t") $PCN = true;
 	else $PCN=false;
 	print "<div>\n";
-	print "<span style=\"font-size:20px; font-weight:bold\">$layout_word №".$counter." ID: $l_nr </span>\n<br />\n<span style=\"font-size:16px; font-weight:bold\">";
+	print "<span style=\"font-size:20px; font-weight:bold\">$layout_word ID: $l_nr </span>\n<br />\n<span style=\"font-size:16px; font-weight:bold\">";
 	if ( !empty($l_def['layout_name']))
 	print $l_def['layout_name']."</span>\n";
 	else
