@@ -252,14 +252,13 @@ function img_click(clicked_div) {
       set_win_header_size(clicked_div_jq, NAME_DIV_H);
 
       win_geo = new calc_win_geo(CANVAS_W, CANVAS_H, CamsAspectRatio, 1, 1, 1);
-      alert(win_geo.cam_h +'\n'+win_geo.com_w);
+      //alert(win_geo.cam_h +'\n'+win_geo.cam_w);
       clicked_div_jq.css('top',  calc_win_top (win_geo, 0));
       clicked_div_jq.css('left', calc_win_left(win_geo, 0));
   
       $('.pl_cont',clicked_div_jq)
 	      .width(win_geo.cam_w+CORRECT_W)
 	      .height(win_geo.cam_h+CORRECT_H);
-
       //меняем на источник для ячейки
       if (active_cams_srcs[win_nr]['type']!='avregd'){
     	  if(active_cams_srcs[win_nr]['fs']!=null || active_cams_srcs[win_nr]['fs']!='')
