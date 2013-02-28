@@ -59,7 +59,7 @@ require ('../head.inc.php');
 require ('../admin/mon-type.inc.php');
 $user_l_cook = "user_layouts.setCookie('layouts',
                                        JSON.stringify(user_layouts.client_layouts),
-                                       '',
+                                       new Date() + 1,
                                        '/',
                                        window.location.hostname,
                                        ''

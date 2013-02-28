@@ -9,6 +9,7 @@
 session_start();
 if (isset($_SESSION['is_admin_mode']))
     unset($_SESSION['is_admin_mode']);
+
 $NO_OB_END_FLUSH = true; // for setcookie()
 $pageTitle = 'WebCam';
 $body_style='overflow: hidden;  overflow-y: hidden !important; padding: 0; margin: 0; width: 100%; height: 100%;';
@@ -30,7 +31,6 @@ $body_addons='scroll="no"';
 $ie6_quirks_mode = true;
 $lang_file='_online.php';
 require ('../head.inc.php');
-
 
 //получение пользовательских раскладок
 $clients_layouts = array();
@@ -192,7 +192,6 @@ isset($PrintCamNames),
 isset($EnableReconnect),
 isset($AspectRatio) ? $AspectRatio : 'calc' );
 
-setcookie("avreg_$mon_type", $_cookie_value, time()+5184000, dirname($_SERVER['SCRIPT_NAME']).'/build_mon.php');
 while (@ob_end_flush());
 
 ?>

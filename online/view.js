@@ -1340,9 +1340,12 @@ function canvas_growth() {
 		//Передаем параметры пользовательских раскладок
    		var url = '../admin/web_mon_list.php';
 	   	if(user_layouts.isLocalStorageAvailable()){
-   			if(user_layouts.client_layouts_json){
+           if(user_layouts.client_layouts_json==undefined){
+                   this.setCookie('layouts', '', -1, '/', window.location.hostname, '');
+           }
+   			else if(user_layouts.client_layouts_json){
                 var lay_user = JSON.stringify(user_layouts.client_layouts);
-                user_layouts.setCookie('layouts', JSON.stringify(user_layouts.client_layouts), '', '/', document.location.hostname, '');
+                user_layouts.setCookie('layouts', JSON.stringify(user_layouts.client_layouts), 86400, '/', document.location.hostname, '');
 
    			}
    			window.open(url, '_self');
@@ -1384,8 +1387,9 @@ function canvas_growth() {
            $("#toolbar").addClass('toolbar_style');
            //Выводим список раскладок
             $("#toolbar table tr").html('<td> <table><tr id="tb_contn"><td>'+ layouts_to_list()+'</td></tr></table></td>');
-           //добавляем кнопку на главную
+           //добавляем кнопку на главнуюa
            if(REF_MAIN){
+
         	   $('#tb_contn').prepend('<td><div class="to_main"> <a href="../index.php" >На главную </a> </div> </td>');
            }
 // TODO Кнопка пользовательских раскладок
