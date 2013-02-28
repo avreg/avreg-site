@@ -141,7 +141,7 @@ function img_mouseover(cell, win_nr) {
  */
 
 function img_click(clicked_div) {
-	
+
 //   var pl_cont = $('img',clicked_div);
 	var pl_cont = $('.pl_cont',clicked_div);
 	
@@ -157,7 +157,7 @@ function img_click(clicked_div) {
    
    //если номер камеры не определен
    if(win_nr == null ){ return;}
-   
+
    if ( FS_WIN_DIV ) {
       // current - fullscreen
 	      //меняем на источник для ячейки
@@ -361,7 +361,10 @@ function brout(win_nr, win_div, win_geo) {
 		'mediaType' : 'mjpeg', 
 		'autostart':'on', 
 		'aplayer_rtsp_php':'../lib/js/aplayer_rtsp.php',
-		'crossorigin' : (WEBKIT)? true:false
+		'crossorigin' : (WEBKIT)? true:false,
+        'amc_onclick' : function(player_nr){
+            img_click(document.getElementById('win'+win_nr));
+         }
 	});
 
 	if ( MSIE ){
