@@ -1391,7 +1391,7 @@ function canvas_growth() {
            
            $("#toolbar").addClass('toolbar_style');
            //Выводим список раскладок
-            $("#toolbar table tr").html('<td> <table><tr id="tb_contn"><td>'+ layouts_to_list()+'</td></tr></table></td>');
+            $("#toolbar table tr").html('<td> <table><tr id="tb_contn"><td width="1000%">'+ layouts_to_list()+'</td></tr></table></td>');
            //добавляем кнопку на главнуюa
            if(REF_MAIN){
 
