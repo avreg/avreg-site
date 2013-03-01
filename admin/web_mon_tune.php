@@ -192,7 +192,7 @@ if (isset($cmd)) {
 
       if($storage=='client'){ //Если раскладка создается на клиенте
       	$redirect_url = $conf['prefix'].'/admin/web_mon_list.php';
-      	print '<form action="'.$conf['prefix'].'/online/'.'" onSubmit="user_layouts.tune_save('.$mon_nr.', \''.$redirect_url.'\');" method="POST">'."\n";
+      	print '<form action="'.$conf['prefix'].'/online/'.'" onSubmit="user_layouts.tune_save(\''.$mon_nr.'UL'.'\', \''.$redirect_url.'\');" method="POST">'."\n";
       }else{ //Если раскладка создается на сервере
       	print '<form action="'.$_SERVER['PHP_SELF'].'"  onSubmit="return validate();" method="POST">'."\n";
       }
@@ -202,7 +202,7 @@ if (isset($cmd)) {
       print '&nbsp;&nbsp;&nbsp;'.$strName.': <input type="text" name="mon_name" size=16 maxlength=16 value="'.$mon_name.'">'."\n";
       layout2table ( $mon_type, ($mon_type == 'QUAD_25_25')? 400:300, $aaa);
       print '<input type="hidden" name="cmd" value="_ADD_NEW_MON_OK_">'."\n";
-      print '<input type="hidden" name="mon_nr" value="'.$mon_nr.'">'."\n";
+      print '<input type="hidden" name="mon_nr" value="'.$mon_nr.'UL'.'">'."\n";
       print '<input type="hidden" name="counter" value="'.$counter.'">'."\n";
       print '<input type="hidden" name="mon_type" value="'.$mon_type.'">'."\n";
       

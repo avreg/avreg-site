@@ -92,13 +92,12 @@ if(!count($result)) {
     exit();
 }
 
-$curr_mon_nr = 0;
-foreach ($result as $key=>$value)
-{
-    $result[$key]['MON_NR_ACTUALLY'] = $curr_mon_nr;
-    $curr_mon_nr += 1;
-}
-
+//$curr_mon_nr = 0;
+//foreach ($result as $key=>$value)
+//{
+//    $result[$key]['MON_NR_ACTUALLY'] = $curr_mon_nr;
+//    $curr_mon_nr += 1;
+//}
 //print_r($result);
 
 //Номер камеры по умолчанию
@@ -108,9 +107,9 @@ $is_clients_layout_default = false;
 if(isset($_GET['layout_nr']) ){
 	//устанавливаем запрошенную раскладку
 	foreach($result as $key=>&$value){
-		if($value["MON_NR_ACTUALLY"]==$_GET['layout_nr']){
+		if($value["MON_NR"]==$_GET['layout_nr']){
 			$def_cam = $value;
-			$cur_layout = (int)$value["MON_NR_ACTUALLY"];
+			$cur_layout = $value["MON_NR"];
 		}
 		if( !isset($value['RECONNECT_TOUT']) ){
 			$value['RECONNECT_TOUT'] = isset($conf['reconnect-timeout'])? $conf['reconnect-timeout'] : 0 ;
@@ -124,7 +123,7 @@ if(isset($_GET['layout_nr']) ){
             if ($l_cook[$key]['d'] == 'true')
             {
                 $is_clients_layout_default = true;
-                $cur_layout = (int)$key;
+                $cur_layout = $key;
                 $def_cam = $value;
             }
             if( !isset($value['RECONNECT_TOUT']) ){
@@ -139,7 +138,7 @@ if(isset($_GET['layout_nr']) ){
                     $cnt_client_lay = count($l_cook);
                 else
                     $cnt_client_lay = 0;
-                $cur_layout = (int) $value["MON_NR"] + $cnt_client_lay;
+                $cur_layout = $value["MON_NR"] + $cnt_client_lay;
             }
             if (!isset($value['RECONNECT_TOUT'])){
                 $value['RECONNECT_TOUT'] = isset($conf['reconnect-timeout'])?$conf['reconnect-timeout']:5;
@@ -150,6 +149,7 @@ if(isset($_GET['layout_nr']) ){
 
 //Если раскладка не определена - используем первую
 if ($def_cam == null){
+    $cur_layout = -1;
 	$def_cam = $result[0];
 }
 
@@ -214,7 +214,7 @@ if (isset($conf['aplayerConfig']) && !empty($conf['aplayerConfig']) && is_array(
 print "var online_check_period = {$conf['online-check-period']};\n";
 
 //устанавливаем номер текущей раскладки
-print "var cur_layout = $cur_layout;\n";
+print "var cur_layout = '$cur_layout';\n";
 
 //Передаем в JS список существующих раскладок
 print "var layouts_list = ".json_encode($result).";\n";

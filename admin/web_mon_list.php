@@ -41,7 +41,7 @@ function prt_l ($display, $l_nr, $l_def, $is_admin, $layout_word, $counter, $Asp
     if ($is_admin)
         $onchange = "SetByDefault($l_nr);";
     else
-        $onchange = "user_layouts.setUserLayoutsDefault($l_nr);";
+        $onchange = "user_layouts.setUserLayoutsDefault('$l_nr');";
     $isDefault = ($isDefault==1)?true:false;
 	print "<input type=\"radio\" name=\"ByDefault\" ".($isDefault?'checked="checked"':'')." onchange=\"$onchange\" /></div>\n";
 	print '</div> <br /><br />' . "\n";
@@ -163,7 +163,7 @@ if (!isset($_SESSION['is_admin_mode']))
             foreach ($tmp_data as $cell_nr=>$cell_data){
                 $_data['wins'][$cell_nr]=$cell_data;
             }
-            $clients_layouts[(int)$client_mon_nr] = array(
+            $clients_layouts[$client_mon_nr] = array(
                     'layout_type' => $_data['t'],
                     'layout_name' => $_data['n'],
                     'CHANGE_TIME' => $_data['dd'],
@@ -214,7 +214,7 @@ if (!isset($_SESSION['is_admin_mode']))
 
                     //print '<br><a onclick="user_layouts.remove('.$client_mon_nr.')" href="#">'. $GLOBALS['strDelete'] . '</a>&nbsp;/&nbsp;';
                     $url = $GLOBALS['conf']['prefix'].'/admin/web_mon_list.php';
-                    print '<br><a onclick="user_layouts.remove('.$client_mon_nr.', \''.$url.'\')" href="#">'. $GLOBALS['strDelete'] . '</a>&nbsp;/&nbsp;';
+                    print '<br><a onclick="user_layouts.remove(\''.$client_mon_nr.'\', \''.$url.'\')" href="#">'. $GLOBALS['strDelete'] . '</a>&nbsp;/&nbsp;';
 
                     $url = $GLOBALS['conf']['prefix'].'/admin/web_mon_tune.php?display='.$display
                     .'&storage=client'
@@ -222,7 +222,7 @@ if (!isset($_SESSION['is_admin_mode']))
                     .'&mon_name='.$clients_layouts[$client_mon_nr]['layout_name']
                     .'&mon_type='.$clients_layouts[$client_mon_nr]['layout_type']
                     .'&counter='.$client_counter;
-                    print '<a onclick="return user_layouts.to_tune_mode('.$client_mon_nr.', \''.$url.'\')" href="#">'. $GLOBALS['strEdit'] . '</a>' . "\n";
+                    print '<a onclick="return user_layouts.to_tune_mode(\''.$client_mon_nr.'\', \''.$url.'\')" href="#">'. $GLOBALS['strEdit'] . '</a>' . "\n";
 
                 }
             }
@@ -233,7 +233,10 @@ if (!isset($_SESSION['is_admin_mode']))
         //Выравниваем таблицы раскладок по центру элемента
         print '<script type="text/javascript"> $(".camlayout table").attr("align", "center");  </script>';
 
+
+        $client_mon_nr = (int) $client_mon_nr;
         $client_mon_nr++;
+
         //Создать новую раскладку
         print "<div style='clear:left;'><br>\n";
 

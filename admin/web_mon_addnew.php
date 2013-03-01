@@ -59,8 +59,7 @@ echo '<h1>' . sprintf($web_r_mons,$named,$sip) . '</h1>' ."\n";
 if ( !isset($mon_nr) || $mon_nr =='')
 	die('empty $mon_nr');
 
-if (!settype($mon_nr,'int'))
-	die('$mon_nr is\'t integer value');
+if (!settype($mon_nr,'int'))die('$mon_nr is\'t integer value');
 	
 if ($mon_nr < 0 )
 	die('Error: $mon_nr < 0');
@@ -108,7 +107,7 @@ if ( isset($cmd) ) {
 				layout2table ( $mon_type, ($mon_type == 'QUAD_25_25')? 500:400, NULL,  $a);
 				
 				print '<input type="hidden" name="cmd" value="_ADD_NEW_MON_OK_">'."\n";
-				print '<input type="hidden" name="mon_nr" value="'.$mon_nr.'">'."\n";
+				print '<input type="hidden" name="mon_nr" value="'.$mon_nr.'UL'.' ">'."\n";
 				print '<input type="hidden" name="mon_name" value="'.$mon_name.'">'."\n";
 				print '<input type="hidden" name="mon_type" value="'.$mon_type.'">'."\n";
 
@@ -207,8 +206,11 @@ if ( isset($cmd) ) {
    
    print '<input type="hidden" name="cmd" value="_ADD_NEW_MON_">'."\n";
    print '<input type="hidden" name="storage" value="'.$storage.'">'."\n";
-   print '<input type="hidden" name="mon_nr" value="'.$mon_nr.'">'."\n";
-
+   if($storage=='client'){
+        print '<input type="hidden" name="mon_nr" value="'.$mon_nr.'UL'.'">'."\n";
+   }else{
+       print '<input type="hidden" name="mon_nr" value="'.$mon_nr.'">'."\n";
+   }
    
    //Кнопки формы 
    print '<input type="submit" name="btn" value="'.$l_mon_addnew.'">'."\n";

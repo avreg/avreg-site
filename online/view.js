@@ -1123,16 +1123,19 @@ function canvas_growth() {
 
    function layouts_to_list(){
 	   var html = '<div id="nav"><span>';
-       //console.log(layouts_list);
-   	    $.each(layouts_list, function(i, value){
-   		html+='<div class="layout'+((cur_layout==value.MON_NR_ACTUALLY)? ' selectedLayout':'' )+'" >';
-   		html+='<a id="layout_'+value.MON_NR+'" class="layout_link"';
+        $.each(layouts_list, function(i, value){
+        if(cur_layout<0){
+            cur_layout = layouts_list[0].MON_NR;
+        }
+   		html+='<div class="layout'+((cur_layout==value.MON_NR)? ' selectedLayout':'' )+'" >';
+
+        html+='<a id="layout_'+value.MON_NR+'" class="layout_link"';
    		//html+=' onclick="change_layout('+value.MON_NR+')"  href="#">'; //динамическая смена раскладки - отключена
    		// html+=' href="?layout_nr='+value.MON_NR+'">';  //нединаимическая смена раскладки без использованиz пользовательских раскладок
 		
    		//нединаимическая смена раскладки c использованием пользовательских раскладок
-   		html+=' onclick="user_layouts.redirect(\''+'../online/view.php?layout_nr='+value.MON_NR_ACTUALLY+'\', true);"  href="#">';
-   		
+   		html+=' onclick="user_layouts.redirect(\''+'../online/view.php?layout_nr='+value.MON_NR+'\', true);"  href="#">';
+
    		//переадресуем на онлайн просмотр
 // 		self.redirect(location.protocol+'//'+location.hostname+WwwPrefix+'/online/view.php', true);
 //   		html+=' href="?layout_nr='+value.MON_NR+'">';
@@ -1173,7 +1176,7 @@ function canvas_growth() {
    $.aplayer.scale = new Array();
    	
    	cur_layout = mon_nr;
-   	
+
    	//Устанавливаем целевую раскладку
    	$.each(layouts_list, function(i, value){
    		if(value['MON_NR']==mon_nr){

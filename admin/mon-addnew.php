@@ -40,7 +40,7 @@ if ( !isset($mon_nr) || $mon_nr =='' || empty($display) )
 
 if (!settype($mon_nr,'int'))
 	die('$mon_nr is\'t integer value');
-	
+
 if ($mon_nr < 0 || $mon_nr > 9)
 	die('$mon_nr in\'t in [0..9]');
 
