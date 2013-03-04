@@ -213,8 +213,6 @@
 			<li class="camera_14_color"></li>
 			<li class="camera_15_color"></li>
 			<li class="camera_16_color"></li>
-			
-		
 		</ul>
 	</div>
 	<div class="window_button">
