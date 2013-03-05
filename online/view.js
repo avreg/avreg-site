@@ -1616,7 +1616,7 @@ function canvas_growth() {
 		 $(e.currentTarget).addClass('cursorMove');
 		 return false;
 	});
-	$('#canvas').mouseup(function(e){ 
+	$('#canvas').mouseup(function(e){
 		$('.MediaCont').removeClass('cursorMove');
 	});
    
@@ -1727,7 +1727,7 @@ var controls_handlers = {
 	original_size : new Array(),
 	
 	//устанавливает активной кнопку play
-	activate_btn_play : function(win_nr){
+	activate_btn_play : function(win_nr){alert(1);
 		$('#pl_stop_'+win_nr).hide();
 		$('#pl_start_'+win_nr).show();		
 	},
