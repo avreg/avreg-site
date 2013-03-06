@@ -1727,7 +1727,7 @@ var controls_handlers = {
 	original_size : new Array(),
 	
 	//устанавливает активной кнопку play
-	activate_btn_play : function(win_nr){alert(1);
+	activate_btn_play : function(win_nr){
 		$('#pl_stop_'+win_nr).hide();
 		$('#pl_start_'+win_nr).show();		
 	},
