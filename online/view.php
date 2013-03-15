@@ -295,10 +295,10 @@ $cams_urls = array();
 foreach ($GCP_cams_params as $key=>$value){
 	$cu = array(
 	"avregd"=>get_cam_http_url($conf, $key, 'mjpeg', true),
-	 "cell_url_alt_1"=> get_cam_alt_url($GCP_cams_params[$key]['cell_url_alt_1'], $key, true),
-	 "fs_url_alt_1"=> get_cam_alt_url($GCP_cams_params[$key]['fs_url_alt_1'], $key, true),
-	 "cell_url_alt_2"=> get_cam_alt_url( $GCP_cams_params[$key]['cell_url_alt_2'], $key, true),
-	 "fs_url_alt_2"=>get_cam_alt_url( $GCP_cams_params[$key]['fs_url_alt_2'], $key, true)
+	 "cell_url_alt_1"=> $GCP_cams_params[$key]['cell_url_alt_1'],   // get_cam_alt_url($GCP_cams_params[$key]['cell_url_alt_1'], $key, true),
+	 "fs_url_alt_1"=> $GCP_cams_params[$key]['fs_url_alt_1'],       // get_cam_alt_url($GCP_cams_params[$key]['fs_url_alt_1'], $key, true),
+	 "cell_url_alt_2"=> $GCP_cams_params[$key]['cell_url_alt_2'],   //get_cam_alt_url( $GCP_cams_params[$key]['cell_url_alt_2'], $key, true),
+	 "fs_url_alt_2"=> $GCP_cams_params[$key]['fs_url_alt_2']       //get_cam_alt_url( $GCP_cams_params[$key]['fs_url_alt_2'], $key, true)
 	);
 	$cams_urls[$key]=$cu;
 }
@@ -332,7 +332,7 @@ for ($win_nr=0; $win_nr<$wins_nr; $win_nr++)
    {
    	case 0:
    	case 1: //используем камеру avregd
-   		$cam_url = get_cam_http_url($conf, $cam_nr, 'mjpeg');
+   		$cam_url = get_cam_http_url($conf, $cam_nr, 'mjpeg', true);
    		$active_cams_srcs[$win_nr]['type']='avregd';
    		$active_cams_srcs[$win_nr]['cell']=$cam_url;
    		$active_cams_srcs[$win_nr]['fs']=$cam_url;
@@ -353,7 +353,7 @@ for ($win_nr=0; $win_nr<$wins_nr; $win_nr++)
    		$stop_url = false;
    		break;
    }
-   $cam_url= get_cam_alt_url($cam_url,$cam_nr, true);
+  // $cam_url= get_cam_alt_url($cam_url,$cam_nr, true);
     
    if ( $operator_user &&  (@$GCP_cams_params[$cam_nr]['video_src'] == 'rtsp' || @$GCP_cams_params[$cam_nr]['video_src'] == 'http') ){
       $netcam_host = '"' . $GCP_cams_params[$cam_nr]['InetCam_IP'] . '"';

@@ -162,11 +162,11 @@ function img_click(clicked_div) {
       // current - fullscreen
 	      //меняем на источник для ячейки
 	      if (active_cams_srcs[win_nr]['type']!='avregd'){
-	    	  if(active_cams_srcs[win_nr]['cell']!=null || active_cams_srcs[win_nr]['cell']!='')
-	    		  current_src = get_cam_alt_url(active_cams_srcs[win_nr]['cell'], win_nr, true) ;
+	    	  if(active_cams_srcs[win_nr]['cell']!=null && active_cams_srcs[win_nr]['cell']!='')
+	    		  current_src = active_cams_srcs[win_nr]['cell']; // get_cam_alt_url(active_cams_srcs[win_nr]['cell'], win_nr, true) ;
 	      }
 	   
-	   
+
       if ( WIN_DIV_W == undefined ) {
     	  //в режиме FS был ресайз CANVAS'a
          change_wins_geo();
@@ -261,8 +261,8 @@ function img_click(clicked_div) {
 	      .height(win_geo.cam_h+CORRECT_H);
       //меняем на источник для ячейки
       if (active_cams_srcs[win_nr]['type']!='avregd'){
-    	  if(active_cams_srcs[win_nr]['fs']!=null || active_cams_srcs[win_nr]['fs']!='')
-    		  current_src = get_cam_alt_url(active_cams_srcs[win_nr]['fs'], win_nr ,true) ;
+    	  if(active_cams_srcs[win_nr]['fs']!=null && active_cams_srcs[win_nr]['fs']!='')
+    		  current_src = active_cams_srcs[win_nr]['fs']; //get_cam_alt_url(active_cams_srcs[win_nr]['fs'], win_nr ,true) ;
       }
 
     	if ( MSIE ){
@@ -483,8 +483,8 @@ var checking_connection = {
 		if(self.me_list==undefined){
 			self.me_list = new Array();
 		}
-		
-		var obj = { 
+
+        var obj = {
 			'me' : me,
 			'me_id':me_id,
 			'src' : me_src,
@@ -494,19 +494,26 @@ var checking_connection = {
 			//канвас и контекст для webkit
 			'wk_canvas' : null
 		};
-		
-		if(WEBKIT){
+
+        //Если не mjpeg останавливаем проверку
+        if(!$('.pl_cont',win).aplayerIsImage()){
+            obj.stoped = true;
+            self.me_list.push(obj);
+            return;
+        }
+
+        if(WEBKIT){
 			//создаем канвас для элемента и устанавливаем cors для img
        		obj.wk_canvas = document.createElement('canvas');
 		}
 		
 		self.me_list.push(obj);
-		
-		if(WEBKIT || GECKO){
+
+        if(WEBKIT || GECKO){
 			self.set_handlers(me);
 		}
-		
-	},
+
+    },
 
 	//возобновить проверку элемента
 	start_check_me : function(element){
@@ -1409,7 +1416,10 @@ function canvas_growth() {
            var _left=0;
            var win_div;
            var win_def;
-                      
+
+
+
+            // Установка в канвас выбранной раскладки
            for (win_nr = 0; win_nr < WINS_NR; win_nr++ ) {
               if (  WINS_DEF[win_nr] == undefined )
                  continue;
@@ -1433,7 +1443,7 @@ function canvas_growth() {
                     ' height:'+ win_geo.win_h +'px;'+
                     ' z-index: 30;' +
                     '"><\/div>');
-              win_div.appendTo(CANVAS);
+                win_div.appendTo(CANVAS);
 
 			if (PrintCamNames) {
                  var ipcamhost_link_begin = '';
@@ -1720,7 +1730,7 @@ getXmlHttp = function(){
    
 
 /**
- * Объект обработки событий котролов toolbar & controlbar
+ * Объект обработки событий контролов toolbar & controlbar
  */
 var controls_handlers = {
 	timers : new Array(),

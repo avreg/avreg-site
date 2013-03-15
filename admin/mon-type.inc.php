@@ -235,7 +235,7 @@ $wide_28_28_wins = array(
 $wide_40_40_wins = array(
 		array(0,0,1,1), array(0,1,1,1), array(0,2,1,1), array(0,3,1,1), array(0,4,1,1), array(0,5,1,1), array(0,6,1,1), array(0,7,1,1),
 		array(1,0,1,1), array(1,1,1,1), array(1,2,1,1), array(1,3,1,1),	array(1,4,1,1),	array(1,5,1,1),	array(1,6,1,1), array(1,7,1,1),
-		array(2,0,1,1), array(2,1,1,1), array(2,2,1,1), array(2,3,1,1), array(1,4,1,1),	array(1,5,1,1),	array(2,6,1,1), array(2,7,1,1),
+		array(2,0,1,1), array(2,1,1,1), array(2,2,1,1), array(2,3,1,1), array(2,4,1,1),	array(2,5,1,1),	array(2,6,1,1), array(2,7,1,1),
 		array(3,0,1,1), array(3,1,1,1), array(3,2,1,1), array(3,3,1,1), array(3,4,1,1), array(3,5,1,1), array(3,6,1,1), array(3,7,1,1),
 		array(4,0,1,1), array(4,1,1,1), array(4,2,1,1), array(4,3,1,1), array(4,4,1,1), array(4,5,1,1), array(4,6,1,1), array(4,7,1,1)
 );

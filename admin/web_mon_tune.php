@@ -81,7 +81,7 @@ if (isset($cmd)) {
    		}
    		$i++;
    	}
-   		
+
    	$allWINS = json_encode($allWINS);
       if ( $allWINS!='' )	{
       	$PrintCamNames = ($PrintCamNames!=null)? 1 : 0;

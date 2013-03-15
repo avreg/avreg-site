@@ -6,18 +6,7 @@
 		
 		
 		<?php 
-			
-		
-		
-// 			$res_conf = aplayer_configurate($conf['aplayerConfig']);
-			
-// 			print '<pre>';
-// 			var_dump($res_conf);
-// 			print '</pre>';
-			
-// 			exit();
-			
-//			print json_encode($res_conf);
+
 		?>
 		
 		
@@ -126,9 +115,9 @@
 							<div class="scroll_body_v">
 
 								<div class="scroll_polz_v">
-								<div class="scroll_polz_v_Top"></div>
-								<div class="scroll_polz_v_Middle"></div>
-								<div class="scroll_polz_v_Bottom"></div>
+								<div class="scroll_polz_v_Top" id="scroll_polz_v_Top"></div>
+								<div class="scroll_polz_v_Middle" id="scroll_polz_v_Middle"></div>
+								<div class="scroll_polz_v_Bottom" id="scroll_polz_v_Bottom"></div>
 								</div>
 
 									
@@ -297,7 +286,7 @@ $(function(){
 
 	$('body').css( 'overflow', 'hidden');
 
-	// инициализация галереи	
+	// инициализация галереи
 	gallery.init(conf);
     document.ready = function(e){
     }
