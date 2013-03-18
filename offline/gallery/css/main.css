@@ -298,8 +298,8 @@ a {
 	float: left; 
 	height: 100%; 
 	width: 100%; 
-	position: 
-	relative; 
+	position:
+	relative;
 /*	border:1px solid gray; */
 	display:inline; 
 	overflow: hidden;
@@ -315,14 +315,14 @@ a {
 }
 #scroll_v .scroll_body_v {width:38px; height:200px; background:#eaeaea; /*border-left:1px solid #cccccc; border-right:1px solid #cccccc; */ background:url(../img/scrollR.png); position:relative;margin-left: -1px;}
 #scroll_v .scroll_polz_v {width:38px; margin:auto; min-height:14px; /*height:36px; background:url(../img/scrolll.png) repeat-x;*/ position:relative; left:-1px; top:0px;}
-#scroll_v .scroll_bot_v {width:38px; height:42px; 
+#scroll_v .scroll_bot_v {width:38px; height:42px;
 	background:url(../img/scroll_bot.png) no-repeat;margin-left: -2px;
 }
 
 
-#scroll_v .scroll_polz_v_Top {width:38px; margin:auto; height:9px; background:url(../img/topScrolll.png) no-repeat;}
-#scroll_v .scroll_polz_v_Middle {width:38px; margin:auto; background:url(../img/middleScrolll.png) repeat-y;height: 95%;}
-#scroll_v .scroll_polz_v_Bottom {width:38px; margin:auto; height:11px; background:url(../img/bottomScrolll.png) no-repeat;}
+#scroll_v .scroll_polz_v_Top {width:38px; margin:auto; height:0px; background:url(../img/topScrolll.png) no-repeat;}
+#scroll_v .scroll_polz_v_Middle {width:38px; margin:auto; border-radius: 5px; background:url(../img/middleScrolll.png) repeat-y;height: 100%;}
+#scroll_v .scroll_polz_v_Bottom {width:38px; margin:auto; height:0px; background:url(../img/bottomScrolll.png) no-repeat;}
 
 
 #scale { width:auto; height:30px; margin-bottom:2px;}
@@ -388,6 +388,14 @@ a {
 }
 #scroll_content .show {
 	display: block;
+}
+
+#scrollPopup{
+    position: absolute;
+    top:0px;
+    left:0px;
+    background: white;
+    color: black;
 }
 
 #scroll_content .active .elem{

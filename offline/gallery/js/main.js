@@ -718,15 +718,11 @@ var gallery = {
                             matrix.keyBoardTree = tree;
 
                             matrix.build();
-
-                            if(MSIE){
-                                scroll.setposition(scroll.position);
-                            }
                         }
 
                     }
 
-
+                    scroll.setposition(scroll.position);
                     $.jstree._focused().set_focus("#tree_"+tree);
                     $("#tree_"+tree).jstree("set_focus");
 
@@ -2280,7 +2276,7 @@ var matrix = {
 
 
                 $('#scroll_content').empty();
-                var html = '';
+                var html = '<div id="scrollPopup" class="scroll_popup">asdasdasd</div>';
 
                 // все элементы матрицы есть в кеше, строим матрицу
                 var loadimage = {};
@@ -2859,8 +2855,8 @@ var scroll = {
                 $('.scroll_bot_v').height() - $('.scroll_top_v').height() - $('.scroll_polz_v_Top').height() - 25;
 
             //Установка изображений через img
-            $('#scroll_v .scroll_polz_v_Top').html('<img src="./gallery/img/topScrolll.png" >');
-            $('#scroll_v .scroll_polz_v_Bottom').html('<img src="./gallery/img/bottomScrolll.png" >');
+            //$('#scroll_v .scroll_polz_v_Top').html('<img src="./gallery/img/topScrolll.png" >');
+            //$('#scroll_v .scroll_polz_v_Bottom').html('<img src="./gallery/img/bottomScrolll.png" >');
 
             // задаем высоту скрола
             $(scroll.id + ' .scroll_body_v').height(scroll.height);
@@ -2886,7 +2882,7 @@ var scroll = {
             // высчитываем высоту ползунка в зависимости от элементов в матрице и всех элементов в диапазоне
             h = Math.floor((scroll.height/(scroll.cell_count>0?scroll.cell_count:1))*scroll.matrix_count);
 
-            if(h>scroll.height) h=scroll.height-15;
+            if(h>scroll.height) h=scroll.height;
 
             scroll.polzh = 0;
             if ( h < scroll.min_height) {
@@ -2941,19 +2937,65 @@ var scroll = {
             $(document).mousemove(function(e){
                 scroll.mousemove = true;
                 var top = e.pageY - start_top - start;
-                var top_gr = $(scroll.id + ' .scroll_body_v').height()- $(scroll.id + ' .scroll_polz_v').height() - 11;
+                var top_gr = $(scroll.id + ' .scroll_body_v').height()- $(scroll.id + ' .scroll_polz_v').height();
+                $("#scrollPopup").empty();
                 if (top >= 0 && top <= top_gr) {
-                    if ((top + 10) >= top_gr){
+                    if ((top + 5) >= top_gr){
                         $(scroll.id + ' .scroll_polz_v').css('top', top);
-                        sp = scroll.cell_count * scroll.row_count - 10;
-                        console.log(top + ' ___ ' + sp);
+                        sp = scroll.cell_count * scroll.row_count - scroll.row_count;
                         scroll.position = sp;
                     } else{
                         $(scroll.id + ' .scroll_polz_v').css('top', top);
                         var sp = Math.floor(top/((scroll.height-scroll.polzh)/scroll.cell_count)) * scroll.row_count;
                         scroll.position = sp;
-                        //console.log(scroll.position + ' ____ ' + top + ' ____ ' + sp + ' ____ ' + scroll.polzh + ' ____ ' + scroll.height + ' _____ ' + scroll.cell_count + ' ____ ' + scroll.row_count);
                     }
+                }
+                if (typeof(matrix.events[scroll.position]) === 'undefined'){
+                    var variable = [];
+                    var i = 0;
+                    var type = '';
+                    var cameras = '';
+                    $('input[name="type_event"]').each(function(){
+                        if ($(this).attr('checked')) {
+                            type += $(this).val()+',';
+                        }
+                    });
+                    $('input[name="cameras"]').each(function(){
+                        if ($(this).attr('checked')) {
+                            cameras += $(this).val()+',';
+                            variable[i] =  $(this).val();
+                            i++;
+                        }
+                    });
+
+                    // Обновляю events
+                    $.post(WwwPrefix+'/offline/gallery.php',
+                        {'method':'get_events',
+                            'tree':matrix.tree,
+                            'sp':scroll.position,
+                            'type': type,
+                            'cameras': cameras},
+                        function(data) {
+                            var i = scroll.position;
+                            // обновляем кеш
+                            $.each(data.events, function(key, value) {
+                                matrix.all_events[key] = value;
+                                matrix.events[i] = value;
+                                i++;
+                            });
+                        });
+                }
+                var htmlPopup = matrix.events[scroll.position];
+                if (typeof(htmlPopup) !== 'undefined'){
+                    var topPopup = top + $(scroll.id + ' .scroll_top_v').height();
+                    var leftPopup = parseInt($("#list_panel").css('width')) - 155;
+                    $("#scrollPopup").html(htmlPopup[9]);
+                    $("#scrollPopup").width('155px');
+                    $("#scrollPopup").css('top', topPopup);
+                    $("#scrollPopup").css('left', leftPopup);
+                    $("#scrollPopup").css('background', 'white');
+                    $("#scrollPopup").css('color', 'black');
+                    $("#scrollPopup").show();
                 }
             });
         });
@@ -2964,6 +3006,7 @@ var scroll = {
                 scroll.mousemove = false;
                 matrix.num = scroll.position;
                 $('#cell_'+matrix.num).addClass('active');
+                $("#scrollPopup").hide();
             }
         });
 
