@@ -2276,7 +2276,7 @@ var matrix = {
 
 
                 $('#scroll_content').empty();
-                var html = '<div id="scrollPopup" class="scroll_popup">asdasdasd</div>';
+                var html = '<div id="scrollPopup" class="scrollPopup"></div>';
 
                 // все элементы матрицы есть в кеше, строим матрицу
                 var loadimage = {};
@@ -2992,7 +2992,7 @@ var scroll = {
                     $("#scrollPopup").html(htmlPopup[9]);
                     $("#scrollPopup").width('155px');
                     $("#scrollPopup").css('top', topPopup);
-                    $("#scrollPopup").css('left', leftPopup);
+                    $("#scrollPopup").css('left', leftPopup);//leftPopup - 100);
                     $("#scrollPopup").css('background', 'white');
                     $("#scrollPopup").css('color', 'black');
                     $("#scrollPopup").show();
@@ -3006,7 +3006,7 @@ var scroll = {
                 scroll.mousemove = false;
                 matrix.num = scroll.position;
                 $('#cell_'+matrix.num).addClass('active');
-                $("#scrollPopup").hide();
+                //$("#scrollPopup").hide();
             }
         });
 

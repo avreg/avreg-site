@@ -390,12 +390,14 @@ a {
 	display: block;
 }
 
-#scrollPopup{
+.scrollPopup{
     position: absolute;
     top:0px;
     left:0px;
     background: white;
     color: black;
+    display: none;
+    z-index: 99999;
 }
 
 #scroll_content .active .elem{
