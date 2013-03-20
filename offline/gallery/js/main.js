@@ -2944,7 +2944,7 @@ var scroll = {
                     $("#scrollPopup").empty();
                     if ((top + 5) >= top_gr){
                         $(scroll.id + ' .scroll_polz_v').css('top', top);
-                        sp = scroll.cell_count * scroll.row_count - scroll.row_count;
+                        sp = matrix.count_item - matrix.cell_count - 1;
                         scroll.position = sp;
                     } else{
                         $(scroll.id + ' .scroll_polz_v').css('top', top);
@@ -2963,15 +2963,6 @@ var scroll = {
                 matrix.num = scroll.position;
                 $('#cell_'+matrix.num).addClass('active');
                 scroll.hidePopup();
-                /*var object_focus = Array("#tree", "#wintop", "#winbot");
-                for (var i = 0; i < 2; i++){
-                    if ($(object_focus[i]).hasClass('selectBox')){
-                        $(object_focus[i]).removeClass('selectBox');
-                    }
-                }
-
-                $(object_focus[2]).addClass('selectBox');
-                $("#scroll_content").focusin();*/
                 keyBoard.setFocusListPanel();
             }
         });
