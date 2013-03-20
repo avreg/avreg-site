@@ -395,8 +395,14 @@ a {
     top:0px;
     left:0px;
     background: white;
+    background-repeat: no-repeat;
+    background-position: center;
     color: black;
     display: none;
+    width: 155px;
+    text-align: center;
+    margin: 5px;
+    padding: 5px;
     z-index: 99999;
 }
 

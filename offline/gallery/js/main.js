@@ -2844,6 +2844,7 @@ var scroll = {
     matrix_count: 10, // размер матрицы
     position : 0, // текущая позиция в скроле
     min_height : 10, // минимальная высота ползунка
+    htmlPopup : '', // Текущий текст в Popup окне
 
     init : function(config) {
         if (config && typeof(config) == 'object') {
@@ -2931,6 +2932,7 @@ var scroll = {
         scroll.mousemove = false;
         $(scroll.id + ' .scroll_polz_v').unbind('mousedown');
         $(scroll.id + ' .scroll_polz_v').mousedown(function(e){
+            scroll.htmlPopup = '';
             e.preventDefault();
             var start = e.pageY - $(this).offset().top;
             var start_top = $(this).offset().top - $(this).position().top;
@@ -2938,8 +2940,8 @@ var scroll = {
                 scroll.mousemove = true;
                 var top = e.pageY - start_top - start;
                 var top_gr = $(scroll.id + ' .scroll_body_v').height()- $(scroll.id + ' .scroll_polz_v').height();
-                $("#scrollPopup").empty();
                 if (top >= 0 && top <= top_gr) {
+                    $("#scrollPopup").empty();
                     if ((top + 5) >= top_gr){
                         $(scroll.id + ' .scroll_polz_v').css('top', top);
                         sp = scroll.cell_count * scroll.row_count - scroll.row_count;
@@ -2949,53 +2951,7 @@ var scroll = {
                         var sp = Math.floor(top/((scroll.height-scroll.polzh)/scroll.cell_count)) * scroll.row_count;
                         scroll.position = sp;
                     }
-                }
-                if (typeof(matrix.events[scroll.position]) === 'undefined'){
-                    var variable = [];
-                    var i = 0;
-                    var type = '';
-                    var cameras = '';
-                    $('input[name="type_event"]').each(function(){
-                        if ($(this).attr('checked')) {
-                            type += $(this).val()+',';
-                        }
-                    });
-                    $('input[name="cameras"]').each(function(){
-                        if ($(this).attr('checked')) {
-                            cameras += $(this).val()+',';
-                            variable[i] =  $(this).val();
-                            i++;
-                        }
-                    });
-
-                    // Обновляю events
-                    $.post(WwwPrefix+'/offline/gallery.php',
-                        {'method':'get_events',
-                            'tree':matrix.tree,
-                            'sp':scroll.position,
-                            'type': type,
-                            'cameras': cameras},
-                        function(data) {
-                            var i = scroll.position;
-                            // обновляем кеш
-                            $.each(data.events, function(key, value) {
-                                matrix.all_events[key] = value;
-                                matrix.events[i] = value;
-                                i++;
-                            });
-                        });
-                }
-                var htmlPopup = matrix.events[scroll.position];
-                if (typeof(htmlPopup) !== 'undefined'){
-                    var topPopup = top + $(scroll.id + ' .scroll_top_v').height();
-                    var leftPopup = parseInt($("#list_panel").css('width')) - 155;
-                    $("#scrollPopup").html(htmlPopup[9]);
-                    $("#scrollPopup").width('155px');
-                    $("#scrollPopup").css('top', topPopup);
-                    $("#scrollPopup").css('left', leftPopup);//leftPopup - 100);
-                    $("#scrollPopup").css('background', 'white');
-                    $("#scrollPopup").css('color', 'black');
-                    $("#scrollPopup").show();
+                    scroll.updatePopup(parseInt($(scroll.id + ' .scroll_polz_v').css('top')));
                 }
             });
         });
@@ -3006,7 +2962,17 @@ var scroll = {
                 scroll.mousemove = false;
                 matrix.num = scroll.position;
                 $('#cell_'+matrix.num).addClass('active');
-                //$("#scrollPopup").hide();
+                scroll.hidePopup();
+                /*var object_focus = Array("#tree", "#wintop", "#winbot");
+                for (var i = 0; i < 2; i++){
+                    if ($(object_focus[i]).hasClass('selectBox')){
+                        $(object_focus[i]).removeClass('selectBox');
+                    }
+                }
+
+                $(object_focus[2]).addClass('selectBox');
+                $("#scroll_content").focusin();*/
+                keyBoard.setFocusListPanel();
             }
         });
 
@@ -3047,6 +3013,67 @@ var scroll = {
 
         scroll.position = 0;
         $(scroll.id).show();
+    },
+
+    hidePopup : function (){
+        $("#scrollPopup").hide();
+    },
+
+    updatePopup : function (topPopup){
+        scroll.updateCachePopup();
+        var htmlPopup_now = matrix.events[scroll.position];
+        if (typeof(htmlPopup_now) !== 'undefined'){
+            if (htmlPopup_now[9].length > 10)
+                scroll.htmlPopup = htmlPopup_now[9];
+            var topPopup = topPopup + $(scroll.id + ' .scroll_top_v').height();
+            console.log(topPopup);
+            var leftPopup = parseInt($("#list_panel").css('width')) - parseInt($("#scrollPopup").width()) - 25;
+            var scrollPopup = document.getElementById("scrollPopup");
+            $("#scrollPopup").css('position', 'absolute');
+            $("#scrollPopup").css('top', topPopup + 'px');
+            $("#scrollPopup").css('left', leftPopup + 'px');
+            $("#scrollPopup").show();
+        }
+        console.log(scroll.htmlPopup);
+        $("#scrollPopup").html(scroll.htmlPopup);
+    },
+
+    updateCachePopup : function(){
+        if (typeof(matrix.events[scroll.position]) === 'undefined'){
+            var variable = [];
+            var i = 0;
+            var type = '';
+            var cameras = '';
+            $('input[name="type_event"]').each(function(){
+                if ($(this).attr('checked')) {
+                    type += $(this).val()+',';
+                }
+            });
+            $('input[name="cameras"]').each(function(){
+                if ($(this).attr('checked')) {
+                    cameras += $(this).val()+',';
+                    variable[i] =  $(this).val();
+                    i++;
+                }
+            });
+
+            // Обновляю events
+            $.post(WwwPrefix+'/offline/gallery.php',
+                {'method':'get_events',
+                    'tree':matrix.tree,
+                    'sp':scroll.position,
+                    'type': type,
+                    'cameras': cameras},
+                function(data) {
+                    var i = scroll.position;
+                    // обновляем кеш
+                    $.each(data.events, function(key, value) {
+                        matrix.all_events[key] = value;
+                        matrix.events[i] = value;
+                        i++;
+                    });
+                });
+        }
     },
 
     // сдвиг влево
@@ -3320,6 +3347,7 @@ var scroll = {
         $(scroll.id + ' .scroll_polz_v').css({top:t});
     }
 };
+
 // элемент масштаба предварительного просмотра
 var scale = {
     id : '#scale', // ид элемента
@@ -3811,6 +3839,11 @@ var keyBoard = {
             $('#win_top').height('auto');
         }
     },
+    setFocusListPanel : function(){
+        keyBoard.boxesEnum.set(keyBoard.boxesEnum.INSIDE);
+        keyBoard.checkSelecBox();
+    },
+
     init : function() {
         keyBoard.currentSelector = $('#cameras_selector .options').children();
         keyBoard.colorSelector = $('#cameras_color ul').children('li');

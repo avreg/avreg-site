@@ -129,7 +129,7 @@ function parse_csv_numlist($str) {
  */
 function confparse($_conf, $section=NULL, $path='/etc/avreg/avreg.conf', $params=NULL)
 {
-   $confile = fopen($path, 'r');
+   $confile = @fopen($path, 'r');
    if (FALSE === $confile)
       return FALSE;
    $skip_section = FALSE;
@@ -185,7 +185,7 @@ function confparse($_conf, $section=NULL, $path='/etc/avreg/avreg.conf', $params
       // нашли параметр
       // printf('file %s:%d : %s => %s (%s)<br>', $path, $linenr, $param, $value, gettype(@$_conf[$param]));
       if ( 0 === strcasecmp($param, 'include') ) {
-         // вложенный файл 
+         // вложенный файл
          $res = confparse($_conf, $section, $value);
          if (!$res) {
             echo "ERROR INCLUDE FILE \"$value\" from $path:$linenr\n";
