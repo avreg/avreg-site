@@ -3069,6 +3069,7 @@ var scroll = {
 
     // сдвиг влево
     num_left : function() {
+        keyBoard.setFocusListPanel();
         var new_num = matrix.num - 1;
         if (new_num >=0) {
             //если находимся в этом же диапазоне событий
@@ -3135,6 +3136,7 @@ var scroll = {
     },
     // смещаемся на ряд вверх
     num_up : function() {
+        keyBoard.setFocusListPanel();
         var new_num = matrix.num - scroll.row_count;
         if (new_num >=0) {
             //если находимся в этом же диапазоне событий
@@ -3201,6 +3203,7 @@ var scroll = {
     },
     // смещаемся вправо
     num_right : function() {
+        keyBoard.setFocusListPanel();
         var new_num = matrix.num + 1;
         if (new_num < scroll.cell_count*scroll.row_count && new_num < matrix.curent_tree_events[matrix.tree].count) {
             if (matrix.mode == 'preview') {
@@ -3262,6 +3265,7 @@ var scroll = {
     },
     // смещаемся на ряд ниже
     num_down : function() {
+        keyBoard.setFocusListPanel();
         var new_num = matrix.num + scroll.row_count;
         if (new_num < scroll.cell_count*scroll.row_count && new_num < matrix.curent_tree_events[matrix.tree].count) {
             if (matrix.mode == 'preview') {
@@ -3322,6 +3326,7 @@ var scroll = {
     },
     // обновляем позицию скрола и перестраиваем матрицу
     updateposition : function(sp, force) {
+        keyBoard.setFocusListPanel();
         if (scroll.position != sp || force == true) {
             scroll.position = sp;
             matrix.update(sp);
@@ -3329,6 +3334,7 @@ var scroll = {
     },
     // обновляем позицию скрола и ползунка
     setposition : function(sp) {
+        keyBoard.setFocusListPanel();
         scroll.position = sp;
         var t = Math.floor(sp/scroll.row_count*(scroll.height-scroll.polzh)/scroll.cell_count);
         //проверяем, чтобы ползунок не перекрывал нижнюю стрелку скрола
