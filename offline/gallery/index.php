@@ -115,9 +115,9 @@
 							<div class="scroll_body_v">
 
 								<div class="scroll_polz_v">
-								<div class="scroll_polz_v_Top" id="scroll_polz_v_Top"></div>
+								<!-- div class="scroll_polz_v_Top" id="scroll_polz_v_Top"></div -->
 								<div class="scroll_polz_v_Middle" id="scroll_polz_v_Middle"></div>
-								<div class="scroll_polz_v_Bottom" id="scroll_polz_v_Bottom"></div>
+								<!-- div class="scroll_polz_v_Bottom" id="scroll_polz_v_Bottom"></div -->
 								</div>
 
 									

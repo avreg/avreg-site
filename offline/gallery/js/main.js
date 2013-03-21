@@ -2797,9 +2797,11 @@ var matrix = {
             //отменяем показ последних - переходим в начало диапазона		
             sp=0;
             matrix.num = 0;
+            matrix.get_events(sp);
 //			sp = scroll.position;
         } else {
             sp = 0;
+            matrix.get_events(sp);
         }
 
 
@@ -2843,7 +2845,7 @@ var scroll = {
     row_count : 10, // количество рядов
     matrix_count: 10, // размер матрицы
     position : 0, // текущая позиция в скроле
-    min_height : 10, // минимальная высота ползунка
+    min_height : 14, // минимальная высота ползунка
     popUp : {}, // PopUp Окно возле скролла во время перемещения с текущим значением диапазона
 
     init : function(config) {
@@ -2878,13 +2880,14 @@ var scroll = {
 
         }else{
 
-
             // задаем высоту скрола
             $(scroll.id + ' .scroll_body_v').height(scroll.height);
             // высчитываем высоту ползунка в зависимости от элементов в матрице и всех элементов в диапазоне
             h = Math.floor((scroll.height/(scroll.cell_count>0?scroll.cell_count:1))*scroll.matrix_count);
 
-            if(h>scroll.height) h=scroll.height;
+            if(h>scroll.height){
+                h=scroll.height;
+            }
 
             scroll.polzh = 0;
             if ( h < scroll.min_height) {
@@ -2930,30 +2933,36 @@ var scroll = {
                 e.preventDefault();
             });
 
+        //$(scroll.id + ' .scroll_polz_v_Bottom').height($(scroll.id + ' .scroll_polz_v').height());
+
         scroll.mousemove = false;
         $(scroll.id + ' .scroll_polz_v').unbind('mousedown');
         $(scroll.id + ' .scroll_polz_v').mousedown(function(e){
             e.preventDefault();
+            var topoffset = $(this).offset().top;
             var start = e.pageY - $(this).offset().top;
             var start_top = $(this).offset().top - $(this).position().top;
             $(document).mousemove(function(e){
                 scroll.mousemove = true;
                 var top = e.pageY - start_top - start;
-                var top_gr = $(scroll.id + ' .scroll_body_v').height()- $(scroll.id + ' .scroll_polz_v').height();
-                if (top >= 0 && top <= top_gr) {
-                    $("#scrollPopup").empty();
-                    if ((top + 5) >= top_gr){
-                        $(scroll.id + ' .scroll_polz_v').css('top', top);
-                        sp = matrix.count_item - (matrix.count_item%matrix.cell_count);
-                        scroll.position = sp;
-                    } else{
-                        $(scroll.id + ' .scroll_polz_v').css('top', top);
-                        var sp = Math.floor(top/((scroll.height-scroll.polzh)/scroll.cell_count)) * scroll.row_count;
-                        scroll.position = sp;
-                    }
-                    var topScroll = parseInt($(scroll.id + ' .scroll_polz_v').css('top'));
-                    scrollPopUp.updatePopup(topScroll, sp);
+                var top_gr = $(scroll.id + ' .scroll_body_v').height() - $(scroll.id + ' .scroll_polz_v').height();
+                if (top < 0 || top_gr <= top){
+                    top = (top_gr <= top)?top_gr:0;
+                    top = (matrix.count_item <= (matrix.count_row * matrix.cell_count)) ? 0 : top;
                 }
+                if (top >= top_gr){
+                    $(scroll.id + ' .scroll_polz_v').css('top', top);
+                    sp = matrix.count_item - (matrix.count_item%matrix.cell_count);
+                    sp = (sp <= (matrix.count_row * matrix.cell_count)) ? 0 : sp;
+                    scroll.position = sp;
+                } else{
+                    $(scroll.id + ' .scroll_polz_v').css('top', top);
+                    var sp = Math.floor(top/((scroll.height-scroll.polzh)/scroll.cell_count)) * scroll.row_count;
+                    sp = (sp <= (matrix.count_row * matrix.cell_count)) ? 0 : sp;
+                    scroll.position = sp;
+                }
+                var topScroll = parseInt($(scroll.id + ' .scroll_polz_v').css('top'));
+                scrollPopUp.updatePopup(topScroll, sp);
             });
         });
         $(document).mouseup(function(e){
@@ -4189,10 +4198,11 @@ var scrollPopUp = {
         }else{
             //self.updateCachePopup(sp);
             if (self.idInterval !== undefined){
-                console.log(self.idInterval + '__' + scrollPopUp.idInterval);
-                clearInterval(self.idInterval);
+                clearTimeout(self.idInterval);
             }
-            scrollPopUp.idInterval = setInterval(scrollPopUp.sendRequestUpdateCache(sp), 100);
+            scrollPopUp.idInterval = setTimeout(function(){
+                scrollPopUp.sendRequestUpdateCache(sp);
+            }, 200);
 
             self.htmlPopup = self.cachePopUp[self.scrollPosition];
         }
@@ -4212,12 +4222,6 @@ var scrollPopUp = {
         $(scrollPopUp.idScrollPopUp).css('top', scrollPopUp.topPopup + 'px');
         $(scrollPopUp.idScrollPopUp).css('left', scrollPopUp.leftPopup + 'px');
 
-    },
-
-    updateCachePopup : function(sp){
-        if (typeof(this.cachePopUp[scroll.position]) === 'undefined'){
-            scrollPopUp.idInterval = setInterval(scrollPopUp.sendRequestUpdateCache(sp), 1000);
-        }
     },
 
     sendRequestUpdateCache : function (sp){
