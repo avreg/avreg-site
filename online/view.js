@@ -172,11 +172,29 @@ function img_click(clicked_div) {
          change_wins_geo();
          
 		   //если в режиме просмотра одной камеры происходил ресайз окна браузера
-         if ( MSIE ){
-        	 if(current_src!=null) $('.pl_cont',clicked_div_jq).aplayerSetMjpegSrc( current_src ) ;
-          }else{
-        	  if(current_src!=null) $('.pl_cont',clicked_div_jq).aplayerSetMjpegSrc( current_src );
+//         if ( MSIE ){
+//        	 if(current_src!=null) $('.pl_cont',clicked_div_jq).aplayerSetMjpegSrc( current_src ) ;
+//          }else{
+//        	  if(current_src!=null) $('.pl_cont',clicked_div_jq).aplayerSetMjpegSrc( current_src );
+//          }
+
+          //Переустанвливаем плеер для алтернативного источника
+          if(current_src!=null){
+              $('.pl_cont',clicked_div_jq).addPlayer({
+                  'src': current_src ,
+                  'controls': false,
+                  'scale':'on',
+                  'mediaType' : 'mjpeg',
+                  'autostart':'on',
+                  'aplayer_rtsp_php':'../lib/js/aplayer_rtsp.php',
+                  'crossorigin' : (WEBKIT)? true:false,
+                  'amc_onclick' : function(player_nr){
+                      img_click(document.getElementById('win'+win_nr));
+                  }
+              });
           }
+
+
          
       } else {
    
@@ -194,14 +212,30 @@ function img_click(clicked_div) {
           if ( MSIE ){
       		$('.pl_cont',clicked_div_jq)
       		.aplayerSetSize({'height':IMG_IN_DIV_H, 'width': IMG_IN_DIV_W});
-      		if(current_src!=null)  $('.pl_cont',clicked_div_jq).aplayerSetMjpegSrc( current_src ) ;
+//      		if(current_src!=null)  $('.pl_cont',clicked_div_jq).aplayerSetMjpegSrc( current_src ) ;
           }else{
          	 $('.pl_cont',clicked_div_jq)
          	 .aplayerResizeToParent();
-         	if(current_src!=null) $('.pl_cont',clicked_div_jq).aplayerSetMjpegSrc( current_src );
+//         	if(current_src!=null) $('.pl_cont',clicked_div_jq).aplayerSetMjpegSrc( current_src );
           }
-          
-        $(clicked_div).css({'left': WIN_DIV_LEFT + 'px', 'top': WIN_DIV_TOP + 'px' });
+
+          //Переустанвливаем плеер для алтернативного источника
+          if(current_src!=null){
+              $('.pl_cont',clicked_div_jq).addPlayer({
+                  'src': current_src ,
+                  'controls': false,
+                  'scale':'on',
+                  'mediaType' : 'mjpeg',
+                  'autostart':'on',
+                  'aplayer_rtsp_php':'../lib/js/aplayer_rtsp.php',
+                  'crossorigin' : (WEBKIT)? true:false,
+                  'amc_onclick' : function(player_nr){
+                      img_click(document.getElementById('win'+win_nr));
+                  }
+              });
+          }
+
+          $(clicked_div).css({'left': WIN_DIV_LEFT + 'px', 'top': WIN_DIV_TOP + 'px' });
          
       }
       for (i=0;i<WIN_DIVS.length;i++) {
@@ -269,18 +303,34 @@ function img_click(clicked_div) {
     		$(clicked_div_jq).width(win_geo.win_w+CORRECT_W).height(win_geo.win_h+CORRECT_H);
     		$('.pl_cont',clicked_div_jq)
     		.aplayerSetSize({'height':win_geo.cam_h+CORRECT_H, 'width': win_geo.cam_w+CORRECT_W});
-    		if(current_src!=null) {
-    			$('.pl_cont',clicked_div_jq).aplayerSetMjpegSrc( current_src );
-    		}
+//    		if(current_src!=null) {
+//    			$('.pl_cont',clicked_div_jq).aplayerSetMjpegSrc( current_src );
+//    		}
     		
         }else{
         	$(clicked_div_jq).width(win_geo.win_w).height(win_geo.win_h);
         	$('.pl_cont',clicked_div_jq)
         	.aplayerResizeToParent();
-        	if(current_src!=null){
-        		$('.pl_cont',clicked_div_jq).aplayerSetMjpegSrc( current_src );
-        	}
+//        	if(current_src!=null){
+//        		$('.pl_cont',clicked_div_jq).aplayerSetMjpegSrc( current_src );
+//        	}
         }
+
+       //Переустанвливаем плеер для алтернативного источника
+       if(current_src!=null){
+           $('.pl_cont',clicked_div_jq).addPlayer({
+               'src': current_src ,
+               'controls': false,
+               'scale':'on',
+               'mediaType' : 'mjpeg',
+               'autostart':'on',
+               'aplayer_rtsp_php':'../lib/js/aplayer_rtsp.php',
+               'crossorigin' : (WEBKIT)? true:false,
+               'amc_onclick' : function(player_nr){
+                   img_click(document.getElementById('win'+win_nr));
+               }
+           });
+       }
     	
     	//меняем кнопку на Свернуть
         $('img.fs_tc', '#cell_header_'+win_nr)

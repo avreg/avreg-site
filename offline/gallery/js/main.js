@@ -2734,7 +2734,7 @@ var matrix = {
 
     // постройка матрицы временного диапазона
     build : function(){
-
+        scrollPopUp.init();
         $('#matrix_load').show();
 
         matrix.cur_count_item = 0;
@@ -2844,12 +2844,13 @@ var scroll = {
     matrix_count: 10, // размер матрицы
     position : 0, // текущая позиция в скроле
     min_height : 10, // минимальная высота ползунка
-    htmlPopup : '', // Текущий текст в Popup окне
+    popUp : {}, // PopUp Окно возле скролла во время перемещения с текущим значением диапазона
 
     init : function(config) {
         if (config && typeof(config) == 'object') {
             $.extend(scroll, config);
         }
+
         if(MSIE){
             var wheight=(window.innerHeight)?window.innerHeight:((document.all)?document.body.offsetHeight:null);
             scroll.height = ietruebody().clientHeight-100-$('#toolbar').height()-
@@ -2932,7 +2933,6 @@ var scroll = {
         scroll.mousemove = false;
         $(scroll.id + ' .scroll_polz_v').unbind('mousedown');
         $(scroll.id + ' .scroll_polz_v').mousedown(function(e){
-            scroll.htmlPopup = '';
             e.preventDefault();
             var start = e.pageY - $(this).offset().top;
             var start_top = $(this).offset().top - $(this).position().top;
@@ -2944,26 +2944,29 @@ var scroll = {
                     $("#scrollPopup").empty();
                     if ((top + 5) >= top_gr){
                         $(scroll.id + ' .scroll_polz_v').css('top', top);
-                        sp = matrix.count_item - matrix.cell_count - 1;
+                        sp = matrix.count_item - (matrix.count_item%matrix.cell_count);
                         scroll.position = sp;
                     } else{
                         $(scroll.id + ' .scroll_polz_v').css('top', top);
                         var sp = Math.floor(top/((scroll.height-scroll.polzh)/scroll.cell_count)) * scroll.row_count;
                         scroll.position = sp;
                     }
-                    scroll.updatePopup(parseInt($(scroll.id + ' .scroll_polz_v').css('top')));
+                    var topScroll = parseInt($(scroll.id + ' .scroll_polz_v').css('top'));
+                    scrollPopUp.updatePopup(topScroll, sp);
                 }
             });
         });
         $(document).mouseup(function(e){
             if (scroll.mousemove) {
+                keyBoard.setFocusListPanel();
                 $(document).unbind('mousemove');
                 scroll.updateposition(scroll.position, true);
                 scroll.mousemove = false;
                 matrix.num = scroll.position;
                 $('#cell_'+matrix.num).addClass('active');
-                scroll.hidePopup();
+                scrollPopUp.hidePopup(false);
                 keyBoard.setFocusListPanel();
+                scrollPopUp.hidePopup();
             }
         });
 
@@ -3004,67 +3007,6 @@ var scroll = {
 
         scroll.position = 0;
         $(scroll.id).show();
-    },
-
-    hidePopup : function (){
-        $("#scrollPopup").hide();
-    },
-
-    updatePopup : function (topPopup){
-        scroll.updateCachePopup();
-        var htmlPopup_now = matrix.events[scroll.position];
-        if (typeof(htmlPopup_now) !== 'undefined'){
-            if (htmlPopup_now[9].length > 10)
-                scroll.htmlPopup = htmlPopup_now[9];
-            var topPopup = topPopup + $(scroll.id + ' .scroll_top_v').height();
-            console.log(topPopup);
-            var leftPopup = parseInt($("#list_panel").css('width')) - parseInt($("#scrollPopup").width()) - 25;
-            var scrollPopup = document.getElementById("scrollPopup");
-            $("#scrollPopup").css('position', 'absolute');
-            $("#scrollPopup").css('top', topPopup + 'px');
-            $("#scrollPopup").css('left', leftPopup + 'px');
-            $("#scrollPopup").show();
-        }
-        console.log(scroll.htmlPopup);
-        $("#scrollPopup").html(scroll.htmlPopup);
-    },
-
-    updateCachePopup : function(){
-        if (typeof(matrix.events[scroll.position]) === 'undefined'){
-            var variable = [];
-            var i = 0;
-            var type = '';
-            var cameras = '';
-            $('input[name="type_event"]').each(function(){
-                if ($(this).attr('checked')) {
-                    type += $(this).val()+',';
-                }
-            });
-            $('input[name="cameras"]').each(function(){
-                if ($(this).attr('checked')) {
-                    cameras += $(this).val()+',';
-                    variable[i] =  $(this).val();
-                    i++;
-                }
-            });
-
-            // Обновляю events
-            $.post(WwwPrefix+'/offline/gallery.php',
-                {'method':'get_events',
-                    'tree':matrix.tree,
-                    'sp':scroll.position,
-                    'type': type,
-                    'cameras': cameras},
-                function(data) {
-                    var i = scroll.position;
-                    // обновляем кеш
-                    $.each(data.events, function(key, value) {
-                        matrix.all_events[key] = value;
-                        matrix.events[i] = value;
-                        i++;
-                    });
-                });
-        }
     },
 
     // сдвиг влево
@@ -3326,7 +3268,6 @@ var scroll = {
     },
     // обновляем позицию скрола и перестраиваем матрицу
     updateposition : function(sp, force) {
-        keyBoard.setFocusListPanel();
         if (scroll.position != sp || force == true) {
             scroll.position = sp;
             matrix.update(sp);
@@ -3334,7 +3275,6 @@ var scroll = {
     },
     // обновляем позицию скрола и ползунка
     setposition : function(sp) {
-        keyBoard.setFocusListPanel();
         scroll.position = sp;
         var t = Math.floor(sp/scroll.row_count*(scroll.height-scroll.polzh)/scroll.cell_count);
         //проверяем, чтобы ползунок не перекрывал нижнюю стрелку скрола
@@ -4210,3 +4150,126 @@ var keyBoard = {
         });
     }
 };
+
+// Объект PopUp окна
+var scrollPopUp = {
+    idScrollPopUp : '#scrollPopup',
+    htmlPopup : '', // Текущий текст в Popup окне
+    lastScrollPosition : 0,
+    cachePopUp : {},
+    idInterval : undefined,
+    scrollPosition : 0,
+    leftPopup : 0,
+    topPopup : 0,
+
+    init : function (){
+        var self = this;
+        self.htmlPopup = '';
+        self.scrollPosition = 0;
+        self.idInterval = undefined;
+        self.clearCachePopUp();
+    },
+
+    hidePopup : function (){
+        $(scrollPopUp.idScrollPopUp).hide();
+    },
+
+    updatePopup : function (topPopup, sp){
+        var self = this;
+        self.hidePopup(false);
+        self.topPopup = topPopup + $(scroll.id + ' .scroll_top_v').height();
+        self.leftPopup = parseInt($("#list_panel").css('width')) - parseInt($(self.idScrollPopUp).width()) - 25;
+        self.scrollPosition = sp;
+
+
+
+        var htmlPopup_now = self.cachePopUp[self.scrollPosition];
+        if (typeof(htmlPopup_now) !== 'undefined'){
+            self.htmlPopup = htmlPopup_now;
+        }else{
+            //self.updateCachePopup(sp);
+            if (self.idInterval !== undefined){
+                console.log(self.idInterval + '__' + scrollPopUp.idInterval);
+                clearInterval(self.idInterval);
+            }
+            scrollPopUp.idInterval = setInterval(scrollPopUp.sendRequestUpdateCache(sp), 100);
+
+            self.htmlPopup = self.cachePopUp[self.scrollPosition];
+        }
+        self.setHtmlPopUp(self.htmlPopup);
+        self.showPopUp();
+    },
+
+    setHtmlPopUp : function (htmlPopUp){
+        if (htmlPopUp)
+            $(scrollPopUp.idScrollPopUp).html(htmlPopUp);
+
+    },
+
+    setPositionPopUp : function (){
+
+        $(scrollPopUp.idScrollPopUp).css('position', 'absolute');
+        $(scrollPopUp.idScrollPopUp).css('top', scrollPopUp.topPopup + 'px');
+        $(scrollPopUp.idScrollPopUp).css('left', scrollPopUp.leftPopup + 'px');
+
+    },
+
+    updateCachePopup : function(sp){
+        if (typeof(this.cachePopUp[scroll.position]) === 'undefined'){
+            scrollPopUp.idInterval = setInterval(scrollPopUp.sendRequestUpdateCache(sp), 1000);
+        }
+    },
+
+    sendRequestUpdateCache : function (sp){
+        var self = this;
+        var type = '';
+        var cameras = '';
+        $('input[name="type_event"]').each(function(){
+            if ($(this).attr('checked')) {
+                type += $(this).val()+',';
+            }
+        });
+        $('input[name="cameras"]').each(function(){
+            if ($(this).attr('checked')) {
+                cameras += $(this).val()+',';
+            }
+        });
+
+        $.post(WwwPrefix+'/offline/gallery.php',
+            {'method':'get_events',
+                'tree': matrix.tree,
+                'sp': scrollPopUp.scrollPosition,
+                'limit' : 1,
+                'type': type,
+                'cameras': cameras
+            },
+            function(data, res) {
+                scrollPopUp.cachePopUp[sp] = data;
+                scrollPopUp.setHtmlPopUp(data);
+                scrollPopUp.showPopUp();
+            }, 'text');
+    },
+
+    clearCachePopUp : function (){
+        delete scrollPopUp.cachePopUp;
+        scrollPopUp.cachePopUp = {};
+    },
+
+    closePopUp : function (clearHtmlPopUp){
+        $(scrollPopUp.idScrollPopUp).hide();
+        if (clearHtmlPopUp){
+            scrollPopUp.htmlPopup = '';
+        }
+    },
+
+    showPopUp : function (){
+        if ($(scrollPopUp.idScrollPopUp).html()){
+            scrollPopUp.setPositionPopUp();
+            $(scrollPopUp.idScrollPopUp).show();
+        }
+        else{
+            scrollPopUp.hidePopup();
+        }
+    }
+
+}

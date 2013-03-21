@@ -724,7 +724,7 @@ a {
 	list-style:none;
 	width: 40px;
 	height: 40px;
-	//border: 3px solid #4e4e4e;
+	/*border: 3px solid #4e4e4e;*/
 	border: 2px outset white;
 	cursor: pointer;
 	margin: 3px;	
@@ -873,7 +873,7 @@ a, label,h2, button,span,div
 }
 
 .selectElement {
-	//outline: 1px solid #fff;
+	/*outline: 1px solid #fff;*/
 
 }
 #cameras_color .selectColor {
@@ -1011,7 +1011,7 @@ a.set_camera_color:hover {
 	border: 5px outline #4E4E4E !important;
 	height: 40px !important;
 	width: 40px !important;
-	//border: 2px outset #4E4E4E;
+	/*border: 2px outset #4E4E4E;*/
 	border-radius: 5px;
 }
 

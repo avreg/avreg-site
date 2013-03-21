@@ -45,6 +45,7 @@ class Gallery {
     private 
     	$cache,
     	$db = '',
+        $limit = 0,
     	$conf = array(); // настройки галереи
     // конструктор класса
     public function __construct($param) {
@@ -58,7 +59,9 @@ class Gallery {
     	global $conf;
     	$this->conf = $conf;
     	$this->cache = new Cache();
-    	
+    	if (!$this->limit){
+            $this->limit = $this->conf['gallery-limit'];
+        }
     	global $adb;
     	$this->db = $adb;
     	
@@ -100,15 +103,21 @@ class Gallery {
 	    		'cameras' => $param['cameras'],
 	    		'events' => $EVT_ID,
 	    		'date' => $param['tree'] !== 'all' ? explode('_', $param['tree']) : array(),
-	    		'limit' => $this->conf['gallery-limit'],
+	    		'limit' => $this->limit,
 	    		'offset' => $param['sp'],
 	    	);
-   			$events = $this->db->gallery_get_event($p);
+   			//$events = $this->db->gallery_get_event($p);
+            if ($this->limit > 1){
+                $events = $this->db->gallery_get_event($p);
+                // Сохранение результата
+                $this->result = array('events'=>$events);
+            }else{
+                $date = $this->db->gallery_get_event_date($p);
+                // Сохранение результата
+                $this->result = $date;
+            }
     	}
-
-    	// Сохранение результата
-    	$this->result = array('events'=>$events);
-    }    
+    }
     
     // Функция построения дерева события
     public function get_tree_events($param) {
@@ -168,7 +177,14 @@ class Gallery {
     
     // отдача результата клиенту
     public function print_result() {
-    	echo json_encode($this->result);
+        if ($this->limit > 1){
+    	    echo json_encode($this->result);
+        }else{
+            if (is_array($this->result))
+                echo 'is array result';
+            else
+                echo $this->result;
+        }
     }
 
 }

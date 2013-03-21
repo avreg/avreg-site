@@ -187,8 +187,54 @@ class Adb {
       return $events;
    }
 
-   
-   
+
+    /**
+     *  Метод позволяет получить дату текущего события
+     *
+     *
+     * @param array $param Параметры
+     * - $param['events'] тип событий событий (изображения, аудио, видео)
+     * - $param['cameras']  список камер
+     * - $param['date'] дата событий
+     * - $param['limit']
+     * - $param['offset']
+     *
+     * @return array масив событий
+     */
+
+    public function gallery_get_event_date($param) {
+        $events = array();
+        $query = "SELECT ".$this->_date_format('DT2').", DT2";
+        $query .= ' FROM EVENTS';
+        $query .= ' WHERE EVT_ID in ('. implode(",", $param['events']) .')';
+        $query .= ' AND EVENTS.CAM_NR in ('. implode(",", $param['cameras']).')';
+
+        if (isset($param['date'][0]))
+            $query .= ' AND '.$this->_date_part('year', 'DT1').'= '.$param['date'][0];
+
+        if (isset($param['date'][1]))
+            $query .= ' AND '.$this->_date_part('month', 'DT1').'= '.$param['date'][1];
+
+        if (isset($param['date'][2]))
+            $query .= ' AND '.$this->_date_part('day', 'DT1').'= '.$param['date'][2];
+
+        if (isset($param['date'][3]))
+            $query .= ' AND '.$this->_date_part('hour', 'DT1').'= '.$param['date'][3];
+
+        // сортировать по дате, от текущей позиции с лимитом заданный в конфиге
+        $query .= ' ORDER BY DT1 ASC LIMIT '.$param['limit']. ' OFFSET '.$param['offset'];
+
+        $res = $this->_db->query($query);
+
+        $this->_error($res);
+
+        $res->fetchInto($line);
+
+        $date_events = $line[1];
+
+        return $date_events;
+    }
+
    
    
    /**
