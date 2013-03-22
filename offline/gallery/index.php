@@ -225,7 +225,6 @@
 	</div>
 </div>
 
-
 <script type="text/javascript">
 var MediaUrlPref = WwwPrefix + MediaAlias + '\/';
 

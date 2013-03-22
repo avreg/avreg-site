@@ -700,9 +700,9 @@ var gallery = {
 
 
                     var found = tree.split('_');
-                    scroll.position = 1;
-                    scroll.updateposition(1);
-                    scroll.setposition(1);
+                    scroll.position = 0;
+                    scroll.updateposition(0);
+                    scroll.setposition(0);
                     var s = '';
                     for(var i=0,ilen=found.length; i<ilen; i++) {
                         if(s!='')
@@ -1935,7 +1935,7 @@ var matrix = {
         $(".elem .info_block").tooltip();
 
         //установка активного элемента 
-        $('.active').removeAttr('active');
+        $('.active').removeClass('active');
         $('#cell_'+matrix.num).addClass('active');
 
     },
@@ -2846,12 +2846,16 @@ var scroll = {
     matrix_count: 10, // размер матрицы
     position : 0, // текущая позиция в скроле
     min_height : 14, // минимальная высота ползунка
-    popUp : {}, // PopUp Окно возле скролла во время перемещения с текущим значением диапазона
+    lastTopPositionScroll : 0, // Текущий отступ сверху ползунка
+    polzh : 0,
 
     init : function(config) {
         if (config && typeof(config) == 'object') {
             $.extend(scroll, config);
         }
+
+        // Обнуляю отступ сверху ползунка
+        scroll.lastTopPositionScroll = 0;
 
         if(MSIE){
             var wheight=(window.innerHeight)?window.innerHeight:((document.all)?document.body.offsetHeight:null);
@@ -2873,7 +2877,6 @@ var scroll = {
             if ( h < scroll.min_height) {
                 scroll.polzh = scroll.min_height - h;
                 h = scroll.min_height;
-
             }
             // задаем параметры ползунка
             $(scroll.id + ' .scroll_polz_v').height(h);
@@ -2933,35 +2936,30 @@ var scroll = {
                 e.preventDefault();
             });
 
-        //$(scroll.id + ' .scroll_polz_v_Bottom').height($(scroll.id + ' .scroll_polz_v').height());
-
         scroll.mousemove = false;
         $(scroll.id + ' .scroll_polz_v').unbind('mousedown');
         $(scroll.id + ' .scroll_polz_v').mousedown(function(e){
-            e.preventDefault();
-            var topoffset = $(this).offset().top;
+            scrollPopUp.hidePopUpAfterTimeout = false;
             var start = e.pageY - $(this).offset().top;
             var start_top = $(this).offset().top - $(this).position().top;
             $(document).mousemove(function(e){
+                e.preventDefault();
                 scroll.mousemove = true;
                 var top = e.pageY - start_top - start;
                 var top_gr = $(scroll.id + ' .scroll_body_v').height() - $(scroll.id + ' .scroll_polz_v').height();
-                if (top < 0 || top_gr <= top){
-                    top = (top_gr <= top)?top_gr:0;
-                    top = (matrix.count_item <= (matrix.count_row * matrix.cell_count)) ? 0 : top;
-                }
-                if (top >= top_gr){
-                    $(scroll.id + ' .scroll_polz_v').css('top', top);
-                    sp = matrix.count_item - (matrix.count_item%matrix.cell_count);
-                    sp = (sp <= (matrix.count_row * matrix.cell_count)) ? 0 : sp;
-                    scroll.position = sp;
-                } else{
-                    $(scroll.id + ' .scroll_polz_v').css('top', top);
-                    var sp = Math.floor(top/((scroll.height-scroll.polzh)/scroll.cell_count)) * scroll.row_count;
-                    sp = (sp <= (matrix.count_row * matrix.cell_count)) ? 0 : sp;
-                    scroll.position = sp;
-                }
+                // Учитываю, что скролл не может наезжать на соседние обыекты, а должен двигаться только по в допустимом диапазоне
+                top = (top > top_gr)?top_gr:top;
+                top = (top < 0)?0:top;
+                // Устанавливается отсуп сверху для ползунка
+                $(scroll.id + ' .scroll_polz_v').css('top', top);
+                // Какой элемент нужно установить
+                var sp = Math.floor(top/((scroll.height - scroll.polzh)/scroll.cell_count) * scroll.row_count);
+                // Проверяю, не вышли ли при подсчете за домустимый диапазон
+                sp = (sp > matrix.count_item)?(Math.floor(matrix.count_item / matrix.cell_count) * matrix.cell_count):sp;
+                scroll.position = sp;
+                console.log(sp + ' ___ ' + top + ' ___ ' + matrix.count_item + ' ____ ' + matrix.cell_count + ' ____ ' + scroll.row_count + ' ___ ' + scroll.height + ' ____ ' + scroll.polzh);
                 var topScroll = parseInt($(scroll.id + ' .scroll_polz_v').css('top'));
+                // Обновляю PopUp окно
                 scrollPopUp.updatePopup(topScroll, sp);
             });
         });
@@ -2971,12 +2969,23 @@ var scroll = {
                 $(document).unbind('mousemove');
                 scroll.updateposition(scroll.position, true);
                 scroll.mousemove = false;
+
+                scroll.lastTopPositionScroll = top;
+
+                // Делаю неактивной предыдущую выделенную ячейку
+                if ($('#cell_'+matrix.num).hasClass('active')){
+                    $('#cell_'+matrix.num).removeClass('active');
+                }
+
                 matrix.num = scroll.position;
+                // Выбранная ячейка становится активной
                 $('#cell_'+matrix.num).addClass('active');
-                scrollPopUp.hidePopup(false);
                 keyBoard.setFocusListPanel();
+                scrollPopUp.hidePopUpAfterTimeout = true;
+                console.log('end ');
                 scrollPopUp.hidePopup();
             }
+            //scroll.mousemove = false;
         });
 
         $("#win_bot").unbind('mousewheel');
@@ -3016,6 +3025,11 @@ var scroll = {
 
         scroll.position = 0;
         $(scroll.id).show();
+    },
+
+    moveScroll : function (event){
+        event.preventDefault();
+
     },
 
     // сдвиг влево
@@ -3290,7 +3304,7 @@ var scroll = {
         if(t > $(scroll.id + ' .scroll_body_v').height()- $(scroll.id + ' .scroll_polz_v').height() ){
             t=$(scroll.id + ' .scroll_body_v').height()- $(scroll.id + ' .scroll_polz_v').height();
         }
-        $(scroll.id + ' .scroll_polz_v').css({top:t});
+        $(scroll.id + ' .scroll_polz_v').css({top:t});//scroll.lastTopPositionScroll});
     }
 };
 
@@ -4164,7 +4178,7 @@ var keyBoard = {
 var scrollPopUp = {
     idScrollPopUp : '#scrollPopup',
     htmlPopup : '', // Текущий текст в Popup окне
-    lastScrollPosition : 0,
+    hidePopUpAfterTimeout : false,
     cachePopUp : {},
     idInterval : undefined,
     scrollPosition : 0,
@@ -4202,7 +4216,7 @@ var scrollPopUp = {
             }
             scrollPopUp.idInterval = setTimeout(function(){
                 scrollPopUp.sendRequestUpdateCache(sp);
-            }, 200);
+            }, 100);
 
             self.htmlPopup = self.cachePopUp[self.scrollPosition];
         }
@@ -4248,9 +4262,14 @@ var scrollPopUp = {
                 'cameras': cameras
             },
             function(data, res) {
+                console.log(scrollPopUp.hidePopUpAfterTimeout);
                 scrollPopUp.cachePopUp[sp] = data;
                 scrollPopUp.setHtmlPopUp(data);
                 scrollPopUp.showPopUp();
+                if (scrollPopUp.hidePopUpAfterTimeout === true){
+                    console.log('123');
+                    scrollPopUp.hidePopup();
+                }
             }, 'text');
     },
 
