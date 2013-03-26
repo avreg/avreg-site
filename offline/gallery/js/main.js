@@ -2931,6 +2931,12 @@ var scroll = {
             scroll.num_right();
             return false;
         });
+        $('#toolbar').unbind('click');
+        $('#toolbar').click(function(e){
+            keyBoard.setFocusListPanel();
+            e.preventDefault();
+            return false;
+        })
 
         // обработка перемещения ползунка
 
