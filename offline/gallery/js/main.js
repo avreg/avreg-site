@@ -488,7 +488,6 @@ var gallery = {
             // предыдущий год, месяц, день
             var o0 = false, o1 = false, o2 = false;
             var ii = 0;
-
             $.each(matrix.tree_events, function( i,value) {
                 // временной диапазон
                 var key = value.date;
@@ -497,7 +496,7 @@ var gallery = {
                 // количество файлов во временном диапазоне
                 var count = 0;
 
-                //считаем размер и количество файлов в временном диапазоне в выбранных настройках
+                //считаем размер и количество файлов во временном диапазоне в выбранных настройках
                 $.each(variable, function(k, v) {
                     if (typeof(value[k+'_size']) != 'undefined' ) {
                         size += parseFloat(value[k+'_size']);
@@ -764,7 +763,7 @@ var gallery = {
                 timeout: update_tree_timeout*1000,
                 url: WwwPrefix+'/offline/gallery.php',
                 data: ajax_params,
-                success: function(data) {
+                success: function(data) {console.log(data);
                     if (data.status == 'success'){
                         matrix.tree_events = data.tree_events;
                         matrix.cameras = data.cameras;
@@ -2906,17 +2905,20 @@ var scroll = {
         // обработка нажатия стрелки вверх на скроле
         $(scroll.id + ' .scroll_top_v').unbind('click');
         $(scroll.id + ' .scroll_top_v').click(function() {
+            keyBoard.setFocusListPanel();
             scroll.num_up();
         });
         // обработка нажатия стрелки вниз на скроле
         $(scroll.id + ' .scroll_bot_v').unbind('click');
         $(scroll.id + ' .scroll_bot_v').click(function() {
+            keyBoard.setFocusListPanel();
             scroll.num_down();
         });
 
         // обработка нажатия стрелки предыдущее
         $('#toolbar .prew').unbind('click');
         $('#toolbar .prew').click(function(e) {
+            keyBoard.setFocusListPanel();
             e.preventDefault();
             scroll.num_left();
             return false;
@@ -2924,6 +2926,7 @@ var scroll = {
         // обработка нажатия стрелки следующее
         $('#toolbar .next').unbind('click');
         $('#toolbar .next').click(function(e) {
+            keyBoard.setFocusListPanel();
             e.preventDefault();
             scroll.num_right();
             return false;
@@ -2955,9 +2958,8 @@ var scroll = {
                 // Какой элемент нужно установить
                 var sp = Math.floor(top/((scroll.height - scroll.polzh)/scroll.cell_count) * scroll.row_count);
                 // Проверяю, не вышли ли при подсчете за домустимый диапазон
-                sp = (sp > matrix.count_item)?(Math.floor(matrix.count_item / matrix.cell_count) * matrix.cell_count):sp;
+                sp = (sp >= matrix.count_item)?(Math.floor(matrix.count_item / matrix.cell_count) * matrix.cell_count):sp;
                 scroll.position = sp;
-                console.log(sp + ' ___ ' + top + ' ___ ' + matrix.count_item + ' ____ ' + matrix.cell_count + ' ____ ' + scroll.row_count + ' ___ ' + scroll.height + ' ____ ' + scroll.polzh);
                 var topScroll = parseInt($(scroll.id + ' .scroll_polz_v').css('top'));
                 // Обновляю PopUp окно
                 scrollPopUp.updatePopup(topScroll, sp);
@@ -2983,9 +2985,9 @@ var scroll = {
                 keyBoard.setFocusListPanel();
                 scrollPopUp.hidePopUpAfterTimeout = true;
                 console.log('end ');
+                console.log(scroll.position + ' ' + matrix.num);
                 scrollPopUp.hidePopup();
             }
-            //scroll.mousemove = false;
         });
 
         $("#win_bot").unbind('mousewheel');
@@ -3001,6 +3003,7 @@ var scroll = {
         // обработка нажатия на область между ползунком и края скрола
         $(scroll.id + ' .scroll_body_v').unbind('mousedown');
         $(scroll.id + ' .scroll_body_v').mousedown(function(e){
+            keyBoard.setFocusListPanel();
             e.preventDefault();
             var y = e.pageY -$(this).offset().top;
             var sp = scroll.position;
@@ -3497,7 +3500,7 @@ var scale2 = {
             //показываем чекбокс пропорций
             $('div.propotion').show();
         }
-        else if( $('.active .refBox').aplayerIsEmbededObject() || value[7]=='audio' ) //Если внедренный объект или  аудио
+        else if($('.active .refBox').aplayerIsEmbededObject() || value[7]=='audio' ) //Если внедренный объект или  аудио
         {
             //Скрываем елемент управления масштабом
             $('#scale2').hide();
@@ -3508,6 +3511,8 @@ var scale2 = {
             $('#scale2').hide();
             //скрываем чекбокс пропорций
             $('div.propotion').hide();
+            console.log($("div[id^=controlPanel_]", ref_box));
+            console.log(value);
         }
         else // HTML5-player + flowplayer
         {
@@ -3559,7 +3564,7 @@ var scale2 = {
             $(ref_box).aplayerSetSizeMediaElt({
                 'width':  parseInt(width) + Math.floor((wm - width)*sp/self.max),
                 'height': parseInt(height) + Math.floor((hm - height)*sp/self.max)
-            } );
+            });
             //установка размеров плеера в соответствии с размерами родительского элемента
             $(ref_box).aplayerResizeContanerOnlyToParent();
 
