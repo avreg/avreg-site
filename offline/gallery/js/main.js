@@ -763,7 +763,7 @@ var gallery = {
                 timeout: update_tree_timeout*1000,
                 url: WwwPrefix+'/offline/gallery.php',
                 data: ajax_params,
-                success: function(data) {console.log(data);
+                success: function(data) {
                     if (data.status == 'success'){
                         matrix.tree_events = data.tree_events;
                         matrix.cameras = data.cameras;
@@ -1728,6 +1728,7 @@ var matrix = {
             $('img', '.select_mode').attr('src', gallery.images['preview'].src);
 
         }
+
     },
 
 
@@ -1981,7 +1982,6 @@ var matrix = {
             extension=extension[extension.length-1].slice(1);
 
             html += '>'+matrix.cameras[value[5]].text_left+'<br /> '+value[7]+': '+extension;
-
             if (value[7] == 'image') html +=' ('+ value[6]+') <br />';
             else html +=' ('+ value[8]+') <br />';
 
@@ -2608,6 +2608,7 @@ var matrix = {
         //Включаем тултип
         $(".elem .info_block").tooltip();
         if(matrix.num > sp+matrix.cell_count) matrix.num = sp;
+        $('.active').removeClass('active');
         $('#cell_'+matrix.num).addClass('active');
 
         //Если включен режим детального просмотра - хайдим ячейки и выключаем тултип
@@ -2987,11 +2988,10 @@ var scroll = {
 
                 matrix.num = scroll.position;
                 // Выбранная ячейка становится активной
+                $('.active').removeClass('active');
                 $('#cell_'+matrix.num).addClass('active');
                 keyBoard.setFocusListPanel();
                 scrollPopUp.hidePopUpAfterTimeout = true;
-                console.log('end ');
-                console.log(scroll.position + ' ' + matrix.num);
                 scrollPopUp.hidePopup();
             }
         });
@@ -3451,7 +3451,9 @@ var scale2 = {
     },
 
     updateposition : function(sp) {
-
+        if (matrix.mode == 'preview'){
+            return;
+        }
         var self = this;
         self.position = sp;
         var value = matrix.events[matrix.num];
@@ -3517,8 +3519,6 @@ var scale2 = {
             $('#scale2').hide();
             //скрываем чекбокс пропорций
             $('div.propotion').hide();
-            console.log($("div[id^=controlPanel_]", ref_box));
-            console.log(value);
         }
         else // HTML5-player + flowplayer
         {
@@ -3566,7 +3566,7 @@ var scale2 = {
             if(!is_fp){
                 sp+=3; //Несколько увеличиваем размер медиаэлемента 
             }
-            //Изменение размеров медиа-элемента плеера 
+            //Изменение размеров медиа-элемента плеера
             $(ref_box).aplayerSetSizeMediaElt({
                 'width':  parseInt(width) + Math.floor((wm - width)*sp/self.max),
                 'height': parseInt(height) + Math.floor((hm - height)*sp/self.max)
@@ -4273,12 +4273,10 @@ var scrollPopUp = {
                 'cameras': cameras
             },
             function(data, res) {
-                console.log(scrollPopUp.hidePopUpAfterTimeout);
                 scrollPopUp.cachePopUp[sp] = data;
                 scrollPopUp.setHtmlPopUp(data);
                 scrollPopUp.showPopUp();
                 if (scrollPopUp.hidePopUpAfterTimeout === true){
-                    console.log('123');
                     scrollPopUp.hidePopup();
                 }
             }, 'text');
