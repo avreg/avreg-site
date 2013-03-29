@@ -1734,7 +1734,6 @@ var matrix = {
 
     // перестраиваем матрицу при изменении размеров
     resize : function() {
-
         // обновляем ширину колонок
         gallery.resize_column.resize($('#sidebar').width()-2);
 
