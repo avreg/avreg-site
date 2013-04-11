@@ -10,6 +10,8 @@ if (isset($_POST)) {
 }
 /// Языковый файл
 $lang_file = '_admin_cams.php';
+$USE_JQUERY = true;
+$link_javascripts = array('lib/js/checkbox.js');
 require ('../head.inc.php');
 DENY($admin_status);
 require_once ($params_module_name);

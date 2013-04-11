@@ -362,7 +362,11 @@ function img_click(clicked_div) {
 	   for(i=0;i<scl;i++){
 		   $.aplayer.zoomOut(aplayer_id);
 	   }
+
    }
+
+    //проверка связи с камерами
+    if(GECKO || WEBKIT)	checking_connection.init_check();
 
    
 } // img_click()
@@ -689,20 +693,21 @@ var checking_connection = {
 		var imgObj = document.getElementById(img_id);
 		var canvas = self.me_list[index].wk_canvas;
 		var context = canvas.getContext('2d');
-		
+
+
 		var img_h = imgObj.naturalWidth;
 	    var img_w = imgObj.naturalHeight;
-	    //Если натуральные размеры не определены возвращаем код ошибки 0
-	    if(img_h==0 || img_w==0){
-	    	return 0;
-	    }
-		canvas.height = img_h;
-		canvas.width = img_w;
-		context.drawImage(imgObj, 0,0);
-		
-		var imageData = context.getImageData(0, 0, img_w, img_h);
-		var data = imageData.data;
-		
+        //Если натуральные размеры не определены возвращаем код ошибки 0
+        if(img_h==0 || img_w==0){
+           return 0;
+        }
+        canvas.height = img_h;
+        canvas.width = img_w;
+        context.drawImage(imgObj, 0,0);
+
+        var imageData = context.getImageData(0, 0, img_w, img_h);
+        var data = imageData.data;
+
 		return data;
 	},
 	
@@ -756,7 +761,6 @@ var checking_connection = {
 
 		//Элемент для проверки связи
 		var test_con = me;
-		
 		$(test_con).bind('error', function(){
 			$(me).attr('src', imgs['connection_fail'].src);
             self.me_list[index].connection_fail = false;
@@ -777,7 +781,6 @@ var checking_connection = {
 	
 	//попытка реконнекта
 	reconnect_webkit : function(index){
-        console.log('reconnect ', this);
 		var self = this;
 		var me = self.me_list[index].me;
 		var me_id = $(me).attr('id');
@@ -895,7 +898,6 @@ var checking_connection = {
 	
 	//попытка реконнекта
 	reconnect_gecko : function(index){
-        console.log('reconnect ', this);
 		var self = this;
 		var me = self.me_list[index].me;
 		var me_id = $(me).attr('id');
@@ -1696,7 +1698,7 @@ function canvas_growth() {
 			$('.pl_minus, .pl_plus, .normal_size, .original_size',this).remove();
 		}
 	});
-	
+
 	//проверка связи с камерами
 	if(GECKO || WEBKIT)	checking_connection.init_check();
 	
