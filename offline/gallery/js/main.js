@@ -745,7 +745,6 @@ var gallery = {
                 })
                 .delegate("a", "click", function (event, data) { event.preventDefault();}).show();
             gallery.treeObject = $(self.holder);
-
             matrix.build();
         },
         // инициалзация дерева
@@ -2206,12 +2205,11 @@ var matrix = {
         {
             img.src = MediaUrlPref + matrix.events[el][2];
         }
-        matrix.num = sp;
+        //matrix.num = sp;
     },
 
     // обновление матрицы
     update : function(sp) {
-        matrix.num = sp;
         $('#matrix_load').show();
         var hide_over = true;
 
@@ -4164,7 +4162,7 @@ var keyBoard = {
                 var checknextwindow = gallery.cookie.get('checknextwindow');
                 if (checknextwindow == 'yes') {
                     prev = matrix.curent_tree_events[matrix.tree].prev;
-                    new_num = matrix.curent_tree_events[prev].count - 1;
+                    var new_num = matrix.curent_tree_events[prev].count - 1;
                     sp = Math.floor(new_num / scroll.row_count) * scroll.row_count;
                     matrix.num = new_num;
                     scroll.position = sp;
@@ -4178,6 +4176,7 @@ var keyBoard = {
                 }
             }
         } else {
+            matrix.num = sp;
             scroll.updateposition(sp);
             scroll.setposition(sp);
         }
@@ -4206,7 +4205,6 @@ var keyBoard = {
             sp =  sp + scroll.matrix_count*scroll.row_count;
             matrix.num = matrix.num + scroll.matrix_count*scroll.row_count;
         }
-        console.log(sp + '  ___  ' + matrix.num);
         scroll.updateposition(sp);
         scroll.setposition(sp);
     }

@@ -1437,84 +1437,8 @@ $reverse=FALSE //менеяет местами ключи со значения�
 	
 	//клиентские скрипты поведения и начального состояния
 	$a .= '<script type="text/javascript">'."\n";
-	
-	//поведение при клике на чекбоксе
-	$a .= 'chbox_itm_clk = function(name){
-		var itms = $("#id_"+name+" .chbox_itm");
-		var cntr=0;
-		$(itms).each(function(){
-			if(typeof($(this).attr("checked"))!="undefined"){
-				cntr++;
-			}
-		});
-		
-		if(cntr==0){
-			$("#id_head_"+name).css("opacity", 1);
-			$("#id_head_"+name+" .chbox_head").text("'.$dict['select_all'].'");
-			$("#id_"+name+"_select_all").attr("checked", false);
-		}
-		else if(cntr==$(itms).size()){
-			$("#id_head_"+name).css("opacity", 1);
-			$("#id_head_"+name+" .chbox_head").text("'.$dict['deselect_all'].'");
-			$("#id_"+name+"_select_all").attr("checked", true);
-		}else{
-			$("#id_head_"+name).css("opacity", 0.7);
-			$("#id_head_"+name+" .chbox_head").text("'.$dict['deselect_all'].'");
-			$("#id_"+name+"_select_all").attr("checked", true);
-		}
-	};'."\n";
-	//поведение при клике на "Выбрать все"
-	$a .= 'chbox_select_all = function(name){ 
-		var head = $("#id_"+name+"_select_all");
-		if(typeof($(head).attr("checked"))=="undefined" ){
-			$("#id_"+name+" input.chbox_itm").attr({"checked":false});
-			$("#id_head_"+name+" .chbox_head").text("'.$dict['select_all'].'");
-		}
-		else{
-			$("#id_"+name+" input.chbox_itm").attr({"checked":true});
-			$("#id_head_"+name+" .chbox_head").text("'.$dict['deselect_all'].'");
-		}
-		chbox_itm_clk(name);
-	};';
-	//Установка начального состояния
-	$a .='$(function(){'."\n";
-	//для "Выбрать все"
-	if($show_select_all){
-		if($cnt_selected_itms==0){
-			$a .='$("#id_'.$_name.'_select_all")'."\n";
-			$a .='.attr({"checked":false});'."\n";
-			$a .='$("#id_head_'.$_name.' .chbox_head").text("'.$dict['select_all'].'");'."\n";
-		}else if($cnt_selected_itms== sizeof($assoc_array)){
-			$a .='$("#id_'.$_name.'_select_all")'."\n";
-			$a .='.attr({"checked":true});'."\n";
-			$a .='$("#id_head_'.$_name.' .chbox_head").text("'.$dict['deselect_all'].'");'."\n";
-		}else{
-			$a .='$("#id_'.$_name.'_select_all")'."\n";
-			$a .='.attr({"checked":true});'."\n";
-			$a .='$("#id_head_'.$_name.' .chbox_head").text("'.$dict['deselect_all'].'");'."\n";
-			$a .= '$("#id_head_"+"'.$_name.'").css("opacity", 0.7);'."\n";
-		}
-	}
-	//определение и установка высоты элемента управления
-	if ($_size!=0){
-		$a .='var ht_cbx = 0;'."\n";
-		$a .='$("#id_'.$_name.' .chbox_itm").each(function(){ '."\n";
-		/// Подключение стилей
-		if(stristr($_SERVER['HTTP_USER_AGENT'], 'MSIE')){
-			//для MSIE
-			$a .='if($(this).height()>ht_cbx ) ht_cbx = $(this).height();'."\n";
-		}else{
-			$a .='if($(this).height()>ht_cbx ) ht_cbx = $(this).height()+6 ;'."\n";
-		}
-		$a .= ' });'."\n";
-		$a .='ht_cbx*= '.$_size.' ;'."\n";
-		$a .='$("#id_'.$_name.'")'."\n";
-		$a .='.height(ht_cbx)'."\n";
-	}
-	$a .='});'."\n";
-	
+	$a .= "initCheckBox('" . $_name . "', $_size) ";
 	$a .= '</script>'."\n";
-	
 	return $a;
 }
 

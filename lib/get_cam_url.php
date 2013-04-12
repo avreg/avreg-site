@@ -13,9 +13,26 @@ $__tmp = &$conf['avregd-httpd'];
 eval("\$http_cam_location = \"$__tmp\";");
 unset($__tmp);
 
+/**
+ * Возвращает $url если переданный url верный и url avred в случае, если url некорректный
+ * @param null $url - url камеры
+ * @param array $conf - массив конфига
+ * @param int $cam_nr - номер камеры
+ * @param string $media - тип воспроизведения (default - mjpeg)
+ * @param array $cams_urls - список камер
+ * @return null|string
+ */
+function checkUrlParam($url = null, $conf=array(), $cam_nr=0, $media = 'mjpeg', $cams_urls=array()){
+    if (isset($url) && filter_var($url, FILTER_VALIDATE_URL)){
+        return $url;
+    }
 
+    /*if ($url !== NULL){
+        return get_cam_http_url($conf, $cam_nr, $media, true, $cams_urls);
+    }*/
 
-
+    return null;
+}
 
 /**
  * 
@@ -34,7 +51,7 @@ function get_cam_http_url($conf, $cam_nr, $media, $append_abenc=false)
         && !empty($cams_subconf[$cam_nr]['avregd-httpd'])) {
       $_a = &$cams_subconf[$cam_nr]['avregd-httpd'];
       eval("\$url = \"$_a\";");
-   } else{
+   }else{
       $url = $GLOBALS['http_cam_location'];
    }
    $path_var = sprintf('avregd-%s-path', $media);

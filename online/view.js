@@ -362,7 +362,11 @@ function img_click(clicked_div) {
 	   for(i=0;i<scl;i++){
 		   $.aplayer.zoomOut(aplayer_id);
 	   }
+
    }
+
+    //проверка связи с камерами
+    if(GECKO || WEBKIT)	checking_connection.init_check();
 
    
 } // img_click()
@@ -689,20 +693,21 @@ var checking_connection = {
 		var imgObj = document.getElementById(img_id);
 		var canvas = self.me_list[index].wk_canvas;
 		var context = canvas.getContext('2d');
-		
+
+
 		var img_h = imgObj.naturalWidth;
 	    var img_w = imgObj.naturalHeight;
-	    //Если натуральные размеры не определены возвращаем код ошибки 0
-	    if(img_h==0 || img_w==0){
-	    	return 0;
-	    }
-		canvas.height = img_h;
-		canvas.width = img_w;
-		context.drawImage(imgObj, 0,0);
-		
-		var imageData = context.getImageData(0, 0, img_w, img_h);
-		var data = imageData.data;
-		
+        //Если натуральные размеры не определены возвращаем код ошибки 0
+        if(img_h==0 || img_w==0){
+           return 0;
+        }
+        canvas.height = img_h;
+        canvas.width = img_w;
+        context.drawImage(imgObj, 0,0);
+
+        var imageData = context.getImageData(0, 0, img_w, img_h);
+        var data = imageData.data;
+
 		return data;
 	},
 	
@@ -756,7 +761,6 @@ var checking_connection = {
 
 		//Элемент для проверки связи
 		var test_con = me;
-		
 		$(test_con).bind('error', function(){
 			$(me).attr('src', imgs['connection_fail'].src);
             self.me_list[index].connection_fail = false;
@@ -777,7 +781,6 @@ var checking_connection = {
 	
 	//попытка реконнекта
 	reconnect_webkit : function(index){
-        console.log('reconnect ', this);
 		var self = this;
 		var me = self.me_list[index].me;
 		var me_id = $(me).attr('id');
@@ -895,7 +898,6 @@ var checking_connection = {
 	
 	//попытка реконнекта
 	reconnect_gecko : function(index){
-        console.log('reconnect ', this);
 		var self = this;
 		var me = self.me_list[index].me;
 		var me_id = $(me).attr('id');
@@ -1187,7 +1189,6 @@ function canvas_growth() {
     * Выводит список доступных раскладок
     * @returns {String} - html -разметка
     */
-
    function layouts_to_list(){
 	   var html = '<div id="nav"><span>';
         $.each(layouts_list, function(i, value){
@@ -1275,7 +1276,7 @@ function canvas_growth() {
    		//установка url камеры
    		active_cams_srcs[i] = new Array();
    		var cam_url = '';
-   		
+
    		switch(layout_wins[i][1]){
    		case '0':
    		case '1': //avregd
@@ -1375,7 +1376,6 @@ function canvas_growth() {
     * @param h - высота изображения камеры
     * @returns объект с размерами элементов отображения камер в раскладке
     */
-
    function calcAspectForGeo( w, h) {
    	
    	$.each(WellKnownAspects, function(i, val){
@@ -1444,9 +1444,6 @@ function canvas_growth() {
            if (GECKO)
            document.onmousemove=positiontip;
 		}
-       
-		
-		
            // calc and set  CANVAS width & height
            CANVAS = $('#canvas');
            
@@ -1458,7 +1455,7 @@ function canvas_growth() {
 
         	   $('#tb_contn').prepend('<td><div class="to_main"> <a href="../index.php" >На главную </a> </div> </td>');
            }
-            // TODO Кнопка пользовательских раскладок
+           // TODO Кнопка пользовательских раскладок
            $('#tb_contn').append('<td><div id="user_layouts" class="user_layouts" onclick="clients_layouts_list();" > <a href="#" >Раскладки</a> </div> </td>');
            
            canvas_growth();
@@ -1476,8 +1473,6 @@ function canvas_growth() {
            var _left=0;
            var win_div;
            var win_def;
-
-
 
             // Установка в канвас выбранной раскладки
            for (win_nr = 0; win_nr < WINS_NR; win_nr++ ) {
@@ -1508,10 +1503,16 @@ function canvas_growth() {
 			if (PrintCamNames) {
                  var ipcamhost_link_begin = '';
                  var ipcamhost_link_end = '';
-                 
-                 if ( GCP_cams_params[WINS_DEF[win_nr].cam.nr].video_src == "rtsp" || GCP_cams_params[WINS_DEF[win_nr].cam.nr].video_src == "http"  ) {
-                    ipcamhost_link_begin = '<a href="http://' +
-                                             WINS_DEF[win_nr].cam.netcam_host +
+                 var host = '';
+                console.log(GCP_cams_params[WINS_DEF[win_nr].cam.nr]);
+                 if ( GCP_cams_params[WINS_DEF[win_nr].cam.nr].video_src == "rtsp" ||
+                     GCP_cams_params[WINS_DEF[win_nr].cam.nr].video_src == "http"  ) {
+                     if (CAMS_URLS[WINS_DEF[win_nr].cam.nr].ipcam_interface_url){
+                         host = CAMS_URLS[WINS_DEF[win_nr].cam.nr].ipcam_interface_url;
+                     }else{
+                         host = 'http://' + WINS_DEF[win_nr].cam.netcam_host;
+                     }
+                    ipcamhost_link_begin = '<a href="' + host +
                                              '" target="_blank" style="color:inherit;" title="'+strToolbarControls['to_cam_interface']+'">';
                     ipcamhost_link_end   = ' &rarr;<\/a>';
                  }
@@ -1696,7 +1697,7 @@ function canvas_growth() {
 			$('.pl_minus, .pl_plus, .normal_size, .original_size',this).remove();
 		}
 	});
-	
+
 	//проверка связи с камерами
 	if(GECKO || WEBKIT)	checking_connection.init_check();
 	
@@ -1762,9 +1763,7 @@ cam_status_request = function(params ){
 	
 	
 };
-   
-   
-   
+
 /**
  * Функция создает XHR-object
  * @returns  XHR-object

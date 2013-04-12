@@ -115,7 +115,7 @@ if ( $GCP_cams_nr === 0 ) {
    $c_v4l_pipe='';
 
    reset($GCP_cams_params);
-   while (list($__cam_nr, $cam_detail) = each($GCP_cams_params)) 
+   while (list($__cam_nr, $cam_detail) = each($GCP_cams_params))
    {
       $cam_name = getCamName($GCP_cams_params[$__cam_nr]['text_left']);
       $c_work = intval($GCP_cams_params[$__cam_nr]['work']);
