@@ -300,10 +300,6 @@ foreach ($GCP_cams_params as $key=>$value){
     }else{
         $ipcamUrl = '';
     }
-    $fsUrl =  checkUrlParam($GCP_cams_params[$key]['fs_url_alt_2'], $conf, $key, 'mjpeg');
-    if (!$fsUrl){
-        $fsUrl = get_cam_http_url($conf, $key, 'mjpeg', true, $cams_urls);
-    }
 
     $cu = array(
         "ipcam_interface_url" => $ipcamUrl,
@@ -314,13 +310,11 @@ foreach ($GCP_cams_params as $key=>$value){
         // get_cam_alt_url($GCP_cams_params[$key]['fs_url_alt_1'], $key, true),
         "cell_url_alt_2"=> checkUrlParam($GCP_cams_params[$key]['cell_url_alt_2'], $conf, $key, 'mjpeg'),
         //get_cam_alt_url( $GCP_cams_params[$key]['cell_url_alt_2'], $key, true),
-        "fs_url_alt_2"=> $fsUrl
+        "fs_url_alt_2"=> checkUrlParam($GCP_cams_params[$key]['fs_url_alt_2'], $conf, $key, 'mjpeg')
         //get_cam_alt_url( $GCP_cams_params[$key]['fs_url_alt_2'], $key, true)
     );
     $cams_urls[$key]=$cu;}
 print "var CAMS_URLS = ".json_encode($cams_urls).";\n\n\n\n\n";
-
-
 
 //для js сопоставление камер и источников
 $active_cams_srcs = array();
@@ -376,8 +370,8 @@ for ($win_nr=0; $win_nr<$wins_nr; $win_nr++)
                $cam_url = get_cam_http_url($conf, $cam_nr, 'mjpeg', true, $cams_urls);
            }
            $active_cams_srcs[$win_nr]['type']='alt_2';
-           $active_cams_srcs[$win_nr]['cell']=$
-           $fsUrl = checkUrlParam($GCP_cams_params[$cam_nr]['fs_url_alt_1'], $conf, $key, 'mjpeg');
+           $active_cams_srcs[$win_nr]['cell']= $cam_url;
+           $fsUrl = checkUrlParam($GCP_cams_params[$cam_nr]['fs_url_alt_2'], $conf, $key, 'mjpeg');
            if (!$fsUrl){
                $fsUrl = get_cam_http_url($conf, $cam_nr, 'mjpeg', true, $cams_urls);
            }
@@ -428,7 +422,6 @@ else
    amc.FullScreen=1;
 </script>', $cam_nr);
 }
-
 
 printf("var active_cams_srcs = %s;\n", json_encode($active_cams_srcs) );
 
