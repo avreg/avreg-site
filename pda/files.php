@@ -116,7 +116,7 @@ foreach($pagi as $row)
    
    print "<div style='margin: 0px 0px 10px 0px; pad: 0px 0px 0px 0px; border-bottom: 1px dotted;'>\n";
    print strftime('&nbsp;%d(%a) %T<br>', $START);
-   if ( $EVT_ID >= 15 && $EVT_ID <= 22 /* jpegs */ ) {
+   if ( $EVT_ID >= 15 && $EVT_ID <= 17 /* snapshot jpegs */ ) {
       $jpeg_info = "$FILESZ_KB kB, [$U16_1 x $U16_2]";
       printf("<a href='$orig_src' title='Открыть оригинал $jpeg_info'>\n");
       

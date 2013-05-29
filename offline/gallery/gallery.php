@@ -83,8 +83,8 @@ class Gallery {
     		
 	    	// картинки
 	    	$EVT_ID = array();
-	    	if (in_array('image', $type)) {
-	    		$EVT_ID = array_merge($EVT_ID, array(15,16,17,18,19,20,21));
+         if (in_array('image', $type)) {
+            $EVT_ID = array_merge($EVT_ID, array(15,16,17));
 	    	}
 	    	// видео
     		if (in_array('video', $type)) {

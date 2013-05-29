@@ -218,7 +218,7 @@ die;
             } else if ( $EVT_ID === 32 /*audio*/ ) {
                print '<td valign="middle"><a name="audio" href="javascript:mark_row('.$good_link.');"><img id="'.$EVT_ID.'" src="'.$conf['prefix'].'/img/audio-off.gif" width="20" height="22" border="0" name="'.$for_js.'" onmouseover="mouse_img ('.$good_link.');" onmouseout="mouse_img();"></a></td>'."\n";
                $good_link++;
-            } else if ( $EVT_ID >= 15 && $EVT_ID <= 22 /* jpeg */ ) {
+            } else if ( $EVT_ID >= 15 && $EVT_ID <= 17 /* snapshot jpegs */ ) {
                print '<td valign="middle"><a name="jpeg" href="javascript:mark_row('.$good_link.');"><img id="'.$EVT_ID.'" src="'.$conf['prefix'].'/img/camera.gif" width="22" height="22" border="0" name="'.$for_js.'" onmouseover="mouse_img ('.$good_link.');" onmouseout="mouse_img();"></a></td>'."\n";
                $good_link++;
             }elseif($EVT_ID === 12 /*video+audio*/){
@@ -236,7 +236,7 @@ die;
          if ( $EVT_ID === 23 || $EVT_ID === 32) {
             $f_ext=substr(strrchr($EVT_CONT, '.'), 1);
             print '<td class="small_text">'.$ftype_str.'&nbsp;('.$f_ext.', '.$f_duration_str.')</td>'."\n";
-         } else if ( $EVT_ID >= 15 && $EVT_ID <= 22 /*jpeg*/ ){
+         } else if ( $EVT_ID >= 15 && $EVT_ID <= 17 /* snapshot jpegs */ ){
             print '<td class="small_text">'.$ftype_str.'</td>'."\n";
          }elseif( $EVT_ID === 12 ){
          	$f_ext=substr(strrchr($EVT_CONT, '.'), 1);

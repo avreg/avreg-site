@@ -248,10 +248,7 @@ class Adb {
    public function gallery_get_last_event_date($param = array()) {
       $event = '1970-01-01 00:00:00';
 
-      $query = "SELECT DT1";
-      $query .= ' FROM EVENTS';
-      // только изображения
-      $query .= ' WHERE EVT_ID in (15,16,17,18,19,20,21,23,32,12)';
+      $query = 'SELECT DT1 FROM EVENTS WHERE EVT_ID in (12, 15,16,17, 23, 32)';
       if (isset($param['cameras'])) {
          $query .= ' AND EVENTS.CAM_NR in ('. implode(",", $param['cameras']).')';
       }
@@ -340,9 +337,7 @@ class Adb {
  * 'clear' - удалить дублирующие записи из EVENTS и, после этого, заполнить TREE_EVENTS
  */
    public function gallery_update_tree_events($start, $end, $cameras = false, $on_dbld_evnts='ignore' ) {
-      $query = "SELECT *";
-      $query .= " FROM EVENTS";
-      $query .= ' WHERE EVT_ID in (12,15,16,17,18,19,20,21,23,32)';
+      $query = 'SELECT * FROM EVENTS WHERE EVT_ID in (12, 15,16,17, 23, 32)';
       if ($start) {
          $tstart = date('Y-m-d H:00:00',strtotime($start));
          $query .= " AND DT1 >= '".$tstart."'";
@@ -405,7 +400,7 @@ class Adb {
             );
          }
 
-         if (in_array( $line[$this->_key('EVT_ID')], array(15,16,17,18,19,20,21))) {
+         if (in_array( $line[$this->_key('EVT_ID')], array(15,16,17))) {
             $tree_events[$key]['IMAGE_COUNT']++;
             $tree_events[$key]['IMAGE_SIZE'] += $line[$this->_key('FILESZ_KB')];
             
@@ -555,7 +550,7 @@ class Adb {
       $query = 'SELECT '.$this->_date_part('timestamp', 'DT1').' as START, '.$this->_date_part('timestamp', 'DT1').' as FINISH,  EVT_ID, FILESZ_KB, FRAMES, ALT1 as U16_1, ALT2 as U16_2, EVT_CONT';
       $query .= ' FROM EVENTS';
       $query .= " WHERE CAM_NR=$camera AND SESS_NR=$ser_nr";
-      $query .= " AND EVT_ID in (15,16,17,18,19,20,21)";
+      $query .= " AND EVT_ID in (15,16,17)";
       if (empty($timeend))
          $query .= " AND ((DT1 >= '$timebegin') OR (DT2 >= '$timebegin'))";
       else
@@ -1038,9 +1033,6 @@ class Adb {
    	$res = $this->_db->query($query);
    	$this->_error($res);
    }
-   
-   
-
 
 /**
  * 
