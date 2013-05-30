@@ -141,8 +141,6 @@ function img_mouseover(cell, win_nr) {
  */
 
 function img_click(clicked_div) {
-
-//   var pl_cont = $('img',clicked_div);
 	var pl_cont = $('.pl_cont',clicked_div);
 	
    var tmp_div;
@@ -154,10 +152,8 @@ function img_click(clicked_div) {
 
    //устанавливаемый src
    var current_src=null;
-   
    //если номер камеры не определен
    if(win_nr == null ){ return;}
-
    if ( FS_WIN_DIV ) {
       // current - fullscreen
 	      //меняем на источник для ячейки
@@ -177,7 +173,6 @@ function img_click(clicked_div) {
 //          }else{
 //        	  if(current_src!=null) $('.pl_cont',clicked_div_jq).aplayerSetMjpegSrc( current_src );
 //          }
-
           //Переустанвливаем плеер для алтернативного источника
           if(current_src!=null){
               $('.pl_cont',clicked_div_jq).addPlayer({
@@ -197,7 +192,6 @@ function img_click(clicked_div) {
 
          
       } else {
-   
     	  //востанавливаем исходные размеры отображения камеры
      	 var border_w = clicked_div.offsetWidth - clicked_div.clientWidth;
           var border_h = clicked_div.offsetHeight - clicked_div.clientHeight;
@@ -367,7 +361,6 @@ function img_click(clicked_div) {
 
     //проверка связи с камерами
     if(GECKO || WEBKIT)	checking_connection.init_check();
-
    
 } // img_click()
 
@@ -1266,7 +1259,6 @@ function canvas_growth() {
    	
    	layout_wins = $.parseJSON(layout['WINS']);
    	active_cams_srcs = new Array();
-   	
    	//и перезаполняем новыми значениями
    	$.each(WINS_DEF, function(i, value){
    		if(layout_wins[i]==null || GCP_cams_params[layout_wins[i][0]]==null ) return;
@@ -1276,7 +1268,6 @@ function canvas_growth() {
    		//установка url камеры
    		active_cams_srcs[i] = new Array();
    		var cam_url = '';
-
    		switch(layout_wins[i][1]){
    		case '0':
    		case '1': //avregd
@@ -1306,7 +1297,7 @@ function canvas_growth() {
    		if(cam_width==null || cam_width==0) cam_width = 640;
    		if(cam_height==null || cam_height==0) cam_height = 480;
    		//Возможно неверно интерпретировано: if(!empty($GCP_cams_params[$cam_nr]['Hx2'])) $height*=2;
-   		if( GCP_cams_params[layout_wins[i][0]]['Hx2']!=0 && GCP_cams_params[layout_wins[i][0]]['Hx2']!=null ) cam_height *=2;
+   		if(GCP_cams_params[layout_wins[i][0]]['Hx2']!=0 && GCP_cams_params[layout_wins[i][0]]['Hx2']!=null ) cam_height *=2;
    		
    		if (major_win_cam_geo == null /* || major_win_nr === win_nr */ )
    		      major_win_cam_geo = new Array(cam_width, cam_height);
@@ -1504,7 +1495,6 @@ function canvas_growth() {
                  var ipcamhost_link_begin = '';
                  var ipcamhost_link_end = '';
                  var host = '';
-                console.log(GCP_cams_params[WINS_DEF[win_nr].cam.nr]);
                  if ( GCP_cams_params[WINS_DEF[win_nr].cam.nr].video_src == "rtsp" ||
                      GCP_cams_params[WINS_DEF[win_nr].cam.nr].video_src == "http"  ) {
                      if (CAMS_URLS[WINS_DEF[win_nr].cam.nr].ipcam_interface_url){
@@ -2002,13 +1992,3 @@ var controls_handlers = {
 	
    
 };
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
