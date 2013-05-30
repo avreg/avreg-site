@@ -11,7 +11,6 @@ $lang_file = '_offline.php';
 $USE_JQUERY = true;
 $link_javascripts = array('lib/js/checkbox.js');
 require ('../head.inc.php');
-require_once '../lang/russian/utf-8/_admin_cams.php';
 DENY($arch_status);
 ?>
 
@@ -83,9 +82,6 @@ $GCP_query_param_list=array('work', 'text_left', 'rec_mode');
 require ('../lib/get_cams_params.inc.php');
 reset($GCP_cams_params);
 $recorded_cams = array();
-//echo '<pre>';
-//var_dump($GCP_cams_params);
-//echo '</pre>';
 while ( list($_cam, $_opt) = each($GCP_cams_params) )
 {
    if ( ((int)$_opt['rec_mode']) > 0 )
