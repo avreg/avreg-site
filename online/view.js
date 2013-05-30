@@ -379,8 +379,6 @@ function set_win_header_size(clicked_div_jq, header_height){
 	}
 }
 
-
-
 /**
  * Функция осуществляет инициализацию и установку элемента,
  * реализующего воспроизведение видеопотока с заданной камеры,
@@ -396,6 +394,7 @@ function brout(win_nr, win_div, win_geo) {
 //   var orig_w = WINS_DEF[win_nr].cam.orig_w;
 //   var orig_h = WINS_DEF[win_nr].cam.orig_h;
    var url = WINS_DEF[win_nr].cam.url;
+    console.log(WINS_DEF[win_nr].cam);
 
    //Установка плеера в элемент  // win_geo.cam_h 
    var cont = $('<div class="pl_cont" />').width(win_geo.cam_w+CORRECT_W).height(win_geo.cam_h+CORRECT_H);
@@ -1205,9 +1204,6 @@ function canvas_growth() {
    	
    	return html;
    }
-   
-   
-   
 
    /**
     * Смена раскладки
@@ -1259,6 +1255,7 @@ function canvas_growth() {
    	
    	layout_wins = $.parseJSON(layout['WINS']);
    	active_cams_srcs = new Array();
+   	
    	//и перезаполняем новыми значениями
    	$.each(WINS_DEF, function(i, value){
    		if(layout_wins[i]==null || GCP_cams_params[layout_wins[i][0]]==null ) return;
@@ -1268,6 +1265,7 @@ function canvas_growth() {
    		//установка url камеры
    		active_cams_srcs[i] = new Array();
    		var cam_url = '';
+
    		switch(layout_wins[i][1]){
    		case '0':
    		case '1': //avregd
@@ -1297,7 +1295,7 @@ function canvas_growth() {
    		if(cam_width==null || cam_width==0) cam_width = 640;
    		if(cam_height==null || cam_height==0) cam_height = 480;
    		//Возможно неверно интерпретировано: if(!empty($GCP_cams_params[$cam_nr]['Hx2'])) $height*=2;
-   		if(GCP_cams_params[layout_wins[i][0]]['Hx2']!=0 && GCP_cams_params[layout_wins[i][0]]['Hx2']!=null ) cam_height *=2;
+   		if( GCP_cams_params[layout_wins[i][0]]['Hx2']!=0 && GCP_cams_params[layout_wins[i][0]]['Hx2']!=null ) cam_height *=2;
    		
    		if (major_win_cam_geo == null /* || major_win_nr === win_nr */ )
    		      major_win_cam_geo = new Array(cam_width, cam_height);
