@@ -390,7 +390,7 @@ for ($win_nr=0; $win_nr<$wins_nr; $win_nr++)
    	  stop_url: "%s"
    }
 };%s',
-   $win_nr, 
+   $win_nr,
    $l_wins[0], $l_wins[1],$l_wins[2],$l_wins[3],
    $l_defs[4]-1==$win_nr?1:0,
    $cam_nr, getCamName($GCP_cams_params[$cam_nr]['text_left']),

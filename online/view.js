@@ -1990,13 +1990,3 @@ var controls_handlers = {
 	
    
 };
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
