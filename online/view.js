@@ -159,7 +159,7 @@ function img_click(clicked_div) {
 	      //меняем на источник для ячейки
 	      if (active_cams_srcs[win_nr]['type']!='avregd'){
 	    	  if(active_cams_srcs[win_nr]['cell']!=null && active_cams_srcs[win_nr]['cell']!=''
-                  && active_cams_srcs[win_nr]['cell'] !== active_cams_srcs[win_nr]['fs'])
+                  && active_cams_srcs[win_nr]['cell'].toLowerCase() !== active_cams_srcs[win_nr]['fs'].toLowerCase())
 	    		  current_src = active_cams_srcs[win_nr]['cell']; // get_cam_alt_url(active_cams_srcs[win_nr]['cell'], win_nr, true) ;
 	      }
 
@@ -290,7 +290,7 @@ function img_click(clicked_div) {
       //меняем на источник для ячейки
       if (active_cams_srcs[win_nr]['type']!='avregd'){
     	  if(active_cams_srcs[win_nr]['fs']!=null && active_cams_srcs[win_nr]['fs']!=''
-              && active_cams_srcs[win_nr]['cell'] !== active_cams_srcs[win_nr]['fs'])
+              && active_cams_srcs[win_nr]['cell'].toLowerCase() !== active_cams_srcs[win_nr]['fs'].toLowerCase())
     		  current_src = active_cams_srcs[win_nr]['fs']; //get_cam_alt_url(active_cams_srcs[win_nr]['fs'], win_nr ,true) ;
       }
 
