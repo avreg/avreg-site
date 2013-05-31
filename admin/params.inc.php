@@ -236,7 +236,6 @@ function checkParam ( $parname, $parval, $def_val = NULL )
       $ret = getChkbxByAssocAr('fields['.$parname.']', $GLOBALS['event_groups'],
          $parval, FALSE /* не работает select_all для имен содержащих []*/);
       break;
-
    default:
       $ret = '<p style="color: '.$GLOBALS['error_color'].'">'. sprintf($GLOBALS['unknownCheckParams'], $parname) .'</p>'."\n";
    } // switch
