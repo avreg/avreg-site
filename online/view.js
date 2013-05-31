@@ -158,10 +158,10 @@ function img_click(clicked_div) {
       // current - fullscreen
 	      //меняем на источник для ячейки
 	      if (active_cams_srcs[win_nr]['type']!='avregd'){
-	    	  if(active_cams_srcs[win_nr]['cell']!=null && active_cams_srcs[win_nr]['cell']!='')
+	    	  if(active_cams_srcs[win_nr]['cell']!=null && active_cams_srcs[win_nr]['cell']!=''
+                  && active_cams_srcs[win_nr]['cell'] !== active_cams_srcs[win_nr]['fs'])
 	    		  current_src = active_cams_srcs[win_nr]['cell']; // get_cam_alt_url(active_cams_srcs[win_nr]['cell'], win_nr, true) ;
 	      }
-	   
 
       if ( WIN_DIV_W == undefined ) {
     	  //в режиме FS был ресайз CANVAS'a
@@ -289,7 +289,8 @@ function img_click(clicked_div) {
 	      .height(win_geo.cam_h+CORRECT_H);
       //меняем на источник для ячейки
       if (active_cams_srcs[win_nr]['type']!='avregd'){
-    	  if(active_cams_srcs[win_nr]['fs']!=null && active_cams_srcs[win_nr]['fs']!='')
+    	  if(active_cams_srcs[win_nr]['fs']!=null && active_cams_srcs[win_nr]['fs']!=''
+              && active_cams_srcs[win_nr]['cell'] !== active_cams_srcs[win_nr]['fs'])
     		  current_src = active_cams_srcs[win_nr]['fs']; //get_cam_alt_url(active_cams_srcs[win_nr]['fs'], win_nr ,true) ;
       }
 
@@ -340,7 +341,7 @@ function img_click(clicked_div) {
    //Устанавливаем текущий масштаб
    var aplayer_id=$('.aplayer',pl_cont).attr('id');
    
-   if( controls_handlers.original_size[aplayer_id]!=null && controls_handlers.original_size[aplayer_id] ){
+   if(controls_handlers.original_size[aplayer_id]!=null && controls_handlers.original_size[aplayer_id] ){
 	   $('#'+aplayer_id).parent().aplayerMediaSetSrcSizes();
    }
    
@@ -394,7 +395,6 @@ function brout(win_nr, win_div, win_geo) {
 //   var orig_w = WINS_DEF[win_nr].cam.orig_w;
 //   var orig_h = WINS_DEF[win_nr].cam.orig_h;
    var url = WINS_DEF[win_nr].cam.url;
-    console.log(WINS_DEF[win_nr].cam);
 
    //Установка плеера в элемент  // win_geo.cam_h 
    var cont = $('<div class="pl_cont" />').width(win_geo.cam_w+CORRECT_W).height(win_geo.cam_h+CORRECT_H);
