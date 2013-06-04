@@ -642,16 +642,13 @@ var checking_connection = {
         return crc ^ (-1); 
     },
 
-	
+
 	//>>>>>>>>>>>>>>>>>>>>>>WEBKIT<<<<<<<<<<<<<<<<<<<<<<<<<<
 	
     //коллбэк таймера - проверяет соединения для WEBKIT
     check_cams_connection_webkit : function(){
     	var self = checking_connection;
         for(index = 0; index<self.me_list.length; index++){
-
-
-
         	if(self.me_list[index].stoped || self.me_list[index].connection_fail) continue;
 
             //проверяем изменилось ли изображение
@@ -665,7 +662,7 @@ var checking_connection = {
                 self.me_list[index].connection_fail = true;
                 
                 if(self.is_reconnect_active)self.reconnect(index);
-                
+
 	            //активируем кнопку play
 	            var me_id = $(self.me_list[index].me).attr('id');
 				var win_nr = parseInt($("div.[name=win]:has(#"+me_id+")").attr('id').replace('win', '') );
@@ -723,11 +720,11 @@ var checking_connection = {
 			chq_val += cur_bmp[i++];
 			chq_val += cur_bmp[i++];
 			chq_val += cur_bmp[i++];
-			i+=step; 
+			i+=step;
 		}
 		chq_val.toString();
 		chq_val = self.crc32(chq_val);
-		
+
 		//Сравниваем контрольные значения 
 		if(self.me_list[index].check_val==0){
 			res = false;
@@ -737,6 +734,17 @@ var checking_connection = {
 		}
 		//Сохраняем текущее контрольное значение 
 		self.me_list[index].check_val = chq_val;
+        if (res){
+            window.stop();
+            $(self.me_list[index].me).unbind('load').attr('src', '../img/ConnectionFail.jpg');
+            if ($(self.me_list[index].tset_img !== undefined))
+                $(self.me_list[index].tset_img).attr('src', '../img/ConnectionFail.jpg');
+
+            if (self.me_list[index].tset_img !== undefined){
+                delete self.me_list[index].tset_img;
+            }
+        }
+
 		return res;
 	},
 	
@@ -762,7 +770,7 @@ var checking_connection = {
             if(!isNaN(parseInt(win_nr))){
             	controls_handlers.activate_btn_play(win_nr);
             }
-            
+
 		});
 
 		$(test_con).bind('load',function(){
@@ -779,7 +787,7 @@ var checking_connection = {
 		var im =null;
 		
 		if(self.me_list[index].tset_img==undefined){
-			self.me_list[index].tset_img = new Image();	
+			self.me_list[index].tset_img = new Image();
 		}
 		
 		im = self.me_list[index].tset_img;
@@ -795,16 +803,17 @@ var checking_connection = {
 
 		//Успешное переподключение
 		$(im).bind('load', function(){
+            $(im)
+                .unbind('load')
+                .unbind('error').attr('src','');
 			//восстановление воспроизведения
+
 			$(me).attr('src', self.me_list[index].src);
 			self.start_check_me(me);
 			//отключение обработчиков
-			$(im)
-			.unbind('load')
-			.unbind('error');
-            
+
             self.me_list[index].connection_fail = false;
-            //деактивируем кнопку play, активируем кнопку stop 
+            //деактивируем кнопку play, активируем кнопку stop
 			var win_nr = parseInt($("div.[name=win]:has(#"+me_id+")").attr('id').replace('win', '') );
 	        if(!isNaN(parseInt(win_nr))){
 	           	controls_handlers.activate_btn_stop(win_nr);
@@ -915,7 +924,7 @@ var checking_connection = {
 			.unbind('error');
             self.me_list[index].connection_fail = false;
             
-	        //деактивируем кнопку play, активируем кнопку stop 
+	        //деактивируем кнопку play, активируем кнопку stop
 			var win_nr = parseInt($("div.[name=win]:has(#"+me_id+")").attr('id').replace('win', '') );
 	        if(!isNaN(parseInt(win_nr))){
 	           	controls_handlers.activate_btn_stop(win_nr);
@@ -938,7 +947,6 @@ var checking_connection = {
  * @param _cols_nr - номер столбца текущего элемента
  * @param _rowspan - сколько позиций элемент занимает в раскладке
  */
-
 function calc_win_geo(_canvas_w, _canvas_h, img_aspect_ratio, _rows_nr, _cols_nr, _rowspan) {
    var cam_w;
    var cam_h;
