@@ -739,13 +739,6 @@ var checking_connection = {
 		self.me_list[index].check_val = chq_val;
         if (res){
             window.stop();
-            $(self.me_list[index].me).unbind('load').attr('src', '../img/ConnectionFail.jpg');
-            if ($(self.me_list[index].tset_img !== undefined))
-                $(self.me_list[index].tset_img).attr('src', '../img/ConnectionFail.jpg');
-
-            if (self.me_list[index].tset_img !== undefined){
-                delete self.me_list[index].tset_img;
-            }
         }
 
 		return res;
