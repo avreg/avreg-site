@@ -656,19 +656,22 @@ var checking_connection = {
             var isFail = self.is_fail_connection_webkit(index);
 
  			if( isFail ){
-            	$(self.me_list[index].me)
-				.unbind('load')
-				.attr('src', imgs['connection_fail'].src);
-                self.me_list[index].connection_fail = true;
-                
-                if(self.is_reconnect_active)self.reconnect(index);
+                for (var i = 0; i < self.me_list.length; i++){
+                    if(self.me_list[i].stoped || self.me_list[index].connection_fail) continue;
+                    $(self.me_list[i].me)
+                    .unbind('load')
+                    .attr('src', imgs['connection_fail'].src);
+                    self.me_list[i].connection_fail = true;
 
-	            //активируем кнопку play
-	            var me_id = $(self.me_list[index].me).attr('id');
-				var win_nr = parseInt($("div.[name=win]:has(#"+me_id+")").attr('id').replace('win', '') );
-	            if(!isNaN(parseInt(win_nr))){
-	            	controls_handlers.activate_btn_play(win_nr);
-	            }
+                    if(self.is_reconnect_active) self.reconnect(i);
+
+                    //активируем кнопку play
+                    var me_id = $(self.me_list[i].me).attr('id');
+                    var win_nr = parseInt($("div.[name=win]:has(#"+me_id+")").attr('id').replace('win', '') );
+                    if(!isNaN(parseInt(win_nr))){
+                        controls_handlers.activate_btn_play(win_nr);
+                    }
+                }
 			}
 		}
 
