@@ -1,4 +1,4 @@
-<?php 
+<?php
 	require ('/etc/avreg/site-defaults.php');
 	//Загрузка исходнгого изображения
 	$id = $_GET['url'];
@@ -23,7 +23,7 @@ if (@fopen($id, "r")) {
 		default:
 			die("only jpeg and png supported");
 	}
-	
+
 	//Определение размеров исходного изображения
 	$im_width=imageSX($im);
 	$im_height=imageSY($im);
