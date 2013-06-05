@@ -398,14 +398,14 @@ function brout(win_nr, win_div, win_geo) {
 
    //Установка плеера в элемент  // win_geo.cam_h 
    var cont = $('<div class="pl_cont" />').width(win_geo.cam_w+CORRECT_W).height(win_geo.cam_h+CORRECT_H);
-   
+
 	$(win_div).append(cont);
     $(cont).addPlayer({
-		'src': url , 
+		'src': url ,
 		'controls': false, 
 		'scale':'on', 
 		'mediaType' : 'mjpeg', 
-		'autostart':'on', 
+		'autostart':'on',
 		'aplayer_rtsp_php':'../lib/js/aplayer_rtsp.php',
 		'crossorigin' : (WEBKIT)? true:false,
         'amc_onclick' : function(player_nr){
@@ -466,12 +466,12 @@ var checking_connection = {
 	reconnect : null,
 	set_handlers : null,
 	is_reconnect_active : true,
-	
+
 	//инициализировать проверку соединений
 	init_check : function(){
 		var self = this;
 		var timer_callback=null;
-		
+
 		//установка обработчиков по типу браузера
 		if(!WEBKIT && GECKO){
 			self.reconnect = self.reconnect_gecko;
@@ -483,20 +483,20 @@ var checking_connection = {
             self.set_handlers = self.set_handlers_webkit;
 			timer_callback = self.check_cams_connection_webkit;
         }
-        
+
 		for(var i in layouts_list){
 			if(layouts_list[i]['MON_NR']==cur_layout){
 				self.reconnect_timeout = layouts_list[i].RECONNECT_TOUT * 1000;
 				break;
 			}
 		}
-		
+
 		//если реконнект отключен
 		if(self.reconnect_timeout<100){
 			self.is_reconnect_active = false;
 			self.reconnect_timeout = online_check_period*1000;
 		}
-		
+
 		clearInterval(self.timer);
 		if(self.me_list != null){
 			$.each(self.me_list, function(i, val){
@@ -506,26 +506,26 @@ var checking_connection = {
 			});
 		}
 		delete self.me_list;
-		
+
 		self.me_list = null;
-		
+
 		$.each(WIN_DIVS, function(i, val){
 			self.add_element(val);
 		});
-		
+
 		//Запуск таймера
 		self.timer = setInterval(timer_callback, self.reconnect_timeout);
-		
+
 	},
 
 	//добавить элемент для проверки
 	add_element : function (win){
 		var self = this;
-		
-		var me = $('img.ElMedia', win); 
+
+		var me = $('img.ElMedia', win);
 		var me_id = $(me).attr('id');
 		var me_src = $(me).attr('src');
-		
+
 		if(self.me_list==undefined){
 			self.me_list = new Array();
 		}
@@ -552,7 +552,7 @@ var checking_connection = {
 			//создаем канвас для элемента и устанавливаем cors для img
        		obj.wk_canvas = document.createElement('canvas');
 		}
-		
+
 		self.me_list.push(obj);
 
         if(WEBKIT || GECKO){
@@ -564,7 +564,7 @@ var checking_connection = {
 	//возобновить проверку элемента
 	start_check_me : function(element){
 		var self = this;
-		var me = $(element).hasClass('ElMedia')? element: $('img.ElMedia', element); 
+		var me = $(element).hasClass('ElMedia')? element: $('img.ElMedia', element);
 		var me_id = $(me).attr('id');
 
 		for(var i in self.me_list){
@@ -575,13 +575,13 @@ var checking_connection = {
 			}
 		}
 	},
-	
+
 	//не проверять элемент
 	stop_check_me : function(element){
 		var self = this;
-		var me = $('img.ElMedia', element); 
+		var me = $('img.ElMedia', element);
 		var me_id = $(me).attr('id');
-		
+
 		for(var i in self.me_list){
 			if(self.me_list[i].me_id == me_id){
 				self.me_list[i].stoped = true;
@@ -591,10 +591,10 @@ var checking_connection = {
 			}
 		}
 	},
-	
+
     //хеширование
 	crc32_table : false,
-    crc32 : function(str, crc) { 
+    crc32 : function(str, crc) {
     	var table ='';
     	if(!this.crc32_table){
     		//инициализация таблицы хеширования
@@ -623,28 +623,27 @@ var checking_connection = {
 	 	  	table+= "8F659EFF F862AE69 616BFFD3 166CCF45 A00AE278 D70DD2EE 4E048354 3903B3C2 A7672661 D06016F7 ";
 	 	  	table+= "4969474D 3E6E77DB AED16A4A D9D65ADC 40DF0B66 37D83BF0 A9BCAE53 DEBB9EC5 47B2CF7F 30B5FFE9 ";
 	 	  	table+= "BDBDF21C CABAC28A 53B39330 24B4A3A6 BAD03605 CDD70693 54DE5729 23D967BF B3667A2E C4614AB8 ";
-	 	  	table+= "5D681B02 2A6F2B94 B40BBE37 C30C8EA1 5A05DF1B 2D02EF8D";     
+	 	  	table+= "5D681B02 2A6F2B94 B40BBE37 C30C8EA1 5A05DF1B 2D02EF8D";
 	 	  	this.crc32_table = table;
     	}else{
     		table = this.crc32_table;
     	}
-    	
-        if( crc == window.undefined ) crc = 0; 
-        var n = 0; //a number between 0 and 255 
-        var x = 0; //an hex number 
- 
-        crc = crc ^ (-1); 
-        for( var i = 0, iTop = str.length; i < iTop; i++ ) { 
-            n = ( crc ^ str.charCodeAt( i ) ) & 0xFF; 
-            x = "0x" + table.substr( n * 9, 8 ); 
-            crc = ( crc >>> 8 ) ^ x; 
-        } 
-        return crc ^ (-1); 
+
+        if( crc == window.undefined ) crc = 0;
+        var n = 0; //a number between 0 and 255
+        var x = 0; //an hex number
+
+        crc = crc ^ (-1);
+        for( var i = 0, iTop = str.length; i < iTop; i++ ) {
+            n = ( crc ^ str.charCodeAt( i ) ) & 0xFF;
+            x = "0x" + table.substr( n * 9, 8 );
+            crc = ( crc >>> 8 ) ^ x;
+        }
+        return crc ^ (-1);
     },
 
 
 	//>>>>>>>>>>>>>>>>>>>>>>WEBKIT<<<<<<<<<<<<<<<<<<<<<<<<<<
-	
     //коллбэк таймера - проверяет соединения для WEBKIT
     check_cams_connection_webkit : function(){
     	var self = checking_connection;
@@ -656,28 +655,22 @@ var checking_connection = {
             var isFail = self.is_fail_connection_webkit(index);
 
  			if( isFail ){
-                for (var i = 0; i < self.me_list.length; i++){
-                    if(self.me_list[i].stoped || self.me_list[index].connection_fail) continue;
-                    $(self.me_list[i].me)
+                $(self.me_list[index].me)
                     .unbind('load')
                     .attr('src', imgs['connection_fail'].src);
-                    self.me_list[i].connection_fail = true;
+                self.me_list[index].connection_fail = true;
 
-                    if(self.is_reconnect_active) self.reconnect(i);
-
-                    //активируем кнопку play
-                    var me_id = $(self.me_list[i].me).attr('id');
-                    var win_nr = parseInt($("div.[name=win]:has(#"+me_id+")").attr('id').replace('win', '') );
-                    if(!isNaN(parseInt(win_nr))){
-                        controls_handlers.activate_btn_play(win_nr);
-                    }
+                if(self.is_reconnect_active) self.reconnect(index);
+                //активируем кнопку play
+                var me_id = $(self.me_list[index].me).attr('id');
+                var win_nr = parseInt($("div.[name=win]:has(#"+me_id+")").attr('id').replace('win', '') );
+                if(!isNaN(parseInt(win_nr))){
+                    controls_handlers.activate_btn_play(win_nr);
                 }
-			}
-		}
-
-
+            }
+        }
     },
-    
+
  	//Возвращает битмап изображения (для WEBKIT)
 	get_bitmap : function(index){
 		var self = this;
@@ -702,7 +695,7 @@ var checking_connection = {
 
 		return data;
 	},
-	
+
 
 	//проверяет произшел ли сбой (для WEBKIT)
 	is_fail_connection_webkit : function(index){
@@ -714,7 +707,7 @@ var checking_connection = {
 		if(cur_bmp==0){
 			return true;
 		}
-		var chq_val = ""; // контрольное значение 
+		var chq_val = ""; // контрольное значение
 
 		//Проверяем 50 точек
 		var step= Math.floor(cur_bmp.length/50);
@@ -725,25 +718,25 @@ var checking_connection = {
 			chq_val += cur_bmp[i++];
 			i+=step;
 		}
+        if (chq_val == "") {
+            return false;
+        }
 		chq_val.toString();
 		chq_val = self.crc32(chq_val);
 
-		//Сравниваем контрольные значения 
+		//Сравниваем контрольные значения
 		if(self.me_list[index].check_val==0){
 			res = false;
 		}
 		else{
 			res = (chq_val == self.me_list[index].check_val);
 		}
-		//Сохраняем текущее контрольное значение 
+		//Сохраняем текущее контрольное значение
 		self.me_list[index].check_val = chq_val;
-        if (res){
-            window.stop();
-        }
 
 		return res;
 	},
-	
+
 	//Используется только для проверки состояния связи на начальном этапе
 	set_handlers_webkit : function(me){
 		var self = this;
@@ -774,18 +767,18 @@ var checking_connection = {
 		});
 
 	},
-	
+
 	//попытка реконнекта
 	reconnect_webkit : function(index){
 		var self = this;
 		var me = self.me_list[index].me;
 		var me_id = $(me).attr('id');
 		var im =null;
-		
+
 		if(self.me_list[index].tset_img==undefined){
 			self.me_list[index].tset_img = new Image();
 		}
-		
+
 		im = self.me_list[index].tset_img;
 
 		//Сбой переподключения
@@ -815,14 +808,13 @@ var checking_connection = {
 	           	controls_handlers.activate_btn_stop(win_nr);
 	        }
 		});
-		
+
 		var par = (self.me_list[index].src.indexOf('?')!=-1)? "&dummy=" : "?&dummy=";
 		par += Math.random();
 		im.src = self.me_list[index].src+par;
 	},
-    
+
 	//>>>>>>>>>>>>>>>>>>>>>>GECKO<<<<<<<<<<<<<<<<<<<<<<<<<<
-	
 	//коллбэк таймера - проверяет соединения для GECKO
 	check_cams_connection_gecko : function (){
 		var self = checking_connection;
@@ -846,7 +838,7 @@ var checking_connection = {
 				self.me_list[index].check_val = 0;
 		}
 	},
-	
+
 	//установка обработчиков на элемент
 	set_handlers_gecko : function(me){
 		var self = this;
@@ -857,7 +849,7 @@ var checking_connection = {
 				break;
 			}
 		}
-		
+
 		$(me).bind('error', function(){
 			$(me)
 			.unbind('load')
@@ -876,7 +868,7 @@ var checking_connection = {
 		$(me).bind('load',function(){
 			self.me_list[index].check_val++;
 		});
-		
+
 		$(me).bind('abort', function(){
 			$(me)
 			.unbind('load')
@@ -889,10 +881,8 @@ var checking_connection = {
             	controls_handlers.activate_btn_play(win_nr);
             }
 		});
-
-		
 	},
-	
+
 	//попытка реконнекта
 	reconnect_gecko : function(index){
 		var self = this;
@@ -900,11 +890,11 @@ var checking_connection = {
 		var me_id = $(me).attr('id');
 		var im =null;
 		if(self.me_list[index].tset_img==undefined){
-			self.me_list[index].tset_img = new Image();	
+			self.me_list[index].tset_img = new Image();
 		}
 		self.me_list[index].tset_img.src = '';
 		im = self.me_list[index].tset_img;
-		
+
 		$(im).bind('error', function(){
 			$(im)
 			.unbind('load')
@@ -919,20 +909,19 @@ var checking_connection = {
 			.unbind('load')
 			.unbind('error');
             self.me_list[index].connection_fail = false;
-            
+
 	        //деактивируем кнопку play, активируем кнопку stop
 			var win_nr = parseInt($("div.[name=win]:has(#"+me_id+")").attr('id').replace('win', '') );
 	        if(!isNaN(parseInt(win_nr))){
 	           	controls_handlers.activate_btn_stop(win_nr);
 	        }
 		});
-		
+
 		var par = (self.me_list[index].src.indexOf('?')!=-1)? "&dummy=" : "?&dummy=";
 		par += Math.random();
 		im.src = self.me_list[index].src+par;
 	}
 };
-
 
 /**
  * Функция осуществляет вычисление размеров и расположения элементов раскладки камер
@@ -1026,7 +1015,6 @@ function calc_win_geo(_canvas_w, _canvas_h, img_aspect_ratio, _rows_nr, _cols_nr
    }
 } // calc_win_geo()
 
-
 /**
  * Вычисляет положение left для элементов раскладки
  * Вызывается при:
@@ -1091,7 +1079,6 @@ function change_fs_win_geo(fs_win) {
          // .text(win_geo.cam_w + 'x' + win_geo.cam_h)
    }
 } // change_fs_win_geo()
-
 
 /**
  * Вычисляет и устанавливает размеры элементов раскладки после ресайза окна
@@ -1777,8 +1764,6 @@ getXmlHttp = function(){
 	}
 	return xmlhttp;
 };
-   
-   
 
 /**
  * Объект обработки событий контролов toolbar & controlbar
