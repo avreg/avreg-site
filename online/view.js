@@ -705,7 +705,7 @@ var checking_connection = {
 
 		//Если получили ноль(код ошибки) - возвращаем 'сбой связи'
 		if(cur_bmp==0){
-			return true;
+			return (!self.me_list[index].check_val === 0);
 		}
 		var chq_val = ""; // контрольное значение
 
