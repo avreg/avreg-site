@@ -535,6 +535,7 @@ var checking_connection = {
 			'me_id':me_id,
 			'src' : me_src,
 			'check_val' : 0,
+			'WEBKITCorsError' : (me_src.search(window.location.hostname)  > 0 && WEBKIT && !GECKO) ? false : true,
 			'stoped' : false,
 			'connection_fail' : false,
 			//канвас и контекст для webkit
@@ -642,7 +643,6 @@ var checking_connection = {
         return crc ^ (-1);
     },
 
-
 	//>>>>>>>>>>>>>>>>>>>>>>WEBKIT<<<<<<<<<<<<<<<<<<<<<<<<<<
     //коллбэк таймера - проверяет соединения для WEBKIT
     check_cams_connection_webkit : function(){
@@ -651,23 +651,24 @@ var checking_connection = {
         	if(self.me_list[index].stoped || self.me_list[index].connection_fail) continue;
 
             //проверяем изменилось ли изображение
+			if (!self.me_list[index].WEBKITCorsError){
+				var isFail = self.is_fail_connection_webkit(index);
 
-            var isFail = self.is_fail_connection_webkit(index);
+				if( isFail ){
+					$(self.me_list[index].me)
+						.unbind('load')
+						.attr('src', imgs['connection_fail'].src);
+					self.me_list[index].connection_fail = true;
 
- 			if( isFail ){
-                $(self.me_list[index].me)
-                    .unbind('load')
-                    .attr('src', imgs['connection_fail'].src);
-                self.me_list[index].connection_fail = true;
-
-                if(self.is_reconnect_active) self.reconnect(index);
-                //активируем кнопку play
-                var me_id = $(self.me_list[index].me).attr('id');
-                var win_nr = parseInt($("div.[name=win]:has(#"+me_id+")").attr('id').replace('win', '') );
-                if(!isNaN(parseInt(win_nr))){
-                    controls_handlers.activate_btn_play(win_nr);
-                }
-            }
+					if(self.is_reconnect_active) self.reconnect(index);
+					//активируем кнопку play
+					var me_id = $(self.me_list[index].me).attr('id');
+					var win_nr = parseInt($("div.[name=win]:has(#"+me_id+")").attr('id').replace('win', '') );
+					if(!isNaN(parseInt(win_nr))){
+						controls_handlers.activate_btn_play(win_nr);
+					}
+				}
+			}
         }
     },
 
@@ -750,17 +751,19 @@ var checking_connection = {
 
 		//Элемент для проверки связи
 		var test_con = me;
-		$(test_con).bind('error', function(){
-			$(me).attr('src', imgs['connection_fail'].src);
-            self.me_list[index].connection_fail = false;
+		if (!self.me_list[index].WEBKITCorsError){
+			$(test_con).bind('error', function(){
+				$(me).attr('src', imgs['connection_fail'].src);
+				self.me_list[index].connection_fail = false;
 
-            //активируем кнопку play
-			var win_nr = parseInt($("div.[name=win]:has(#"+me_id+")").attr('id').replace('win', '') );
-            if(!isNaN(parseInt(win_nr))){
-            	controls_handlers.activate_btn_play(win_nr);
-            }
+				//активируем кнопку play
+				var win_nr = parseInt($("div.[name=win]:has(#"+me_id+")").attr('id').replace('win', '') );
+				if(!isNaN(parseInt(win_nr))){
+					controls_handlers.activate_btn_play(win_nr);
+				}
 
-		});
+			});
+		}
 
 		$(test_con).bind('load',function(){
 			self.me_list[index].connection_fail = false;
@@ -782,13 +785,15 @@ var checking_connection = {
 		im = self.me_list[index].tset_img;
 
 		//Сбой переподключения
-		$(im).bind('error', function(){
-			//отключение обработчиков
-			$(im)
-			.unbind('load')
-			.unbind('error');
-			self.me_list[index].connection_fail = false;
-		});
+		if (!self.me_list[index].WEBKITCorsError){
+			$(im).bind('error', function(){
+				//отключение обработчиков
+				$(im)
+				.unbind('load')
+				.unbind('error');
+				self.me_list[index].connection_fail = false;
+			});
+		}
 
 		//Успешное переподключение
 		$(im).bind('load', function(){
