@@ -5,7 +5,7 @@
  */
 /* ru_RU.UTF-8 /admin/stat.php messages */
 $r_stats = 'Используемые ресурсы.';
-$r_cpu_stat='Использование процесора ЦПУ.<br />[ команды &quot;iostat,&quot; &quot;top&quot;,  &quot;ps aux&quot; ]';
+$r_cpu_stat = 'Использование процесора ЦПУ.<br />[ команды &quot;iostat,&quot; &quot;top&quot;,  &quot;ps aux&quot; ]';
 $strCPU = '%CPU';
 $strMEM = '%MEM';
 $strVSIZE = 'Размер виртуальной<br> памяти, КБ';
@@ -18,7 +18,7 @@ $str_mnt_point = 'Точка монтирования';
 $str_dir = 'Каталог';
 $str_dev = 'Устройство';
 $total_space = 'Всего';
-$total_free  = 'Свободно';
+$total_free = 'Свободно';
 $used_space = 'Использовано';
 
 

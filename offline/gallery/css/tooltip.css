@@ -1,23 +1,22 @@
-
-.tooltip{
-	position:absolute;
-	z-index:999;
+.tooltip {
+	position: absolute;
+	z-index: 999;
 	/* left:-9999px; */
 	background-color: Beige;
-	padding:2px;
-	border:3px solid #fff;
-	display:inline;
-	text-align:center;
+	padding: 2px;
+	border: 3px solid #fff;
+	display: inline;
+	text-align: center;
 }
 
-.tooltip table{
+.tooltip table {
 	font-size: 9pt;
-	border: 1px groove Black; 
+	border: 1px groove Black;
 }
 
-.tooltip td{
-	border: 3px inset #999999; 
+.tooltip td {
+	border: 3px inset #999999;
 	margin: 2px;
-	padding:3px;
+	padding: 3px;
 }
 

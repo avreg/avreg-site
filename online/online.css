@@ -1,32 +1,32 @@
 @CHARSET "UTF-8";
 
-.layout{
-	float:left; 
+.layout {
+	float: left;
 	margin: 2px;
-    width: auto;
+	width: auto;
 }
 
-.cursorMove{
-	cursor:move;
+.cursorMove {
+	cursor: move;
 }
 
-.win{
-	overflow: hidden; 
+.win {
+	overflow: hidden;
 }
 
-.tool{
+.tool {
 	float: right;
 	cursor: pointer;
 	margin: 1 0 1 0;
 }
 
-.pl_stop, .pl_start{
+.pl_stop, .pl_start {
 	cursor: pointer;
 	float: left;
 	margin-right: 15px;
 }
 
-.pl_plus, .pl_minus, .original_size, .normal_size{
+.pl_plus, .pl_minus, .original_size, .normal_size {
 	cursor: pointer;
 	float: left;
 }
@@ -38,20 +38,21 @@
 .win {
 	border: 2px solid #070707;
 }
+
 div.win.main_cell {
-	border: 2px solid  #FFB742
+	border: 2px solid #FFB742
 }
 
-.toolbar_style table td{ 
+.toolbar_style table td {
 	background: #333;
 	background: -moz-linear-gradient(top, #222 0%, #777 50%, #222 100%);
-    background: -webkit-linear-gradient(top, #222 0%, #777 50%, #222 100%);
-    background: -o-linear-gradient(top, #222 0%, #777 50%, #222 100%); 
-    background: -ms-linear-gradient(top, #222 0%, #777 50%, #222 100%); 
-    background: linear-gradient(top, #222 0%, #777 50%, #222 100%); 
-    background-position: top;
-    background-repeat: repeat-x;
-    background-size: cover;
+	background: -webkit-linear-gradient(top, #222 0%, #777 50%, #222 100%);
+	background: -o-linear-gradient(top, #222 0%, #777 50%, #222 100%);
+	background: -ms-linear-gradient(top, #222 0%, #777 50%, #222 100%);
+	background: linear-gradient(top, #222 0%, #777 50%, #222 100%);
+	background-position: top;
+	background-repeat: repeat-x;
+	background-size: cover;
 }
 
 #tb_contn td {
@@ -59,16 +60,16 @@ div.win.main_cell {
 }
 
 #canvas {
-	background : #555;
+	background: #555;
 	background-image: url('../img/BG.png');
 	background-repeat: repeat-x;
 	background-size: cover;
 	background-position: center;
 	background: -moz-linear-gradient(top, #555 0%, #999 50%, #555 100%);
-    background: -webkit-linear-gradient(top, #555 0%, #999 50%, #555 100%);
-    background: -o-linear-gradient(top, #555 0%, #999 50%, #555 100%); 
-    background: -ms-linear-gradient(top, #555 0%, #999 50%, #555 100%); 
-    background: linear-gradient(top, #555 0%, #999 50%, #555 100%);   
+	background: -webkit-linear-gradient(top, #555 0%, #999 50%, #555 100%);
+	background: -o-linear-gradient(top, #555 0%, #999 50%, #555 100%);
+	background: -ms-linear-gradient(top, #555 0%, #999 50%, #555 100%);
+	background: linear-gradient(top, #555 0%, #999 50%, #555 100%);
 }
 
 div.cell_header span a:hover {
@@ -80,26 +81,23 @@ div.cell_header span a:hover {
 	border-bottom: 2px solid #ababab;
 }
 
-
 .layout a {
 	padding: 5px;
 	margin: 2px;
 	color: #FAFAFA;
 }
 
-.layout a:hover,.selectedLayout a {
+.layout a:hover, .selectedLayout a {
 	outline: 1px outset #111;
-    cursor: pointer;
+	cursor: pointer;
 }
-
-
 
 #nav div.selectedLayout a, #nav div.layout:hover a {
 	text-decoration: none;
-	color: red;	
+	color: red;
 }
 
-.to_main a, .user_layouts a{
+.to_main a, .user_layouts a {
 	display: block;
 	text-align: center;
 	margin: 0;
@@ -108,21 +106,21 @@ div.cell_header span a:hover {
 	border-radius: 4px;
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
-  	background: rgba(220,220,220,0.4);
-   	color: #FAFAFA;	
-   	text-decoration: none;
- 	margin: 0 auto;
-   	width: 120px;
-    height: 20px;
+	background: rgba(220, 220, 220, 0.4);
+	color: #FAFAFA;
+	text-decoration: none;
+	margin: 0 auto;
+	width: 120px;
+	height: 20px;
 }
 
 .to_main a:focus, .user_layouts a:focus {
-	box-shadow: inset 1px 1px 1px rgba(0,0,0,0.7);
-	-moz-box-shadow: inset 1px 1px 1px rgba(0,0,0,0.7);
-	-webkit-box-shadow: inset 1px 1px 1px rgba(0,0,0,0.7);
+	box-shadow: inset 1px 1px 1px rgba(0, 0, 0, 0.7);
+	-moz-box-shadow: inset 1px 1px 1px rgba(0, 0, 0, 0.7);
+	-webkit-box-shadow: inset 1px 1px 1px rgba(0, 0, 0, 0.7);
 }
 
-.user_layouts a{
+.user_layouts a {
 	width: auto;
 }
 

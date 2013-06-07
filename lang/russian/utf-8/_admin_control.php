@@ -4,7 +4,7 @@
  * @brief Файл переводов для страницы admin/control.php
  */
 /* CONTROL START */
-$r_control = 'Управление основной программой сервера - демоном &#171;'.$conf['daemon-name'].'&#187;';
+$r_control = 'Управление основной программой сервера - демоном &#171;' . $conf['daemon-name'] . '&#187;';
 $r_conrol_control = 'Подать команду демону';
 
 
@@ -19,12 +19,12 @@ $strRunW = 'запустить';
 $strStopW = 'остановить';
 $strRestartW = 'перезапустить';
 $strCondRestartW = 'condrestart';
-$strReloadW = 'Перечитать измененные <img src="'.$conf['prefix'].'/img/hotsync.gif" align="bottom" border="0" height="22" width="22"> настройки?';
+$strReloadW = 'Перечитать измененные <img src="' . $conf['prefix'] . '/img/hotsync.gif" align="bottom" border="0" height="22" width="22"> настройки?';
 $strSnapshotW = 'Записать по кадру Jpeg с каждой камеры ( snapshot/отметки )?';
-$sViewerRestartWarn = 'Внимание! После перезапуска демона ВОЗМОЖНО потребуется перезапустить работающие сейчас программы просмотра видео в реальном времени - локальный &#171;'.$local_player_name.'&#187; и интернет-браузеры!';
+$sViewerRestartWarn = 'Внимание! После перезапуска демона ВОЗМОЖНО потребуется перезапустить работающие сейчас программы просмотра видео в реальном времени - локальный &#171;' . $local_player_name . '&#187; и интернет-браузеры!';
 
-$runVservWarn1='Команда &quot;%s&quot; не допустима для уже работающего '.$conf['daemon-name'];
-$runVservWarn2='Команда &quot;%s&quot; не допустима для неработающего '.$conf['daemon-name'];
+$runVservWarn1 = 'Команда &quot;%s&quot; не допустима для уже работающего ' . $conf['daemon-name'];
+$runVservWarn2 = 'Команда &quot;%s&quot; не допустима для неработающего ' . $conf['daemon-name'];
 
 $fnmWarnControl = 'Вы уверены, что хотите %s сервер?';
 $strRunA = 'Запускается сервер. Ждите...';
