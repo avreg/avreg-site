@@ -1,6 +1,7 @@
-<?php 
+<?php
 
-class Cache {
+class Cache
+{
 	private $memcache;
 
 	private $locked = ':lock';
@@ -13,7 +14,8 @@ class Cache {
 		$sufix = '';
 
 
-	public function __construct($server = 'localhost', $port = 11211) {
+	public function __construct($server = 'localhost', $port = 11211)
+	{
 		$this->server = $server;
 		$this->port = $port;
 		$this->memcache = new Memcache;
@@ -23,39 +25,50 @@ class Cache {
 			$this->memcache->connect($this->server, $this->port);
 		}
 	}
-	public function __destruct() {
+
+	public function __destruct()
+	{
 		if ($this->pconnect) {
 			$this->memcache->close();
 		}
 	}
-	public function setSufix($sufix) {
+
+	public function setSufix($sufix)
+	{
 		$this->sufix = $sufix;
 	}
-	public function get($key) {
-		$data = $this->memcache->get($this->prefix . $key.$this->sufix);
+
+	public function get($key)
+	{
+		$data = $this->memcache->get($this->prefix . $key . $this->sufix);
 		return $data;
 	}
 
-	public function lock($key, $time = 10) {
-		$this->memcache->set($this->prefix . $key.$this->sufix . $this->locked, 1, null, $time);
+	public function lock($key, $time = 10)
+	{
+		$this->memcache->set($this->prefix . $key . $this->sufix . $this->locked, 1, null, $time);
 	}
 
-	public function set($key, $value, $compress = false, $time = 0) {
+	public function set($key, $value, $compress = false, $time = 0)
+	{
 		$compress = $compress ? MEMCACHE_COMPRESSED : null;
-		$this->memcache->set($this->prefix . $key.$this->sufix, $value, $compress, $time);
-		$this->delete($key.$this->sufix . $this->locked);
+		$this->memcache->set($this->prefix . $key . $this->sufix, $value, $compress, $time);
+		$this->delete($key . $this->sufix . $this->locked);
 	}
 
-	public function check($key) {
+	public function check($key)
+	{
 		//return true; // temporarily cache disabling
-		return (bool) $this->memcache->get($this->prefix . $key.$this->sufix . $this->locked);
+		return (bool)$this->memcache->get($this->prefix . $key . $this->sufix . $this->locked);
 	}
 
-	public function delete($key, $time = 0) {
-		$this->memcache->delete($this->prefix . $key.$this->sufix, $time);
+	public function delete($key, $time = 0)
+	{
+		$this->memcache->delete($this->prefix . $key . $this->sufix, $time);
 	}
 
-	public function flush() {
+	public function flush()
+	{
 		return $this->memcache->flush();
 	}
 }

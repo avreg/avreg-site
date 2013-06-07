@@ -1,7 +1,7 @@
 <?php
 /**
  * @file pda/head_pda.inc.php
- * @brief 
+ * @brief
  */
 
 ob_start();
@@ -23,85 +23,148 @@ header('Pragma: no-cache'); // HTTP/1.0
 header('Content-Type: text/html; charset=' . $chset);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<?php
-print '<link rel="SHORTCUT ICON" href="'.$conf['prefix'].'/favicon.ico">'."\n";
-print '<title>';
-if ( isset($GLOBALS['pageTitle']) )
-   print($GLOBALS['pageTitle'] . ' ['.$named.']');
-else
-   print('PDA версия ' . $conf['server-name'] . '['.$named.']');
-print '</title>'."\n";
-print '<meta http-equiv="Content-Type" content="text/html; charset='.$chset.'">'."\n";
-print '<meta name="author" content="Andrey Nikitin &lt;nik-a at mail dot ru&gt;">'."\n";
-if ( isset($BaseTarget) )
-   print '<base target="'.$BaseTarget.'">'."\n";
-?>
-<style type="text/css" media="screen, handheld">
-body{font:small Arial,sans-serif;margin:0;padding:0 0 2px;}
-:link{color:#42629D}
-*{font-size:100%;margin:0}
-h1,h2,h3,h4,h5,h6{font-weight:normal}
-table{border-collapse:collapse}
-th,td{padding:1;border-collapse:collapse}
-ol,ul{list-style:none}
-ol,ul,li{padding:0}
-input,textarea,select{font:normal 100% Arial,sans-serif}
-a{text-decoration:none}
-a:hover{text-decoration: underline}
-img{border:0}
-b{font-weight:normal}
-i{font-style:normal}
-</style>
-<?php
-if ( isset($css_links) && is_array($css_links))
-   foreach ($css_links as &$__css_link)
-      print '<link href="'.$conf['prefix'].'/'.$__css_link.'" rel="stylesheet" type="text/css" />'."\n";
-if ( isset($USE_JQUERY) ) {
-   if ( $conf['debug'] )
-      print '<script type="text/javascript" src="'.$conf['prefix'].'/lib/js/jquery-1.7.1.min.js"></script>'."\n";
-   else
-      print '<script type="text/javascript" src="'.$conf['prefix'].'/lib/js/jquery-1.7.1.min.js"></script>'."\n";
-}
-if ( isset($link_javascripts) && is_array($link_javascripts))
-   foreach ($link_javascripts as &$__js_link)
-      print '<script type="text/javascript" src="'.$conf['prefix'].'/'.$__js_link.'"></script>'."\n";
-if ( isset($include_javascripts) && is_array($include_javascripts)) {
-   foreach ($include_javascripts as &$__js)
-      if (eregi('.php$', $__js))
-         require ($wwwdir.$__js);
-      else
-         readfile($wwwdir.$__js);
-}
-print '</head>';
-ob_end_flush();
+	<?php
+	print '<link rel="SHORTCUT ICON" href="' . $conf['prefix'] . '/favicon.ico">' . "\n";
+	print '<title>';
+	if (isset($GLOBALS['pageTitle'])) {
+		print($GLOBALS['pageTitle'] . ' [' . $named . ']');
+	} else {
+		print('PDA версия ' . $conf['server-name'] . '[' . $named . ']');
+	}
+	print '</title>' . "\n";
+	print '<meta http-equiv="Content-Type" content="text/html; charset=' . $chset . '">' . "\n";
+	print '<meta name="author" content="Andrey Nikitin &lt;nik-a at mail dot ru&gt;">' . "\n";
+	if (isset($BaseTarget)) {
+		print '<base target="' . $BaseTarget . '">' . "\n";
+	}
+	?>
+	<style type="text/css" media="screen, handheld">
+		body {
+			font: small Arial, sans-serif;
+			margin: 0;
+			padding: 0 0 2px;
+		}
 
-if (!isset($body_style))
-   $body_style = '';
-if ( isset($pageBgColor) && !empty($pageBgColor) )
-   $body_style .= 'background-color: '.$pageBgColor.';';
-else
-   $body_style .= 'visibility:visible;';
+		:link {
+			color: #42629D
+		}
 
-if ( isset($body_onload) && !empty($body_onload) )
-   $_onload = 'onload="'.$body_onload.'"';
-else  if ( isset($load) && !empty($load) )
-   $_onload = 'onload="window.open(\''.$load.'\', target=\'content\')"';
-else
-   $_onload = '';
+		* {
+			font-size: 100%;
+			margin: 0
+		}
 
-if ( !isset($body_addons))
-   $body_addons = '';
+		h1, h2, h3, h4, h5, h6 {
+			font-weight: normal
+		}
 
-printf('<body style="%s" %s %s>',$body_style, $_onload, $body_addons)."\n";
+		table {
+			border-collapse: collapse
+		}
 
-?>
+		th, td {
+			padding: 1;
+			border-collapse: collapse
+		}
+
+		ol, ul {
+			list-style: none
+		}
+
+		ol, ul, li {
+			padding: 0
+		}
+
+		input, textarea, select {
+			font: normal 100% Arial, sans-serif
+		}
+
+		a {
+			text-decoration: none
+		}
+
+		a:hover {
+			text-decoration: underline
+		}
+
+		img {
+			border: 0
+		}
+
+		b {
+			font-weight: normal
+		}
+
+		i {
+			font-style: normal
+		}
+	</style>
+	<?php
+	if (isset($css_links) && is_array($css_links)) {
+		foreach ($css_links as &$__css_link) {
+			print '<link href="' . $conf['prefix'] . '/' . $__css_link . '" rel="stylesheet" type="text/css" />' . "\n";
+		}
+	}
+	if (isset($USE_JQUERY)) {
+		if ($conf['debug']) {
+			print '<script type="text/javascript" src="' . $conf['prefix'] . '/lib/js/jquery-1.7.1.min.js"></script>' . "\n";
+		} else {
+			print '<script type="text/javascript" src="' . $conf['prefix'] . '/lib/js/jquery-1.7.1.min.js"></script>' . "\n";
+		}
+	}
+	if (isset($link_javascripts) && is_array($link_javascripts)) {
+		foreach ($link_javascripts as &$__js_link) {
+			print '<script type="text/javascript" src="' . $conf['prefix'] . '/' . $__js_link . '"></script>' . "\n";
+		}
+	}
+	if (isset($include_javascripts) && is_array($include_javascripts)) {
+		foreach ($include_javascripts as &$__js) {
+			if (eregi('.php$', $__js)) {
+				require($wwwdir . $__js);
+			} else {
+				readfile($wwwdir . $__js);
+			}
+		}
+	}
+	print '</head>';
+	ob_end_flush();
+
+	if (!isset($body_style)) {
+		$body_style = '';
+	}
+	if (isset($pageBgColor) && !empty($pageBgColor)) {
+		$body_style .= 'background-color: ' . $pageBgColor . ';';
+	} else {
+		$body_style .= 'visibility:visible;';
+	}
+
+	if (isset($body_onload) && !empty($body_onload)) {
+		$_onload = 'onload="' . $body_onload . '"';
+	} else {
+		if (isset($load) && !empty($load)) {
+			$_onload = 'onload="window.open(\'' . $load . '\', target=\'content\')"';
+		} else {
+			$_onload = '';
+		}
+	}
+
+	if (!isset($body_addons)) {
+		$body_addons = '';
+	}
+
+	printf('<body style="%s" %s %s>', $body_style, $_onload, $body_addons) . "\n";
+
+	?>
 <noscript>
-<center><div class="help" style="width:50%;text-align:left;">
-Ваш браузер не использует JavaScript.<br>
-Включите поддержку JavaScript и перегрузите/обновите эту страницу.</div></center>
+	<center>
+		<div class="help" style="width:50%;text-align:left;">
+			Ваш браузер не использует JavaScript.<br>
+			Включите поддержку JavaScript и перегрузите/обновите эту страницу.
+		</div>
+	</center>
 </noscript>
 
 

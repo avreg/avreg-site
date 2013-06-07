@@ -16,8 +16,8 @@ $bugs_rules = <<<EOD
 </ol>
 EOD;
 
-$sMaxTailNum='Количество последних строк в &#171;'. $conf['daemon-log'].'&#187';
-$sWaitLogsDownload =  'Ждите начала загрузки файла ...';
-$strGetLogs='Скачать лог-файлы';
+$sMaxTailNum = 'Количество последних строк в &#171;' . $conf['daemon-log'] . '&#187';
+$sWaitLogsDownload = 'Ждите начала загрузки файла ...';
+$strGetLogs = 'Скачать лог-файлы';
 /******************************** BUG END */
 ?>
