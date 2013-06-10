@@ -238,7 +238,10 @@ function img_click(clicked_div) {
          	 continue;
           }else{
          	 //отображаем остальные камеры
-         	 $(tmp_div).show();
+         	 //$(tmp_div).show();
+			  $(tmp_div).css({
+				  'margin' : '0%'
+			  });
           }
        }
   	//меняем кнопку на Развернуть
@@ -262,7 +265,10 @@ function img_click(clicked_div) {
 	         	 continue;
 	          }else{
 	         	 //прячем остальные камеры
-	         	 $(tmp_div).hide();
+	         	 //$(tmp_div).hide();
+				  $(tmp_div).css({
+					  'margin' : '-100%'
+				  });
 	          }
 	       }
 
