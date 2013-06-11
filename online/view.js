@@ -1402,12 +1402,11 @@ function canvas_growth() {
                 user_layouts.setCookie('layouts', JSON.stringify(user_layouts.client_layouts), 86400, '/', document.location.hostname, '');
 
    			}
-   			window.open(url, '_self');
    		}
    		else{
    			alert("Данная функция недоступна:\nлокальное хранилище данных недоступно");
    		}
-	}   	
+	}
 
 	//проверка доступности LocalStorage
 	function isLocalStorageAvailable() {
@@ -1434,18 +1433,21 @@ function canvas_growth() {
 		}
            // calc and set  CANVAS width & height
            CANVAS = $('#canvas');
-           
-           $("#toolbar").addClass('toolbar_style');
-           //Выводим список раскладок
-            $("#toolbar table tr").html('<td> <table><tr id="tb_contn"><td width="1000%">'+ layouts_to_list()+'</td></tr></table></td>');
-           //добавляем кнопку на главнуюa
-           if(REF_MAIN){
 
-        	   $('#tb_contn').prepend('<td><div class="to_main"> <a href="../index.php" >На главную </a> </div> </td>');
-           }
-           // TODO Кнопка пользовательских раскладок
-           $('#tb_contn').append('<td><div id="user_layouts" class="user_layouts" onclick="clients_layouts_list();" > <a href="#" >Раскладки</a> </div> </td>');
-           
+		   $("#toolbar").addClass('toolbar_style');
+		   $("#toolbar table tr").html('<td width="100%"> <table><tr id="tb_contn" style="width:100%;"><td>'+ layouts_to_list()+'</td><td><div id="user_layouts" class="user_layouts" onclick="clients_layouts_list();" > <a href="../admin/web_mon_list.php" target="_blank">Раскладки</a> </div> </td></tr></table></td>');
+		   //добавляем кнопку на главнуюa
+		   // TODO Кнопка пользовательских раскладок
+		   //$('#tb_contn').append('');
+		   var widthHome = $('#toolbar').width() - $('#tb_contn').width() - 10;
+
+		   var style = 'position: absolute; top: 0px; left:' + (widthHome - 140) + 'px;';
+
+		   if(REF_MAIN){
+
+			   $('#tb_contn').append('<td width="' + widthHome + '" align="right" style="position:relative; display:block;"><div class="to_main" style="' + style + '"> <a href="../index.php" >На главную </a> </div> </td>');
+		   }
+
            canvas_growth();
            
            $(window).bind('resize', function() {

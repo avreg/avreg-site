@@ -1,3 +1,33 @@
+.backToMainDiv{
+	color: #585858;
+	font-family: Arial, sans-serif;
+	font-size: 13px;
+	text-decoration: none;
+	cursor: hand;
+	z-index: 10000;
+	background: #777;
+	height: 30px;
+	position: relative;
+	top: 0px;
+	float: right;
+}
+
+.backToMainDiv a {
+	display: block;
+	text-align: center;
+	margin: 0px;
+	padding: 5px 10px;
+	border: 2px solid #1e1e1e;
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	background: rgba(220,220,220,0.4);
+	color: #FAFAFA;
+	text-decoration: none;
+	cursor: hand;
+	width: 120px;
+	height: 15px;
+}
 
 #message_box{
 	

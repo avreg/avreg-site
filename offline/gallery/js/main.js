@@ -2823,8 +2823,12 @@ var matrix = {
 
     //возвращает src ресайзенного изображения
     getResizedImageSrc : function(cell_num, height, width){
-        //формируем строку src
-        var ResizedImgSrc = WwwPrefix+'/lib/resize_img.php?url='+location.protocol+'//'+location.hostname+':'+ location.port+MediaUrlPref+matrix.events[cell_num][2];
+		var port = '';
+		if (location.port){
+			port = ':' + location.port;
+		}
+		//формируем строку src
+		var ResizedImgSrc = WwwPrefix+'/lib/resize_img.php?url='+location.protocol+'//'+location.hostname+port+MediaUrlPref+matrix.events[cell_num][2];
         ResizedImgSrc += '&h='+height;
         ResizedImgSrc += '&w='+width;
         ResizedImgSrc += ($('#proportion').attr('checked')=='checked')? '&prop=true' : '&prop=false';

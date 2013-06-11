@@ -63,7 +63,9 @@
 			<div id="content">
 				<div class="window">
 					<div id="win_top" >
-					
+						<div class=backToMainDiv align=left>
+							<a class=backToMainDivA href="../index.php">На главную </a>
+						</div>
 					<div id="select_all_cam">
 						<span class="new_Check" style="white-space: nowrap; ">
 							<span class="niceCheck">
