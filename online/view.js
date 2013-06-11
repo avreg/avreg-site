@@ -530,7 +530,8 @@ var checking_connection = {
 
 		var me = $('img.ElMedia', win);
 		var me_id = $(me).attr('id');
-		var me_src = $(me).attr('src');
+		var me_src = ($(me).attr('origsrc') !== undefined)
+			? $(me).attr('origsrc') : $(me).attr('src');
 
 		if(self.me_list==undefined){
 			self.me_list = new Array();
@@ -565,7 +566,6 @@ var checking_connection = {
         if(WEBKIT || GECKO){
 			self.set_handlers(me);
 		}
-
     },
 
 	//возобновить проверку элемента
@@ -683,7 +683,6 @@ var checking_connection = {
 		var imgObj = document.getElementById(img_id);
 		var canvas = self.me_list[index].wk_canvas;
 		var context = canvas.getContext('2d');
-
 
 		var img_h = imgObj.naturalWidth;
 	    var img_w = imgObj.naturalHeight;
