@@ -323,6 +323,7 @@ var gallery = {
         } else {
             // не дадим пользователю снять последний чекбокс
             //$(this).attr('checked', 'checked');
+			$('#matrix_load').hide();
             alert(lang.empty_event);
             return false;
         }
@@ -767,7 +768,7 @@ var gallery = {
                         gallery.tree_event.reload();
                     } else if (data.status == 'error' && data.code=='0') {
                         alert(lang.empty_tree);
-                        //$('#matrix_load').hide();
+                        $('#matrix_load').hide();
                     }
                     //если вовремя заполнения EVENTS_TREE были обнаружены дублированные события
                     else if (data.status == 'error' && data.code=='1') {

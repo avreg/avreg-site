@@ -1451,7 +1451,7 @@ function canvas_growth() {
            CANVAS = $('#canvas');
 
 		   $("#toolbar").addClass('toolbar_style');
-		   $("#toolbar table tr").html('<td width="100%"> <table><tr id="tb_contn" style="width:100%;"><td>'+ layouts_to_list()+'</td><td><div id="user_layouts" class="user_layouts" onclick="clients_layouts_list();" > <a href="../admin/web_mon_list.php" target="_blank">Раскладки</a> </div> </td></tr></table></td>');
+		   $("#toolbar table tr").html('<td width="100%"> <table><tr id="tb_contn" style="width:100%;"><td>'+ layouts_to_list()+'</td><td><div id="user_layouts" class="user_layouts" onclick="clients_layouts_list();" > <a href="../admin/web_mon_list.php">Раскладки</a> </div> </td></tr></table></td>');
 		   //добавляем кнопку на главнуюa
 		   // TODO Кнопка пользовательских раскладок
 		   //$('#tb_contn').append('');
