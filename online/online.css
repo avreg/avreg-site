@@ -1,5 +1,25 @@
 @CHARSET "UTF-8";
 
+.messageError{
+	position: absolute;
+	top: 0;
+	width: 100%;
+	height : 100%;
+	opacity : 0;
+	background: black;
+	text-align: right;
+	display: table;
+}
+
+.textError{
+	display: table-cell;
+	font-weight: bolder;
+	font-size: 15px;
+	color: white;
+	vertical-align:bottom;
+
+}
+
 .layout{
 	float:left; 
 	margin: 2px;

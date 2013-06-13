@@ -97,8 +97,6 @@ $(document).ready( function() {
 	};
 });
 
-
-
 /**
  * Обработчик события mouseover для элементов раскладки камер.
  * Обеспечивает формирование и вывод tooltip
@@ -464,7 +462,6 @@ function brout(win_nr, win_div, win_geo) {
    	   return url;
    }
 
-
 var checking_connection = {
 	timer : null,
 	me_list : null,
@@ -483,8 +480,7 @@ var checking_connection = {
 			self.reconnect = self.reconnect_gecko;
 			self.set_handlers = self.set_handlers_gecko;
 			timer_callback = self.check_cams_connection_gecko;
-		}
-        else if(WEBKIT){
+		}else if(WEBKIT){
         	self.reconnect = self.reconnect_webkit;
             self.set_handlers = self.set_handlers_webkit;
 			timer_callback = self.check_cams_connection_webkit;
@@ -661,8 +657,8 @@ var checking_connection = {
 
 			if( isFail ){
 				$(self.me_list[index].me)
-					.unbind('load')
-					.attr('src', imgs['connection_fail'].src);
+					.unbind('load');
+				showErrorMessage(index, 'error');
 				self.me_list[index].connection_fail = true;
 
 				if(self.is_reconnect_active) self.reconnect(index);
@@ -756,7 +752,7 @@ var checking_connection = {
 		var test_con = me;
 		if (!self.me_list[index].WEBKITCorsError){
 			$(test_con).bind('error', function(){
-				$(me).attr('src', imgs['connection_fail'].src);
+				showErrorMessage(index, 'error');
 				self.me_list[index].connection_fail = false;
 
 				//активируем кнопку play
@@ -769,6 +765,7 @@ var checking_connection = {
 		}
 
 		$(test_con).bind('load',function(){
+			hideErrorMessage(index);
 			self.me_list[index].connection_fail = false;
 		});
 
@@ -790,6 +787,7 @@ var checking_connection = {
 		//Сбой переподключения
 		if (!self.me_list[index].WEBKITCorsError){
 			$(im).bind('error', function(){
+				showErrorMessage(index, 'error');
 				//отключение обработчиков
 				$(im)
 				.unbind('load')
@@ -800,6 +798,7 @@ var checking_connection = {
 
 		//Успешное переподключение
 		$(im).bind('load', function(){
+			hideErrorMessage(index);
             $(im)
                 .unbind('load')
                 .unbind('error').attr('src','');
@@ -830,8 +829,8 @@ var checking_connection = {
             if(self.me_list[index].stoped || self.me_list[index].connection_fail) continue;
 			else if( self.me_list[index].check_val == 0 ){ //нет событий onLoad -  ошибка
             	$(self.me_list[index].me)
-					.unbind('load')
-					.attr('src', imgs['connection_fail'].src);
+					.unbind('load');
+				showErrorMessage(index, 'error');
                 self.me_list[index].connection_fail = true;
                 if(self.is_reconnect_active)self.reconnect(index);
 
@@ -842,7 +841,9 @@ var checking_connection = {
 		        	controls_handlers.activate_btn_play(win_nr);
 				}
 			}
-			else{}
+			else{
+				hideErrorMessage(index);
+			}
 				self.me_list[index].check_val = 0;
 		}
 	},
@@ -860,8 +861,8 @@ var checking_connection = {
 
 		$(me).bind('error', function(){
 			$(me)
-			.unbind('load')
-			.attr('src', imgs['connection_fail'].src);
+			.unbind('load');
+			showErrorMessage(index, 'error');
             self.me_list[index].connection_fail = true;
             self.reconnect(index);
 
@@ -874,13 +875,14 @@ var checking_connection = {
 		});
 
 		$(me).bind('load',function(){
+			hideErrorMessage(index);
 			self.me_list[index].check_val++;
 		});
 
 		$(me).bind('abort', function(){
 			$(me)
-			.unbind('load')
-			.attr('src', imgs['connection_fail'].src);
+			.unbind('load');
+			showErrorMessage(index, 'error');
             self.me_list[index].connection_fail = true;
             // self.reconnect(index);
             //активируем кнопку play
@@ -904,6 +906,7 @@ var checking_connection = {
 		im = self.me_list[index].tset_img;
 
 		$(im).bind('error', function(){
+			showErrorMessage(index, 'error');
 			$(im)
 			.unbind('load')
 			.unbind('error');
@@ -911,6 +914,7 @@ var checking_connection = {
 		});
 
 		$(im).bind('load', function(){
+			hideErrorMessage(index);
 			$(me).attr('src', im.src);
 			self.start_check_me(me);
 			$(im)
@@ -1357,6 +1361,20 @@ function canvas_growth() {
    	
    }
 
+	function showErrorMessage(indexCam, typeErr){
+		var aplayerElem =  $('#' + $.aplayer.idContainer + indexCam);
+		switch(typeErr){
+			case 'error' :
+				$('.messageError', aplayerElem).css({'opacity' : '0.5'});
+				$('.textError', aplayerElem).html('ОШИБКА');
+				break;
+		}
+	}
+
+	function hideErrorMessage(indexCam){
+		var aplayerElem =  $('#' + $.aplayer.idContainer + indexCam);
+		$('.messageError', aplayerElem).css({'opacity' : '0'});
+	}
 
    /**
     * Расчет размеров элементов отображения камер в раскладке
@@ -1416,8 +1434,6 @@ function canvas_growth() {
 	        return false;
 	    }
 	}
-	
-	
 
    /**
     * Выводит раскладку с он-лайн камерами в канвас
@@ -1756,7 +1772,7 @@ cam_status_request = function(params ){
 /**
  * Функция создает XHR-object
  * @returns  XHR-object
- */   
+ */
    
 getXmlHttp = function(){
 	var xmlhttp;

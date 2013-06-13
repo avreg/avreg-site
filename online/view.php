@@ -34,6 +34,7 @@ require ('../head.inc.php');
 
 //получение пользовательских раскладок
 $clients_layouts = array();
+$cnt_client_lay = 0;
 if (isset($_COOKIE['layouts']))
 {
     $layouts_cookie = $_COOKIE['layouts'];
@@ -51,7 +52,8 @@ if (isset($layouts_cookie))
     }
 }
 
-if (isset($tmp))
+if (isset($tmp)){
+	$cnt_client_lay = count($tmp);
     foreach ($tmp as $client_mon_nr=>$l_val){
         $_data = array();
         foreach ($l_val as $par_name=>$par_data){
@@ -78,7 +80,7 @@ if (isset($tmp))
                 'WINS' => $_data['w']
                 );
     }
-
+}
 //Загрузка установленных раскладок
 $result = $adb->web_get_layouts($login_user);
 
@@ -134,11 +136,7 @@ if(isset($_GET['layout_id']) ){
         foreach($result as $key=>&$value){
             if($value['IS_DEFAULT']!='0'){
                 $def_cam = $value;
-                if (isset($l_cook))
-                    $cnt_client_lay = count($l_cook);
-                else
-                    $cnt_client_lay = 0;
-                $cur_layout = $value["MON_NR"] + $cnt_client_lay;
+                $cur_layout = intval($value['MON_NR']);
             }
             if (!isset($value['RECONNECT_TOUT'])){
                 $value['RECONNECT_TOUT'] = isset($conf['reconnect-timeout'])?$conf['reconnect-timeout']:5;
