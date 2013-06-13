@@ -499,6 +499,8 @@ var checking_connection = {
 			self.reconnect_timeout = online_check_period*1000;
 		}
 
+		self.reconnect_timeout = self.reconnect_timeout / 2;
+
 		clearInterval(self.timer);
 		if(self.me_list != null){
 			$.each(self.me_list, function(i, val){
@@ -537,7 +539,7 @@ var checking_connection = {
 			'me' : me,
 			'me_id':me_id,
 			'src' : me_src,
-			'check_val' : 0,
+			'check_val' : timer,
 			'WEBKITCorsError' : typeof(me_src) !== "undefined" && me_src.search(window.location.hostname)  < 0 && WEBKIT && !GECKO  ,
 			'stoped' : false,
 			'connection_fail' : false,
@@ -654,7 +656,6 @@ var checking_connection = {
 
             //проверяем изменилось ли изображение
 			var isFail = self.is_fail_connection_webkit(index);
-
 			if( isFail ){
 				$(self.me_list[index].me)
 					.unbind('load');
@@ -704,8 +705,9 @@ var checking_connection = {
 		var cur_bmp = self.get_bitmap(index);
 
 		//Если получили ноль(код ошибки) - возвращаем 'сбой связи'
+
 		if(cur_bmp==0){
-			return (!self.me_list[index].check_val === 0);
+			return !(self.me_list[index].check_val === 0 && self.me_list[index].connection_fail);
 		}
 		var chq_val = ""; // контрольное значение
 
@@ -760,7 +762,6 @@ var checking_connection = {
 				if(!isNaN(parseInt(win_nr))){
 					controls_handlers.activate_btn_play(win_nr);
 				}
-
 			});
 		}
 
@@ -827,7 +828,7 @@ var checking_connection = {
 		var self = checking_connection;
 		for(var index = 0; index<self.me_list.length; index++){
             if(self.me_list[index].stoped || self.me_list[index].connection_fail) continue;
-			else if( self.me_list[index].check_val == 0 ){ //нет событий onLoad -  ошибка
+			else if((timer - self.me_list[index].check_val) > 3 ){//нет событий onLoad -  ошибка
             	$(self.me_list[index].me)
 					.unbind('load');
 				showErrorMessage(index, 'error');
@@ -841,10 +842,6 @@ var checking_connection = {
 		        	controls_handlers.activate_btn_play(win_nr);
 				}
 			}
-			else{
-				hideErrorMessage(index);
-			}
-				self.me_list[index].check_val = 0;
 		}
 	},
 
@@ -876,7 +873,7 @@ var checking_connection = {
 
 		$(me).bind('load',function(){
 			hideErrorMessage(index);
-			self.me_list[index].check_val++;
+			self.me_list[index].check_val = timer;
 		});
 
 		$(me).bind('abort', function(){
@@ -904,7 +901,7 @@ var checking_connection = {
 		}
 		self.me_list[index].tset_img.src = '';
 		im = self.me_list[index].tset_img;
-
+		self.me_list[index].check_val = timer;
 		$(im).bind('error', function(){
 			showErrorMessage(index, 'error');
 			$(im)
@@ -1363,17 +1360,22 @@ function canvas_growth() {
 
 	function showErrorMessage(indexCam, typeErr){
 		var aplayerElem =  $('#' + $.aplayer.idContainer + indexCam);
+		var textError = '';
 		switch(typeErr){
 			case 'error' :
-				$('.messageError', aplayerElem).css({'opacity' : '0.5'});
-				$('.textError', aplayerElem).html('ОШИБКА');
+				textError += 'Ошибка подключения к камере';
+				if (checking_connection.is_reconnect_active){
+					textError += '<br/>Ожидание реконнекта';
+				}
+				$('.messageError', aplayerElem).css('display', 'table');
+				$('.textError', aplayerElem).html(textError);
 				break;
 		}
 	}
 
 	function hideErrorMessage(indexCam){
 		var aplayerElem =  $('#' + $.aplayer.idContainer + indexCam);
-		$('.messageError', aplayerElem).css({'opacity' : '0'});
+		$('.messageError', aplayerElem).hide();
 	}
 
    /**
@@ -2005,3 +2007,7 @@ var controls_handlers = {
 	
    
 };
+
+var timer = 0;
+
+setInterval(function(){timer++}, 500);
