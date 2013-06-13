@@ -553,7 +553,11 @@ var checking_connection = {
 			'me_id':me_id,
 			'src' : me_src,
 			'check_val' : timer,
+<<<<<<< HEAD
 			'WEBKITCorsError' : typeof(me_src) !== "undefined" && checkUrl && WEBKIT && !GECKO,
+=======
+			'WEBKITCorsError' : typeof(me_src) !== "undefined" && me_src.search(window.location.hostname)  < 0 && WEBKIT && !GECKO  ,
+>>>>>>> d15ae5e... photo-1482 Ошибка коннекта к камере. Смена алгоритма отображения
 			'stoped' : false,
 			'connection_fail' : false,
 			//канвас и контекст для webkit
@@ -669,7 +673,6 @@ var checking_connection = {
 
             //проверяем изменилось ли изображение
 			var isFail = self.is_fail_connection_webkit(index);
-
 			if( isFail ){
 				$(self.me_list[index].me)
 					.unbind('load');
@@ -1339,6 +1342,7 @@ function canvas_growth() {
 
 	function showErrorMessage(indexCam, typeErr){
 		var aplayerElem =  $('#' + $.aplayer.idContainer + indexCam);
+		var textError = '';
 		switch(typeErr){
 			case 'error' :
             /* по признаку видимости формы ошибки берёмся судить о признаке ошибки */
