@@ -669,7 +669,6 @@ var checking_connection = {
 
             //проверяем изменилось ли изображение
 			var isFail = self.is_fail_connection_webkit(index);
-
 			if( isFail ){
 				$(self.me_list[index].me)
 					.unbind('load');
@@ -808,7 +807,11 @@ var checking_connection = {
 		var self = checking_connection;
 		for(var index = 0; index<self.me_list.length; index++){
             if(self.me_list[index].stoped || self.me_list[index].connection_fail) continue;
+<<<<<<< HEAD
 			else if((timer - self.me_list[index].check_val) > 2 ){//нет событий onLoad -  ошибка
+=======
+			else if((timer - self.me_list[index].check_val) > 3 ){//нет событий onLoad -  ошибка
+>>>>>>> d15ae5e... photo-1482 Ошибка коннекта к камере. Смена алгоритма отображения
             	$(self.me_list[index].me)
 					.unbind('load');
 				showErrorMessage(index, 'error');
@@ -1339,6 +1342,7 @@ function canvas_growth() {
 
 	function showErrorMessage(indexCam, typeErr){
 		var aplayerElem =  $('#' + $.aplayer.idContainer + indexCam);
+		var textError = '';
 		switch(typeErr){
 			case 'error' :
             /* по признаку видимости формы ошибки берёмся судить о признаке ошибки */
