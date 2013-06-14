@@ -553,11 +553,7 @@ var checking_connection = {
 			'me_id':me_id,
 			'src' : me_src,
 			'check_val' : timer,
-<<<<<<< HEAD
 			'WEBKITCorsError' : typeof(me_src) !== "undefined" && checkUrl && WEBKIT && !GECKO,
-=======
-			'WEBKITCorsError' : typeof(me_src) !== "undefined" && me_src.search(window.location.hostname)  < 0 && WEBKIT && !GECKO  ,
->>>>>>> d15ae5e... photo-1482 Ошибка коннекта к камере. Смена алгоритма отображения
 			'stoped' : false,
 			'connection_fail' : false,
 			//канвас и контекст для webkit
@@ -794,6 +790,48 @@ var checking_connection = {
 		var self = this;
 		var me = self.me_list[index].me;
 		var me_id = $(me).attr('id');
+<<<<<<< HEAD
+=======
+		var im =null;
+
+		if(self.me_list[index].tset_img==undefined){
+			self.me_list[index].tset_img = new Image();
+		}
+
+		im = self.me_list[index].tset_img;
+
+		//Сбой переподключения
+		if (!self.me_list[index].WEBKITCorsError){
+			$(im).bind('error', function(){
+				showErrorMessage(index, 'error');
+				//отключение обработчиков
+				$(im)
+				.unbind('load')
+				.unbind('error');
+				self.me_list[index].connection_fail = false;
+			});
+		}
+
+		//Успешное переподключение
+		$(im).bind('load', function(){
+			hideErrorMessage(index);
+            $(im)
+                .unbind('load')
+                .unbind('error');//.attr('src','');
+			//восстановление воспроизведения
+
+			$(me).attr('src', self.me_list[index].src);
+			self.start_check_me(me);
+			//отключение обработчиков
+
+            self.me_list[index].connection_fail = false;
+            //деактивируем кнопку play, активируем кнопку stop
+			var win_nr = parseInt($("div.[name=win]:has(#"+me_id+")").attr('id').replace('win', '') );
+	        if(!isNaN(parseInt(win_nr))){
+	           	controls_handlers.activate_btn_stop(win_nr);
+	        }
+		});
+>>>>>>> 3ef197f... Починка motion jpeg - отправлялись лишние запросы
 
 		var par = (self.me_list[index].src.indexOf('?')!=-1)? "&dummy=" : "?&dummy=";
 		par += Math.random();
