@@ -537,7 +537,7 @@ var checking_connection = {
 			'me' : me,
 			'me_id':me_id,
 			'src' : me_src,
-			'check_val' : 0,
+			'check_val' : timer,
 			'WEBKITCorsError' : typeof(me_src) !== "undefined" && me_src.search(window.location.hostname)  < 0 && WEBKIT && !GECKO  ,
 			'stoped' : false,
 			'connection_fail' : false,
@@ -760,7 +760,6 @@ var checking_connection = {
 				if(!isNaN(parseInt(win_nr))){
 					controls_handlers.activate_btn_play(win_nr);
 				}
-
 			});
 		}
 
@@ -827,7 +826,7 @@ var checking_connection = {
 		var self = checking_connection;
 		for(var index = 0; index<self.me_list.length; index++){
             if(self.me_list[index].stoped || self.me_list[index].connection_fail) continue;
-			else if( self.me_list[index].check_val == 0 ){ //нет событий onLoad -  ошибка
+			else if((timer - self.me_list[index].check_val) >= 1 ){//нет событий onLoad -  ошибка
             	$(self.me_list[index].me)
 					.unbind('load');
 				showErrorMessage(index, 'error');
@@ -844,7 +843,6 @@ var checking_connection = {
 			else{
 				hideErrorMessage(index);
 			}
-				self.me_list[index].check_val = 0;
 		}
 	},
 
@@ -876,7 +874,7 @@ var checking_connection = {
 
 		$(me).bind('load',function(){
 			hideErrorMessage(index);
-			self.me_list[index].check_val++;
+			self.me_list[index].check_val = timer;
 		});
 
 		$(me).bind('abort', function(){
@@ -904,7 +902,7 @@ var checking_connection = {
 		}
 		self.me_list[index].tset_img.src = '';
 		im = self.me_list[index].tset_img;
-
+		self.me_list[index].check_val = timer;
 		$(im).bind('error', function(){
 			showErrorMessage(index, 'error');
 			$(im)
@@ -2005,3 +2003,7 @@ var controls_handlers = {
 	
    
 };
+
+var timer = 0;
+
+setInterval(function(){timer++}, 1000);
