@@ -147,7 +147,6 @@ function img_click(clicked_div) {
    var i;
    //номер ячейки
    var win_nr = parseInt(($(clicked_div).attr('id')).match(/\d+/gi));
-
    //устанавливаемый src
    var current_src=null;
    //если номер камеры не определен
@@ -160,7 +159,6 @@ function img_click(clicked_div) {
                   && active_cams_srcs[win_nr]['cell'].toLowerCase() !== active_cams_srcs[win_nr]['fs'].toLowerCase())
 	    		  current_src = active_cams_srcs[win_nr]['cell']; // get_cam_alt_url(active_cams_srcs[win_nr]['cell'], win_nr, true) ;
 	      }
-
       if ( WIN_DIV_W == undefined ) {
     	  //в режиме FS был ресайз CANVAS'a
          change_wins_geo();
@@ -186,9 +184,6 @@ function img_click(clicked_div) {
                   }
               });
           }
-
-
-         
       } else {
     	  //востанавливаем исходные размеры отображения камеры
      	 var border_w = clicked_div.offsetWidth - clicked_div.clientWidth;
@@ -344,7 +339,6 @@ function img_click(clicked_div) {
    
    //Устанавливаем текущий масштаб
    var aplayer_id=$('.aplayer',pl_cont).attr('id');
-   
    if(controls_handlers.original_size[aplayer_id]!=null && controls_handlers.original_size[aplayer_id] ){
 	   $('#'+aplayer_id).parent().aplayerMediaSetSrcSizes();
    }
@@ -802,7 +796,7 @@ var checking_connection = {
 			hideErrorMessage(index);
             $(im)
                 .unbind('load')
-                .unbind('error').attr('src','');
+                .unbind('error');//.attr('src','');
 			//восстановление воспроизведения
 
 			$(me).attr('src', self.me_list[index].src);
