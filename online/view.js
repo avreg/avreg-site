@@ -807,7 +807,7 @@ var checking_connection = {
 		var self = checking_connection;
 		for(var index = 0; index<self.me_list.length; index++){
             if(self.me_list[index].stoped || self.me_list[index].connection_fail) continue;
-			else if((timer - self.me_list[index].check_val) > 3 ){//нет событий onLoad -  ошибка
+			else if((timer - self.me_list[index].check_val) > 2 ){//нет событий onLoad -  ошибка
             	$(self.me_list[index].me)
 					.unbind('load');
 				showErrorMessage(index, 'error');
