@@ -147,7 +147,6 @@ function img_click(clicked_div) {
    var i;
    //номер ячейки
    var win_nr = parseInt(($(clicked_div).attr('id')).match(/\d+/gi));
-
    //устанавливаемый src
    var current_src=null;
    //если номер камеры не определен
@@ -160,7 +159,6 @@ function img_click(clicked_div) {
                   && active_cams_srcs[win_nr]['cell'].toLowerCase() !== active_cams_srcs[win_nr]['fs'].toLowerCase())
 	    		  current_src = active_cams_srcs[win_nr]['cell']; // get_cam_alt_url(active_cams_srcs[win_nr]['cell'], win_nr, true) ;
 	      }
-
       if ( WIN_DIV_W == undefined ) {
     	  //в режиме FS был ресайз CANVAS'a
          change_wins_geo();
@@ -186,9 +184,6 @@ function img_click(clicked_div) {
                   }
               });
           }
-
-
-         
       } else {
     	  //востанавливаем исходные размеры отображения камеры
      	 var border_w = clicked_div.offsetWidth - clicked_div.clientWidth;
@@ -344,7 +339,6 @@ function img_click(clicked_div) {
    
    //Устанавливаем текущий масштаб
    var aplayer_id=$('.aplayer',pl_cont).attr('id');
-   
    if(controls_handlers.original_size[aplayer_id]!=null && controls_handlers.original_size[aplayer_id] ){
 	   $('#'+aplayer_id).parent().aplayerMediaSetSrcSizes();
    }
@@ -498,6 +492,8 @@ var checking_connection = {
 			self.is_reconnect_active = false;
 			self.reconnect_timeout = online_check_period*1000;
 		}
+
+		self.reconnect_timeout = self.reconnect_timeout / 2;
 
 		clearInterval(self.timer);
 		if(self.me_list != null){
@@ -654,7 +650,6 @@ var checking_connection = {
 
             //проверяем изменилось ли изображение
 			var isFail = self.is_fail_connection_webkit(index);
-
 			if( isFail ){
 				$(self.me_list[index].me)
 					.unbind('load');
@@ -704,8 +699,9 @@ var checking_connection = {
 		var cur_bmp = self.get_bitmap(index);
 
 		//Если получили ноль(код ошибки) - возвращаем 'сбой связи'
+
 		if(cur_bmp==0){
-			return (!self.me_list[index].check_val === 0);
+			return !(self.me_list[index].check_val === 0 && self.me_list[index].connection_fail);
 		}
 		var chq_val = ""; // контрольное значение
 
@@ -800,7 +796,7 @@ var checking_connection = {
 			hideErrorMessage(index);
             $(im)
                 .unbind('load')
-                .unbind('error').attr('src','');
+                .unbind('error');
 			//восстановление воспроизведения
 
 			$(me).attr('src', self.me_list[index].src);
@@ -826,7 +822,7 @@ var checking_connection = {
 		var self = checking_connection;
 		for(var index = 0; index<self.me_list.length; index++){
             if(self.me_list[index].stoped || self.me_list[index].connection_fail) continue;
-			else if((timer - self.me_list[index].check_val) >= 1 ){//нет событий onLoad -  ошибка
+			else if((timer - self.me_list[index].check_val) > 2 ){//нет событий onLoad -  ошибка
             	$(self.me_list[index].me)
 					.unbind('load');
 				showErrorMessage(index, 'error');
@@ -839,9 +835,6 @@ var checking_connection = {
 		        if(!isNaN(parseInt(win_nr))){
 		        	controls_handlers.activate_btn_play(win_nr);
 				}
-			}
-			else{
-				hideErrorMessage(index);
 			}
 		}
 	},
@@ -912,7 +905,6 @@ var checking_connection = {
 		});
 
 		$(im).bind('load', function(){
-			hideErrorMessage(index);
 			$(me).attr('src', im.src);
 			self.start_check_me(me);
 			$(im)
@@ -1361,17 +1353,22 @@ function canvas_growth() {
 
 	function showErrorMessage(indexCam, typeErr){
 		var aplayerElem =  $('#' + $.aplayer.idContainer + indexCam);
+		var textError = '';
 		switch(typeErr){
 			case 'error' :
-				$('.messageError', aplayerElem).css({'opacity' : '0.5'});
-				$('.textError', aplayerElem).html('ОШИБКА');
+				textError += 'Ошибка подключения к камере';
+				if (checking_connection.is_reconnect_active){
+					textError += '<br/>Ожидание реконнекта';
+				}
+				$('.messageError', aplayerElem).css('display', 'table');
+				$('.textError', aplayerElem).html(textError);
 				break;
 		}
 	}
 
 	function hideErrorMessage(indexCam){
 		var aplayerElem =  $('#' + $.aplayer.idContainer + indexCam);
-		$('.messageError', aplayerElem).css({'opacity' : '0'});
+		$('.messageError', aplayerElem).hide();
 	}
 
    /**
@@ -2000,10 +1997,8 @@ var controls_handlers = {
 		var aplayer_id = $('.aplayer', '#win'+cell_nr).attr('id');
 		$.aplayer.zoomOut(aplayer_id);
 	}
-	
-   
 };
 
 var timer = 0;
 
-setInterval(function(){timer++}, 1000);
+setInterval(function(){timer++}, 500);
