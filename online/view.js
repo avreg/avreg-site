@@ -529,12 +529,23 @@ var checking_connection = {
 			self.me_list = new Array();
 		}
 
+		// Регулярное выражение для парсинга ссылки на поток
+		var pattern = "^(([^:/\\?#]+):)?(//(([^:/\\?#]*)(?::([^/\\?#]*))?))?([^\\?#]*)(\\?([^#]*))?(#(.*))?$";
+		var rx = new RegExp(pattern);
+		var parts = rx.exec(me_src);
+		var ports = window.location.port;
+		if (!ports) ports = "80";
+
+		var checkUrl = me_src.search(window.location.hostname) < 0;
+		if (!checkUrl && parts[6] !== ports)
+			checkUrl = true;
+
         var obj = {
 			'me' : me,
 			'me_id':me_id,
 			'src' : me_src,
 			'check_val' : timer,
-			'WEBKITCorsError' : typeof(me_src) !== "undefined" && me_src.search(window.location.hostname)  < 0 && WEBKIT && !GECKO  ,
+			'WEBKITCorsError' : typeof(me_src) !== "undefined" && checkUrl && WEBKIT && !GECKO,
 			'stoped' : false,
 			'connection_fail' : false,
 			//канвас и контекст для webkit
@@ -650,6 +661,7 @@ var checking_connection = {
 
             //проверяем изменилось ли изображение
 			var isFail = self.is_fail_connection_webkit(index);
+
 			if( isFail ){
 				$(self.me_list[index].me)
 					.unbind('load');
@@ -771,49 +783,15 @@ var checking_connection = {
 		var self = this;
 		var me = self.me_list[index].me;
 		var me_id = $(me).attr('id');
-		var im =null;
-
-		if(self.me_list[index].tset_img==undefined){
-			self.me_list[index].tset_img = new Image();
-		}
-
-		im = self.me_list[index].tset_img;
-
-		//Сбой переподключения
-		if (!self.me_list[index].WEBKITCorsError){
-			$(im).bind('error', function(){
-				showErrorMessage(index, 'error');
-				//отключение обработчиков
-				$(im)
-				.unbind('load')
-				.unbind('error');
-				self.me_list[index].connection_fail = false;
-			});
-		}
-
-		//Успешное переподключение
-		$(im).bind('load', function(){
-			hideErrorMessage(index);
-            $(im)
-                .unbind('load')
-                .unbind('error');//.attr('src','');
-			//восстановление воспроизведения
-
-			$(me).attr('src', self.me_list[index].src);
-			self.start_check_me(me);
-			//отключение обработчиков
-
-            self.me_list[index].connection_fail = false;
-            //деактивируем кнопку play, активируем кнопку stop
-			var win_nr = parseInt($("div.[name=win]:has(#"+me_id+")").attr('id').replace('win', '') );
-	        if(!isNaN(parseInt(win_nr))){
-	           	controls_handlers.activate_btn_stop(win_nr);
-	        }
-		});
 
 		var par = (self.me_list[index].src.indexOf('?')!=-1)? "&dummy=" : "?&dummy=";
 		par += Math.random();
-		im.src = self.me_list[index].src+par;
+		$(me).attr('src', self.me_list[index].src+par);
+		self.start_check_me(me);
+		var win_nr = parseInt($("div.[name=win]:has(#"+me_id+")").attr('id').replace('win', '') );
+		if(!isNaN(parseInt(win_nr))){
+			controls_handlers.activate_btn_stop(win_nr);
+		}
 	},
 
 	//>>>>>>>>>>>>>>>>>>>>>>GECKO<<<<<<<<<<<<<<<<<<<<<<<<<<

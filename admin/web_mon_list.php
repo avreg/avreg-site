@@ -43,7 +43,7 @@ function prt_l ($display, $l_nr, $l_def, $is_admin, $layout_word, $counter, $Asp
     else
         $onchange = "user_layouts.setUserLayoutsDefault('$l_nr');";
     $isDefault = ($isDefault==1)?true:false;
-	print "<input type=\"radio\" name=\"ByDefault\" ".($isDefault?'checked="checked"':'')." onchange=\"$onchange\" /></div>\n";
+	print "<input type=\"radio\" name=\"ByDefault\" ".($isDefault?'checked="checked"':'')." onchange=\"$onchange\" noLay=\"$l_nr\"/></div>\n";
 	print '</div> <br /><br />' . "\n";
 }
 
@@ -74,6 +74,13 @@ if($admin_user){
 <script type="text/javascript">
 //JS-для установки раскладки по умолчанию
 function SetByDefault(layoutNum){
+	user_layouts.setUserLayoutsDefault('____0UL');
+	$(document).find('[checked^=checked]').each(function (){
+		console.log(this);
+		if ($(this).attr('noLay') !== layoutNum || typeof($(this).attr('noLay')) === 'undefined'){
+			$(this).removeAttr('checked');
+		}
+	});
 	$.ajax({"url":"web_set_def.php?layout="+layoutNum+" "})
 	.done(function(data){
 	if(data!='NULL'){
