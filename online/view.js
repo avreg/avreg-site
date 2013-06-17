@@ -650,6 +650,7 @@ var checking_connection = {
 
             //проверяем изменилось ли изображение
 			var isFail = self.is_fail_connection_webkit(index);
+
 			if( isFail ){
 				$(self.me_list[index].me)
 					.unbind('load');
@@ -760,7 +761,6 @@ var checking_connection = {
 		}
 
 		$(test_con).bind('load',function(){
-			hideErrorMessage(index);
 			self.me_list[index].connection_fail = false;
 		});
 
