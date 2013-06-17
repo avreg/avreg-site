@@ -202,7 +202,7 @@ if ( isset($_SESSION) && isset($_SESSION['error'])/* ошибка */ )
 <?php 
 
 	//формируем список чекбоксов выбора камер
-	print getChkbxByAssocAr('cams', $recorded_cams, $cams_sel, 8);
+	print getChkbxByAssocAr('cams', $recorded_cams, $cams_sel, true, 8);
 
 ?>
 </td>
