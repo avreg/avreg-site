@@ -761,6 +761,7 @@ var checking_connection = {
 		}
 
 		$(test_con).bind('load',function(){
+			hideErrorMessage(index);
 			self.me_list[index].connection_fail = false;
 		});
 
@@ -771,49 +772,15 @@ var checking_connection = {
 		var self = this;
 		var me = self.me_list[index].me;
 		var me_id = $(me).attr('id');
-		var im =null;
-
-		if(self.me_list[index].tset_img==undefined){
-			self.me_list[index].tset_img = new Image();
-		}
-
-		im = self.me_list[index].tset_img;
-
-		//Сбой переподключения
-		if (!self.me_list[index].WEBKITCorsError){
-			$(im).bind('error', function(){
-				showErrorMessage(index, 'error');
-				//отключение обработчиков
-				$(im)
-				.unbind('load')
-				.unbind('error');
-				self.me_list[index].connection_fail = false;
-			});
-		}
-
-		//Успешное переподключение
-		$(im).bind('load', function(){
-			hideErrorMessage(index);
-            $(im)
-                .unbind('load')
-                .unbind('error');
-			//восстановление воспроизведения
-
-			$(me).attr('src', self.me_list[index].src);
-			self.start_check_me(me);
-			//отключение обработчиков
-
-            self.me_list[index].connection_fail = false;
-            //деактивируем кнопку play, активируем кнопку stop
-			var win_nr = parseInt($("div.[name=win]:has(#"+me_id+")").attr('id').replace('win', '') );
-	        if(!isNaN(parseInt(win_nr))){
-	           	controls_handlers.activate_btn_stop(win_nr);
-	        }
-		});
 
 		var par = (self.me_list[index].src.indexOf('?')!=-1)? "&dummy=" : "?&dummy=";
 		par += Math.random();
-		im.src = self.me_list[index].src+par;
+		$(me).attr('src', self.me_list[index].src+par);
+		self.start_check_me(me);
+		var win_nr = parseInt($("div.[name=win]:has(#"+me_id+")").attr('id').replace('win', '') );
+		if(!isNaN(parseInt(win_nr))){
+			controls_handlers.activate_btn_stop(win_nr);
+		}
 	},
 
 	//>>>>>>>>>>>>>>>>>>>>>>GECKO<<<<<<<<<<<<<<<<<<<<<<<<<<
