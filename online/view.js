@@ -548,6 +548,7 @@ var checking_connection = {
 					checkUrl = true;
 			}
 		}
+
         var obj = {
 			'me' : me,
 			'me_id':me_id,
