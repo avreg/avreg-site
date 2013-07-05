@@ -1339,7 +1339,6 @@ function canvas_growth() {
 
 	function showErrorMessage(indexCam, typeErr){
 		var aplayerElem =  $('#' + $.aplayer.idContainer + indexCam);
-		var textError = '';
 		switch(typeErr){
 			case 'error' :
             /* по признаку видимости формы ошибки берёмся судить о признаке ошибки */
@@ -1437,14 +1436,14 @@ function canvas_growth() {
            CANVAS = $('#canvas');
 
 		   $("#toolbar").addClass('toolbar_style');
-		   $("#toolbar table tr").html('<td width="100%"> <table><tr id="tb_contn" style="width:100%;"><td>'+ layouts_to_list()+'</td><td> </td></tr></table></td>');
+		   $("#toolbar table tr").html('<td width="100%"> <table width=100%><tr id="tb_contn" style="width:100%;"><td>'+ layouts_to_list()+'</td><td> </td></tr></table></td>');
 		   //добавляем кнопку на главнуюa
 		   // TODO Кнопка пользовательских раскладок
 		   //$('#tb_contn').append('');
 
 		   if(REF_MAIN){
 
-			   $('#tb_contn').append('<td align="right" ><div class="to_main"> <a href="../index.php" >На главную </a> </div> </td>');
+			   $('#tb_contn').append('<td align="right" valign="top"><div class="to_main" style="float: right;"> <a href="../index.php" >На главную </a> </div> </td>');
 		   }
 
            canvas_growth();
