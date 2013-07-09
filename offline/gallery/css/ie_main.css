@@ -453,7 +453,7 @@ a {
 #scale2 .scale_min {width:28px; height:30px; background:url(../img/zoom_out_.png) no-repeat; display:table-cell; vertical-align:top; float:left;}
 #scale2 .scale_body {width:235px; height:30px; padding: 0 2px; background:url(../img/scroll_bg.png) no-repeat;  position:relative; display:table-cell; vertical-align:top;float:left;}
 #scale2 .scale_polz {background:url(../img/slider.png) no-repeat; width:29px; height:28px; position:relative; left:0px; top:1px;  /*background:#ffffff; border:2px solid #fff;*/ /*-moz-border-radius:5px; -webkit-border-radius:5px;*/}
-#scale2 .scale_max {width:30px; height:30px; background:url(../img/zoom_in_.png) no-repeat; display:table-cell; vertical-align:top;float:left;}
+#scale2 .scale_max {width:30px; height:30px; background:url(../img/zoom_in_.png) no-repeat; display:table-cell; vertical-align:top;}
 
 #toolbar #toolbar_left .controls{
 	float: none;
