@@ -688,10 +688,6 @@ var gallery = {
 
                     var	tree = data.rslt.obj.attr("id").replace('tree_', '');
 
-//					if(matrix.keyBoardTree != tree) {
-//					matrix.keyBoardTree = tree;
-//				    }
-
                     //если диапазон не изменился - ничего не делаем
                     if(matrix.keyBoardTree == tree) return;
 
@@ -715,7 +711,6 @@ var gallery = {
                         if (matrix.tree != tree) {
                             matrix.tree = tree;
                             matrix.keyBoardTree = tree;
-
                             matrix.build();
                         }
 
@@ -744,7 +739,7 @@ var gallery = {
                         function(){}
                     );
                 })
-                .delegate("a", "click", function (event, data) { event.preventDefault();}).show();
+                .delegate("a", "click", function (event, data) { $.aplayer.aplayerNo = 0; event.preventDefault();}).show();
             gallery.treeObject = $(self.holder);
             matrix.build();
         },
@@ -867,13 +862,6 @@ var gallery = {
 
         }
     },
-
-
-
-
-
-
-
 
     // объект управлением цветом камер
     cameras_color : {
@@ -1274,7 +1262,6 @@ var gallery = {
     }
 };
 
-
 var message_box = {
     self : null,
     //тип соббщения
@@ -1394,12 +1381,7 @@ var message_box = {
     close : function(){
         $('#message_box').remove();
     }
-
-
 };
-
-
-
 
 // основной объект матрицы
 var matrix = {
@@ -1443,7 +1425,6 @@ var matrix = {
         refBox_style:null,
         elem_style:null
     },
-
 
     init: function(config) {
 
@@ -1594,7 +1575,6 @@ var matrix = {
         });
     },
 
-
     // если включили режим детальный просмотр
     detail : function() {
         matrix.mode = 'detail';
@@ -1654,7 +1634,6 @@ var matrix = {
             $('#btn_cell_size, #btn_orig_size').show();
         }
     },
-
 
     // если включили режим миниатюр
     preview : function() {
@@ -1728,7 +1707,6 @@ var matrix = {
         }
 
     },
-
 
     // перестраиваем матрицу при изменении размеров
     resize : function() {
@@ -2730,8 +2708,6 @@ var matrix = {
         $('#statistics').html(stat);
     },
 
-
-
     // постройка матрицы временного диапазона
     build : function(){
         scrollPopUp.init();
@@ -2837,7 +2813,6 @@ var matrix = {
     }
 
 };
-
 
 // элемент скрол
 var scroll = {
