@@ -1577,6 +1577,10 @@ var matrix = {
 
     // если включили режим детальный просмотр
     detail : function() {
+        $('[id^=' + $.aplayer.idDuration + ']').each(function (){
+            $(this).show();
+        });
+
         matrix.mode = 'detail';
 
         //меняем изображение кнопки смены режимов
@@ -1637,6 +1641,9 @@ var matrix = {
 
     // если включили режим миниатюр
     preview : function() {
+        $('[id^=' + $.aplayer.idDuration + ']').each(function (){
+            $(this).hide();
+        });
         //сохраняем позицию изображения текущего елемента
         scale2.save_content_position();
         $('.propotion').show();
