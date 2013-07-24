@@ -1,4 +1,4 @@
-﻿function Enum() {
+﻿﻿function Enum() {
     this.allValues = [];
     this.currentValue = 0;
     for (var i=0, ilen=arguments.length; i<ilen; i++) {
