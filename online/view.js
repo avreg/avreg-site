@@ -458,6 +458,7 @@ var checking_connection = {
 	timer : null,
 	me_list : null,
 	reconnect_timeout : 0,
+    check_interval : 0,
 	reconnect : null,
 	set_handlers : null,
 	is_reconnect_active : true,
@@ -484,6 +485,7 @@ var checking_connection = {
 		for(var i in layouts_list){
 			if(layouts_list[i]['MON_NR']==cur_layout){
 				self.reconnect_timeout = layouts_list[i].RECONNECT_TOUT * 1000;
+                self.check_interval = layouts_list[i].CHECK_INTERVAL * 1000;
 				break;
 			}
 		}
@@ -668,22 +670,69 @@ var checking_connection = {
             //проверяем изменилось ли изображение
 			var isFail = self.is_fail_connection_webkit(index);
 
+
+
 			if( isFail ){
+
+
+           // && self.me_list[index].check_interval==undefined
+            //    self.failConnectionHandler(index);
+
+
 				$(self.me_list[index].me)
 					.unbind('load');
-				showErrorMessage(index, 'error');
+
+//				showErrorMessage(index, 'error');
 				self.me_list[index].connection_fail = true;
 
 				if(self.is_reconnect_active) self.reconnect(index);
-				//активируем кнопку play
-				var me_id = $(self.me_list[index].me).attr('id');
-				var win_nr = parseInt($("div.[name=win]:has(#"+me_id+")").attr('id').replace('win', '') );
-				if(!isNaN(parseInt(win_nr))){
-					controls_handlers.activate_btn_play(win_nr);
-				}
+
+//				//активируем кнопку play
+//				var me_id = $(self.me_list[index].me).attr('id');
+//				var win_nr = parseInt($("div.[name=win]:has(#"+me_id+")").attr('id').replace('win', '') );
+//				if(!isNaN(parseInt(win_nr))){
+//					controls_handlers.activate_btn_play(win_nr);
+//				}
+
+
+
+
 			}
+
+
+
+
+
         }
     },
+
+
+    failConnectionHandler : function(index){
+        var self = checking_connection;
+        self.me_list[index].check_interval = setTimeout(
+            function(){
+//                $(self.me_list[index].me)
+//                    .unbind('load');
+//                showErrorMessage(index, 'error');
+//                self.me_list[index].connection_fail = true;
+//
+//                if(self.is_reconnect_active) self.reconnect(index);
+//                //активируем кнопку play
+//                var me_id = $(self.me_list[index].me).attr('id');
+//                var win_nr = parseInt($("div.[name=win]:has(#"+me_id+")").attr('id').replace('win', '') );
+//                if(!isNaN(parseInt(win_nr))){
+//                    controls_handlers.activate_btn_play(win_nr);
+//                }
+
+
+
+
+
+
+             },
+            self.check_interval);
+    },
+
 
  	//Возвращает битмап изображения (для WEBKIT)
 	get_bitmap : function(index){
@@ -763,9 +812,12 @@ var checking_connection = {
 
 		//Элемент для проверки связи
 		var test_con = me;
-		if (!self.me_list[index].WEBKITCorsError){
-			$(test_con).bind('error', function(){
-				showErrorMessage(index, 'error');
+		if (!self.me_list[index].WEBKITCorsError && !$(test_con).data('error_h') ){
+            $(test_con).data('error_h', true);
+            $(test_con).bind('error', function(){
+
+                console.log('showErrorMessage = =>>>>>>>');
+                showErrorMessage(index, 'error');
 				self.me_list[index].connection_fail = false;
 
 				//активируем кнопку play
@@ -779,6 +831,7 @@ var checking_connection = {
 		$(test_con).bind('load',function(){
 			hideErrorMessage(index);
 			self.me_list[index].connection_fail = false;
+            $(test_con).unbind('error').data('error_h', false);
 		});
 
 	},
