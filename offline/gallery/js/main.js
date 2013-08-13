@@ -1,4 +1,4 @@
-﻿﻿function Enum() {
+﻿function Enum() {
     this.allValues = [];
     this.currentValue = 0;
     for (var i=0, ilen=arguments.length; i<ilen; i++) {
@@ -2294,7 +2294,7 @@ var matrix = {
                         html+='<br /></div></a>';
                         html += '</div>';
                         html += '</div>';
-
+console.log([value[6], value[8] ]);
                     }
                 }
                 $('#scroll_content').html(html);
