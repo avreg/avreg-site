@@ -180,6 +180,8 @@ class Adb {
          array_push($events, $line);
       }
 
+       var_dump($events);
+
       return $events;
    }
 

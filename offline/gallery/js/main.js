@@ -2294,7 +2294,7 @@ var matrix = {
                         html+='<br /></div></a>';
                         html += '</div>';
                         html += '</div>';
-console.log([value[6], value[8] ]);
+
                     }
                 }
                 $('#scroll_content').html(html);
