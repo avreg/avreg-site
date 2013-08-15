@@ -175,6 +175,8 @@ class Adb {
             $line[7] = 'audio';
          }
 
+          $line[7] = abs($line[7]);
+
          // формирование уникального индекса, для работы кэша в браузере пользователя
         // $events[str_replace(array('/', '.'),'_',$line[5].'_'.$line[2].'_'.$line[0] )] = $line;
          array_push($events, $line);
