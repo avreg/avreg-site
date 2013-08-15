@@ -178,7 +178,7 @@ class Adb {
           $timestamp1 = strtotime($line[0]);
           $timestamp2 = strtotime($line[9]);
           $time_diff= abs($timestamp1 - $timestamp2);
-          $line[8] = time($time_diff);
+          $line[8] = date($time_diff);
 
 
          // формирование уникального индекса, для работы кэша в браузере пользователя
