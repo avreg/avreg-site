@@ -1498,7 +1498,7 @@ class Adb {
       if ($this->_dbtype == 'pgsql')
          $str = $d1."-".$d2;
       else
-         $str = "ABS(TIMEDIFF(ss, ".$d1." , ".$d2."))";
+         $str = "TIMEDIFF(".$d1." , ".$d2.")";
       return $str;
    }
 
