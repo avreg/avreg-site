@@ -175,7 +175,10 @@ class Adb {
             $line[7] = 'audio';
          }
 
-          $line[8] = abs(  strtotime($line[8]) );
+          $timestamp1 = strtotime($line[0]);
+          $timestamp2 = strtotime($line[9]);
+          $line[8] = abs($timestamp1 - $timestamp2);
+
 
          // формирование уникального индекса, для работы кэша в браузере пользователя
         // $events[str_replace(array('/', '.'),'_',$line[5].'_'.$line[2].'_'.$line[0] )] = $line;
