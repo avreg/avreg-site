@@ -175,7 +175,9 @@ class Adb {
             $line[7] = 'audio';
          }
 
-          $line[8] = date_diff(date_create($line[0]), date_create($line[9]), true);
+          if($line[8][0]=='-'){
+              $line[8] = substr($line[8], 1);
+          }
 
          // формирование уникального индекса, для работы кэша в браузере пользователя
         // $events[str_replace(array('/', '.'),'_',$line[5].'_'.$line[2].'_'.$line[0] )] = $line;
