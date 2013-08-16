@@ -2641,7 +2641,7 @@ var matrix = {
 
                             value[9]='-'+value[9];
                             if(parseInt(value[9]) ){
-                                console.log([i, value]);
+                                console.log([key, value]);
                                 throw 'Error: D2 < D1 ' ;
                             }
 
