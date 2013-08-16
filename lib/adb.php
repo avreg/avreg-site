@@ -174,9 +174,11 @@ class Adb {
          } else if ((int)$line[7] == 32 ) {
             $line[7] = 'audio';
          }
-          if($line[8][0]=='-'){
-              $line[8] = substr($line[8], 1);
-          }
+
+//          if($line[8][0]=='-'){
+//              $line[8] = substr($line[8], 1);
+//          }
+
          // формирование уникального индекса, для работы кэша в браузере пользователя
         // $events[str_replace(array('/', '.'),'_',$line[5].'_'.$line[2].'_'.$line[0] )] = $line;
          array_push($events, $line);
