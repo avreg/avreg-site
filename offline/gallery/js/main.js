@@ -2186,6 +2186,8 @@ var matrix = {
 
     // обновление матрицы
     update : function(sp) {
+
+        console.log('TEST '+sp);
         $('#matrix_load').show();
         var hide_over = true;
 
