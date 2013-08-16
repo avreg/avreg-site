@@ -2639,7 +2639,7 @@ var matrix = {
                             i++;
 
 
-                            value[9]*=-1;
+                            value[9]='-'+value[9];
                             if(parseInt(value[9]) ){
                                 throw 'Error: D2('+value[10]+') < D1('+value[0]+')';
                             }
