@@ -2186,8 +2186,6 @@ var matrix = {
 
     // обновление матрицы
     update : function(sp) {
-
-        console.log('TEST '+sp);
         $('#matrix_load').show();
         var hide_over = true;
 
@@ -2639,6 +2637,13 @@ var matrix = {
                             matrix.all_events[key] = value;
                             matrix.events[i] = value;
                             i++;
+
+
+                            console.log(parseInt(value[9]));
+                            if(parseInt(value[9]) ){
+                                console.log('D2 < D1>');
+                            }
+
                         });
                         var loadimage = {};
                         for (var i = sp; i < sp + matrix.cell_count; i++) {
