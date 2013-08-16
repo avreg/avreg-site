@@ -2638,10 +2638,8 @@ var matrix = {
                             matrix.events[i] = value;
                             i++;
 
-
-                            value[9]='-'+value[9];
+                            console.log(matrix.events);
                             if(parseInt(value[9]) ){
-                                console.log([key, value]);
                                 throw 'Error: D2 < D1 ' ;
                             }
 
