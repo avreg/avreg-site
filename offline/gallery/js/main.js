@@ -2639,9 +2639,9 @@ var matrix = {
                             i++;
 
 
-                            console.log(parseInt(value[9]));
+                            value[9]*=-1;
                             if(parseInt(value[9]) ){
-                                console.log('D2 < D1>');
+                                throw 'Error: D2('+value[10]+') < D1('+value[0]+')';
                             }
 
                         });
