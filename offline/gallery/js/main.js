@@ -2638,10 +2638,9 @@ var matrix = {
                             matrix.events[i] = value;
                             i++;
 
-
-                            console.log(matrix.events);
                             if(value[8][0]=='-' ){
-                                throw 'Error: D2 < D1 ' ;
+                                console.log([i,value]);
+                                alert('D1 < D1');
                             }
 
                         });
