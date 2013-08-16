@@ -140,7 +140,7 @@ class Adb {
 
    public function gallery_get_event($param) {
       $events = array();
-      $query = "SELECT ".$this->_date_format('DT1').", DT1, EVT_CONT, ALT2, ALT1, CAM_NR, FILESZ_KB, EVT_ID, ".$this->_timediff('DT2', 'DT1').", DT2";
+      $query = "SELECT ".$this->_date_format('DT1').", DT1, EVT_CONT, ALT2, ALT1, CAM_NR, FILESZ_KB, EVT_ID, ".$this->_timediff('DT1', 'DT2').", DT2";
       $query .= ' FROM EVENTS';
       $query .= ' WHERE EVT_ID in ('. implode(",", $param['events']) .')';
       $query .= ' AND EVENTS.CAM_NR in ('. implode(",", $param['cameras']).')';
@@ -174,9 +174,11 @@ class Adb {
          } else if ((int)$line[7] == 32 ) {
             $line[7] = 'audio';
          }
-          if($line[8][0]=='-'){
-              $line[8] = substr($line[8], 1);
-          }
+
+//          if($line[8][0]=='-'){
+//              $line[8] = substr($line[8], 1);
+//          }
+
          // формирование уникального индекса, для работы кэша в браузере пользователя
         // $events[str_replace(array('/', '.'),'_',$line[5].'_'.$line[2].'_'.$line[0] )] = $line;
          array_push($events, $line);
