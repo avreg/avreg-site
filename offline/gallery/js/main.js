@@ -2638,9 +2638,10 @@ var matrix = {
                             matrix.events[i] = value;
                             i++;
 
+                            //TODO remove
                             if(value[8][0]=='-' ){
                                 console.log([i,value]);
-                                alert('D1 < D1');
+                                alert('D2 < D1');
                             }
 
                         });
