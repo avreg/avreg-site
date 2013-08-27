@@ -2638,11 +2638,11 @@ var matrix = {
                             matrix.events[i] = value;
                             i++;
 
-                            //TODO remove
-                            if(value[8][0]=='-' ){
-                                console.log([i,value]);
-                                alert('D2 < D1');
-                            }
+//                            //TODO remove
+//                            if(value[8][0]=='-' ){
+//                                console.log([i,value]);
+//                                alert('D2 < D1');
+//                            }
 
                         });
                         var loadimage = {};
