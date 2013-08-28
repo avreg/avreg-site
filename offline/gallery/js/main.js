@@ -1,4 +1,4 @@
-﻿﻿function Enum() {
+﻿function Enum() {
     this.allValues = [];
     this.currentValue = 0;
     for (var i=0, ilen=arguments.length; i<ilen; i++) {
@@ -2637,6 +2637,13 @@ var matrix = {
                             matrix.all_events[key] = value;
                             matrix.events[i] = value;
                             i++;
+
+//                            //TODO remove
+//                            if(value[8][0]=='-' ){
+//                                console.log([i,value]);
+//                                alert('D2 < D1');
+//                            }
+
                         });
                         var loadimage = {};
                         for (var i = sp; i < sp + matrix.cell_count; i++) {
