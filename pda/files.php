@@ -106,7 +106,7 @@ if ($width == 'FS') {
 
 /* pagination */
 require_once('paginator.inc.php');
-$pagi = new \PDA\PdaPaginator(
+$pagi = new \Avreg\PdaPaginator(
     $files,
     isset($off) ? (int)($off) : 0,
     sprintf('files.php?camera=%u&ser_nr=%u&s=%u&f=%u', $camera, $ser_nr, $s, $f),

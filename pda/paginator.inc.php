@@ -3,7 +3,7 @@
  * @file pda/paginator.inc.php
  * @brief
  */
-namespace PDA;
+namespace Avreg;
 
 /**
  * @class PdaPaginator
