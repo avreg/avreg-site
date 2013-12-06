@@ -150,9 +150,8 @@ class Adb
     public function galleryGetEvent($param)
     {
         $events = array();
-        $query = "SELECT " . $this->dateFormat(
-            'DT1'
-        ) . ", DT1, EVT_CONT, ALT2, ALT1, CAM_NR, FILESZ_KB, EVT_ID, " . $this->timediff('DT1', 'DT2') . ", DT2";
+        $query = "SELECT " . $this->dateFormat('DT1') . ", DT1, EVT_CONT, ALT2, ALT1, CAM_NR, FILESZ_KB, EVT_ID, " .
+            $this->timediff('DT1', 'DT2') . ", DT2";
         $query .= ' FROM EVENTS';
         $query .= ' WHERE EVT_ID in (' . implode(",", $param['events']) . ')';
         $query .= ' AND EVENTS.CAM_NR in (' . implode(",", $param['cameras']) . ')';
@@ -277,6 +276,63 @@ class Adb
         return $event;
     }
 
+
+    /**
+     *  Метод позволяет получить первую дату события
+     *
+     * @param array $param Параметры
+     * - $param['cameras']  список камер
+     *
+     * @return string дата первого события
+     */
+    public function galleryGetOldestEventDate($param = array())
+    {
+        $event = '1970-01-01 00:00:00';
+
+        $query = 'SELECT DT1 FROM EVENTS WHERE EVT_ID in (12, 15,16,17, 23, 32)';
+        if (isset($param['cameras'])) {
+            $query .= ' AND EVENTS.CAM_NR in (' . implode(",", $param['cameras']) . ')';
+        }
+        // групировать и сортировать по дате
+        $query .= ' ORDER BY DT1 ASC LIMIT 1';
+        $res = $this->db->query($query);
+        $this->error($res);
+        if ($res->fetchInto($line)) {
+            $event = $line[0];
+        }
+        return $event;
+    }
+
+
+    /**
+     *  Метод позволяет получить количество событий
+     *
+     * @param array $param Параметры
+     * - $param['cameras']  список камер
+     *
+     * @return string дата последнего события
+     */
+    public function galleryGetCountEvent($param = array())
+    {
+
+        $query = 'SELECT COUNT(*) FROM EVENTS WHERE EVT_ID in (12, 15,16,17, 23, 32)';
+        if (isset($param['cameras'])) {
+            $query .= ' AND EVENTS.CAM_NR in (' . implode(",", $param['cameras']) . ')';
+        }
+        if (isset($param['date'])) {
+            $query .= ' AND EVENTS.DT1 >="' . $param['date'] . '"';
+        }
+
+        // групировать и сортировать по дате
+        $res = $this->db->query($query);
+        $this->error($res);
+        if ($res->fetchInto($line)) {
+            $count = $line[0];
+        }
+        return $count;
+    }
+
+
     /**
      *  Метод позволяет получить последнюю дату события в дереве
      *
@@ -304,6 +360,66 @@ class Adb
         }
         return $event;
     }
+
+
+    /**
+     *  Метод позволяет получить первую дату события в дереве
+     *
+     *
+     * @param array $param Параметры
+     * - $param['cameras']  список камер
+     *
+     * @return string дата первого события дерева
+     */
+    public function galleryGetOldestTreeEventDate($param = array())
+    {
+        $event = '1970-01-01 00:00:00';
+
+        $query = "SELECT LAST_UPDATE";
+        $query .= ' FROM TREE_EVENTS';
+        if (isset($param['cameras'])) {
+            $query .= ' WHERE ';
+            $query .= ' TREE_EVENTS.CAM_NR in (' . implode(",", $param['cameras']) . ')';
+        }
+        $query .= ' ORDER BY LAST_UPDATE ASC LIMIT 1';
+        $res = $this->db->query($query);
+        $this->error($res);
+        if ($res->fetchInto($line)) {
+            $event = $line[0];
+        }
+        return $event;
+    }
+
+    /**
+     *  Метод позволяет получить количество событий в дереве
+     *
+     *
+     * @param array $param Параметры
+     * - $param['cameras']  список камер
+     *
+     * @return string дата последнего события дерева
+     */
+    public function galleryGetCountTreeEvent($param = array())
+    {
+
+        $query = "SELECT SUM(IMAGE_COUNT+VIDEO_COUNT+AUDIO_COUNT)";
+        $query .= ' FROM TREE_EVENTS';
+        if (isset($param['cameras'])) {
+            $query .= ' WHERE ';
+            $query .= ' TREE_EVENTS.CAM_NR in (' . implode(",", $param['cameras']) . ')';
+        }
+        if (isset($param['date'])) {
+            $query .= ' AND TREE_EVENTS.LAST_UPDATE >="' . $param['date'] . '"';
+        }
+
+        $res = $this->db->query($query);
+        $this->error($res);
+        if ($res->fetchInto($line)) {
+            $count = $line[0];
+        }
+        return $count;
+    }
+
 
     /**
      *  Метод позволяет получить дерево событий
@@ -575,10 +691,8 @@ class Adb
     public function getFiles($camera, $ser_nr, $timebegin, $timeend = false, $order = '')
     {
         $files = array();
-        $query = 'SELECT ' . $this->datePart('timestamp', 'DT1') . ' as START, ' . $this->datePart(
-            'timestamp',
-            'DT1'
-        ) . ' as FINISH,  EVT_ID, FILESZ_KB, FRAMES, ALT1 as U16_1, ALT2 as U16_2, EVT_CONT';
+        $query = 'SELECT ' . $this->datePart('timestamp', 'DT1') . ' as START, ' . $this->datePart('timestamp', 'DT1') .
+            ' as FINISH,  EVT_ID, FILESZ_KB, FRAMES, ALT1 as U16_1, ALT2 as U16_2, EVT_CONT';
         $query .= ' FROM EVENTS';
         $query .= " WHERE CAM_NR=$camera AND SESS_NR=$ser_nr";
         $query .= " AND EVT_ID in (15,16,17)";
@@ -614,10 +728,8 @@ class Adb
     {
 
         $files = array();
-        $query = 'SELECT ' . $this->datePart('timestamp', 'E1.DT1') . ' as START, ' . $this->datePart(
-            'timestamp',
-            'E2.DT1'
-        ) . ' as FINISH,  E1.CAM_NR, E1.SESS_NR AS SESS_NR';
+        $query = 'SELECT ' . $this->datePart('timestamp', 'E1.DT1') . ' as START, ' .
+            $this->datePart('timestamp', 'E2.DT1') . ' as FINISH,  E1.CAM_NR, E1.SESS_NR AS SESS_NR';
         $query .= ' FROM EVENTS AS E1';
         $query .= ' LEFT JOIN EVENTS AS E2 ON (E1.SESS_NR = E2.SESS_NR AND E1.CAM_NR = E2.CAM_NR AND ' .
             'E1.DT1 = E2.DT2 AND E1.EVT_ID = 13 AND E2.EVT_ID = 14)';
@@ -660,10 +772,8 @@ class Adb
         $query_noncontinuous_events = array_diff($evt_ids, $all_continuous_events);
 
         $events = array();
-        $query = 'SELECT ' . $this->datePart('timestamp', 'DT1') . ' as UDT1, ' . $this->datePart(
-            'timestamp',
-            'DT2'
-        ) . ' as UDT2,';
+        $query = 'SELECT ' . $this->datePart('timestamp', 'DT1') . ' as UDT1, ' . $this->datePart('timestamp', 'DT2') .
+            ' as UDT2,';
         $query .= ' CAM_NR, EVT_ID, SESS_NR AS SER_NR, FILESZ_KB, FRAMES, ALT1 as U16_1, ALT2 as U16_2, EVT_CONT';
         $query .= ' FROM EVENTS';
         $query .= ' WHERE';
@@ -689,20 +799,15 @@ class Adb
             );
 
             if (count($query_continuous_events) > 0) {
-                $query .= " ( EVT_ID in (" . implode(
-                    ',',
-                    $query_continuous_events
-                ) . ") and ( (DT1 between '$timebegin' and '$timeend') or "
-                    . "(DT2 between '$timebegin' and '$timeend') ))";
+                $query .= " ( EVT_ID in (" . implode(',', $query_continuous_events) .
+                    ") and ( (DT1 between '$timebegin' and '$timeend') or (DT2 between '$timebegin' and '$timeend') ))";
             }
             if (count($query_noncontinuous_events) > 0) {
                 if (count($query_continuous_events) > 0) {
                     $query .= " OR ";
                 }
-                $query .= "(EVT_ID in (" . implode(
-                    ',',
-                    $query_noncontinuous_events
-                ) . ") and (DT1 between '$timebegin' and '$timeend'))";
+                $query .= "(EVT_ID in (" . implode(',', $query_noncontinuous_events) .
+                    ") and (DT1 between '$timebegin' and '$timeend'))";
             }
         } else {
             $timebegin = sprintf('20%02s-%02u-%02u 00:00:00', $date['from'][0], $date['from'][1], $date['from'][2]);
@@ -711,41 +816,25 @@ class Adb
             $time_in_day_end = sprintf('%02u:%02u:59', $date['to'][3], $date['to'][4]);
 
             if (count($query_continuous_events) > 0) {
-                $query .= "( EVT_ID in (" . implode(
-                    ',',
-                    $query_continuous_events
-                ) . ") and ( ( DT1 between '$timebegin' and '$timeend' )";
-                $query .= " or ( DT2 between '$timebegin' and '$timeend' ) ) and ( " . $this->datePart(
-                    'weekday',
-                    'DT1'
-                ) . " in (" . implode(',', $dayofweek) . ") or " . $this->datePart(
-                    'weekday',
-                    'DT2'
-                ) . " in (" . implode(',', $dayofweek) . ") )";
-                $query .= " and ( ( " . $this->datePart(
-                    'time',
-                    'DT1'
-                ) . " between '$time_in_day_begin' and '$time_in_day_end' ) or ( " . $this->datePart(
-                    'time',
-                    'DT2'
-                ) . " between '$time_in_day_begin' and '$time_in_day_end' ) ))";
+                $query .= "( EVT_ID in (" . implode(',', $query_continuous_events) .
+                    ") and ( ( DT1 between '$timebegin' and '$timeend' )";
+                $query .= " or ( DT2 between '$timebegin' and '$timeend' ) ) and ( " .
+                    $this->datePart('weekday', 'DT1') . " in (" . implode(',', $dayofweek) . ") or " .
+                    $this->datePart('weekday', 'DT2') . " in (" . implode(',', $dayofweek) . ") )";
+                $query .= " and ( ( " . $this->datePart('time', 'DT1') .
+                    " between '$time_in_day_begin' and '$time_in_day_end' ) or ( " . $this->datePart('time', 'DT2') .
+                    " between '$time_in_day_begin' and '$time_in_day_end' ) ))";
             }
 
             if (count($query_noncontinuous_events) > 0) {
                 if (count($query_continuous_events) > 0) {
                     $query .= " OR ";
                 }
-                $query .= "( EVT_ID in (" . implode(
-                    ',',
-                    $query_noncontinuous_events
-                ) . ")and ( DT1 between '$timebegin' and '$timeend' )";
-                $query .= " and ( " . $this->datePart('weekday', 'DT1') . " in (" . implode(
-                    ',',
-                    $dayofweek
-                ) . ") ) and ( (" . $this->datePart(
-                    'time',
-                    'DT1'
-                ) . " between '$time_in_day_begin' and '$time_in_day_end') ))";
+                $query .= "( EVT_ID in (" . implode(',', $query_noncontinuous_events) .
+                    ")and ( DT1 between '$timebegin' and '$timeend' )";
+                $query .= " and ( " . $this->datePart('weekday', 'DT1') . " in (" . implode(',', $dayofweek) .
+                    ") ) and ( (" . $this->datePart('time', 'DT1') .
+                    " between '$time_in_day_begin' and '$time_in_day_end') ))";
             }
         }
 
@@ -879,7 +968,7 @@ class Adb
     /**
      *
      * Метод позволяет получить параметры камер
-     * @param string $cams_list  список камер
+     * @param string $cams_list список камер
      * @param string $param_list список параметров
      * @param string $bind_mac 'local'
      * @return array параметры камер

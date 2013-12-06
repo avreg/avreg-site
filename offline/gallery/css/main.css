@@ -1247,4 +1247,7 @@ a.set_camera_color:hover {
 }
 
 
-
+#update_tree {
+    float:right;
+    display:none;
+}

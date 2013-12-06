@@ -458,6 +458,7 @@ var gallery = {
     // объект построения дерева событий
     tree_event: {
         holder: null,
+        timeUpdateTree: false, // таймер, который показывает кнопку обновить дерево
         // функция обновления дерева
         reload: function () {
             var self = this;
@@ -767,9 +768,37 @@ var gallery = {
                 data: ajax_params,
                 success: function (data) {
                     if (data.status == 'success') {
-                        matrix.tree_events = data.tree_events;
-                        matrix.cameras = data.cameras;
-                        gallery.tree_event.reload();
+                        // если не полная информация за последний час, выводим сообщение и показываем кнопку обновить
+                        if ("update_tree" in data && data.update_tree) {
+                            if (typeof(ajax_params.update) == "undefined") {
+                                var message = "<h2 style='color: #000;'>Неполная информация за последний час</h2>";
+                                message_box.show(message);
+                            }
+                            $('#update_tree').attr('title', 'Обновить последние события. Последнее событие - ' + data.last_tree_date);
+                            $('#update_tree').show();
+                        } else {
+                            $('#update_tree').hide();
+                            if (typeof(ajax_params.update) == "undefined") {
+                                message_box.close();
+                            }
+                        }
+
+
+                        // если пришли обновления, то обновляем дерево и запускаем перестройку матрицы
+                        if ("tree_events" in data) {
+                            matrix.tree_events = data.tree_events;
+                            matrix.cameras = data.cameras;
+                            gallery.tree_event.reload();
+                        } else {
+                            $('#matrix_load').hide();
+                        }
+                        //запускаем таймер проверки рассинхронизации дерева
+                        if (self.timeUpdateTree) {
+                            clearTimeout(self.timeUpdateTree);
+                        }
+                        self.timeUpdateTree = setTimeout(function () {
+                            gallery.tree_event.init(holder, {'method': 'getTreeEvents', 'update': false});
+                        }, gallery.config.check_tree_sync_period * 1000);
                     } else if (data.status == 'error' && data.code == '0') {
                         alert(lang.empty_tree);
                         $('#matrix_load').hide();
@@ -781,7 +810,7 @@ var gallery = {
 
                         var message = "<h2 style='color: #000;'>" + "В диапазоне [" + data.range_start + " : " + data.range_end
                             + "] в базе данных обнаружено " + data.qtty
-                            + " записей о ссылках на файлы с одинаковым временем создания и номером камеры (дубли).<br /><br />"
+                            + " записей о ссылках на файлы с одинаковым временем создания и номером камеры (дубли).</h2><br /><br />"
                             + "<table>"
                             + "<tr >"
                             + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Удалить'- </td>"
@@ -790,26 +819,26 @@ var gallery = {
                             + "при этом сами записи об этих событиях будут сохранены в единственном варианте "
                             + "и будут доступны для дальнейшего использования.<br />"
                             //+"Для дальнейшего анализа ситуации вам будут предоставлен список удаденных записей-дублей в виде текстового файла."
-                            + "</tr>"
+                            + "</td></tr>"
                             + "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>"
                             + "<tr>"
                             + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Игнорировать'- </td>"
-                            + "<td style='color:black;'>игнорировать дублирующие записи.</h2><br />"
+                            + "<td style='color:black;'>игнорировать дублирующие записи.<br />"
                             + "В случае выбора этой опции, дублирующие записи остануться в базе данных, "
                             + "но это никак не повлияет на дальнейшую работу, поскольку их наличие будет "
                             + "учитываться. Однако, в случае обновления данных за период, который содержит "
                             + "дублирующие записи, снова появится это уведомление."
                             + "</td>"
-                            + "</tr>";
-                        //+"</table>";
-
-                        //+"</table>";
+                            + "</tr>"
+                            + "</table>";
 
                         message_box.yes_delegate = function (event) {
+                            $('#matrix_load').show();
                             gallery.tree_event.init(holder, {'method': 'getTreeEvents', 'on_dbld_evt': 'clear'});
                         };
 
                         message_box.no_delegate = function (event) {
+                            $('#matrix_load').show();
                             gallery.tree_event.init(holder, {'method': 'getTreeEvents', 'on_dbld_evt': 'ignore'});
                         };
 
@@ -823,7 +852,7 @@ var gallery = {
 
                         var header = "Ошибка.";
 
-                        var message = "<h2 style='color: #000;'>" + "Не удалось удалить все дублирующие записи.<br />"
+                        var message = "<h2 style='color: #000;'>" + "Не удалось удалить все дублирующие записи.</h2><br />"
                             + "Было удалено " + data.qtty + "записей-дублей. <br />"
                             + " В диапазоне [" + data.range_start + " : " + data.range_end
                             + "]  "
@@ -836,7 +865,7 @@ var gallery = {
                             + "при этом сами записи об этих событиях будут сохранены в единственном варианте "
                             + "и будут доступны для дальнейшего использования.<br />"
                             + "Для дальнейшего анализа ситуации вам будут предоставлен список удаденных записей-дублей в виде текстового файла."
-                            + "</tr>"
+                            + "</td></tr>"
                             + "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>"
                             + "<tr>"
                             + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Игнорировать'- </td>"
@@ -846,14 +875,16 @@ var gallery = {
                             + "учитываться. Однако, в случае обновления данных за период, который содержит "
                             + "дублирующие записи, снова появится это уведомление."
                             + "</td>"
-                            + "</tr>";
-                        //+"</table>";
+                            + "</tr>"
+                            + "</table>";
 
                         message_box.yes_delegate = function (event) {
+                            $('#matrix_load').show();
                             gallery.tree_event.init(holder, {'method': 'getTreeEvents', 'on_dbld_evt': 'clear'});
                         };
 
                         message_box.no_delegate = function (event) {
+                            $('#matrix_load').show();
                             gallery.tree_event.init(holder, {'method': 'getTreeEvents', 'on_dbld_evt': 'ignore'});
                         };
 
@@ -861,6 +892,113 @@ var gallery = {
                         message_box.buttons_name.Yes = "Удалить";
 
                         message_box.show(message, header, message_box.message_type.error, message_box.button_type.YesNo);
+
+                    } else if (data.status == 'error' && data.code == '3') { //если дерево заблокированно
+                        if ( message_box.isShow ) {
+                            message_box.close();
+                        }
+                        $('#matrix_load').hide();
+
+
+                        var message = "<h2 style='color: #000;'>Дерево событий заблокированно. Происходит обновление.</h2><br />"
+                            + "Каждые 5 секунд будет происходить попытка обновить дерево событий.<br />"
+                            + "<table>"
+                            + "<tr >"
+                            + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Выход'- </td>"
+                            + "<td style='color:black;'>выход на главную страницу<br /></td>"
+                            + "</tr>";
+                        +"</table>";
+
+                        message_box.ok_delegate = function (event) {
+                            location = "../index.php";
+                        };
+                        message_box.buttons_name.OK = "Выход";
+
+                        message_box.show(message, header)
+
+                        setTimeout(function () {
+                            gallery.tree_event.init(holder);
+                        }, 5000);
+
+                    } else if (data.status == 'error' && data.code == '4') { //если дерево не актуально
+
+
+                        $('#matrix_load').hide();
+
+                        var header = "Ошибка.";
+
+                        var message = "<h2 style='color: #000;'>" + "Дерево рассинхронизированно.</h2><br />"
+                            + "Причины:<br />"
+                            + "1. самое раннее событие позже чем самое раннее событие в дереве<br />"
+                            + "2. рассинхронизация в середине дерева<br /><br />"
+                            + "<table>"
+
+                            + "<tr >"
+                            + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>" + data.count_event + "</td>"
+                            + "<td style='color:black;'>количество событий <br /></td>"
+                            + "</tr>"
+
+                            + "<tr >"
+                            + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>" + data.count_tree_event + "</td>"
+                            + "<td style='color:black;'>количество событий в дереве<br /></td>"
+                            + "</tr>"
+
+                            + "<tr >"
+                            + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>" + data.last_event_date + "</td>"
+                            + "<td style='color:black;'>дата и время последнего события<br /></td>"
+                            + "</tr>"
+
+                            + "<tr >"
+                            + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>" + data.last_tree_date + "</td>"
+                            + "<td style='color:black;'>дата и время последнего события в дереве<br /></td>"
+                            + "</tr>"
+
+                            + "<tr >"
+                            + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>" + data.oldest_event_date + "</td>"
+                            + "<td style='color:black;'>дата и время первого события<br /></td>"
+                            + "</tr>"
+
+                            + "<tr >"
+                            + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>" + data.oldest_tree_date + "</td>"
+                            + "<td style='color:black;'>дата и время первого события в дереве<br /></td>"
+                            + "</tr>"
+
+                            + "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>"
+                            + "<tr >"
+                            + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Выход'- </td>"
+                            + "<td style='color:black;'>выход на главную страницу <br /></td>"
+                            + "</tr>";
+                        if (data.access_update_tree) {
+                            message += "<tr>"
+                                + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Обновить'- </td>"
+                                + "<td style='color:black;'>обновление всего дерева."
+                                + "</td>"
+                                + "</tr>";
+                        } else {
+                            message += "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>"
+                                + "<tr>"
+                                + "<td style='color:black;' colspan='2'>Рекомендуем обратиться к администратору системы"
+                                + "</td>"
+                                + "</tr>";
+                        }
+                        +"</table>";
+
+                        message_box.yes_delegate = function (event) {
+                            $('#matrix_load').show();
+                            gallery.tree_event.init(holder, {'method': 'reindexTreeEvents'});
+                        };
+
+                        message_box.no_delegate = function (event) {
+                            location = "../index.php";
+                        };
+                        message_box.ok_delegate = function (event) {
+                            location = "../index.php";
+                        };
+                        message_box.buttons_name.No = "Выход";
+                        message_box.buttons_name.OK = "Выход";
+                        message_box.buttons_name.Yes = "Обновить";
+
+                        message_box.show(message, header, message_box.message_type.error, data.access_update_tree ? message_box.button_type.YesNo : message_box.button_type.OK);
 
                     }
                 }
@@ -1261,6 +1399,12 @@ var gallery = {
                 }
             });
 
+        $('#update_tree').bind('click', function (e) {
+            e.preventDefault();
+            $('#matrix_load').show();
+            gallery.tree_event.init(gallery.tree_event.holder, {'method': 'getTreeEvents', 'last': true});
+            return false;
+        });
     }
 };
 
@@ -1285,7 +1429,8 @@ var message_box = {
         Yes: 'Да',
         No: 'Нет'
     },
-
+    // Показан ли?
+    isShow: false,
     //Заголовок
     header: 'message box HEADER',
     //текст собщения
@@ -1381,7 +1526,7 @@ var message_box = {
             .append(mbBody)
             .append(mbControlsBar)
             .appendTo('body');
-
+        message_box.isShow = true;
     },
 
     //закрытие окна

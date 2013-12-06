@@ -33,6 +33,9 @@
                 <label for="audio_type"><?php print $straudiotype; ?></label>
             </div>
             <div id="tree">
+	            <a href="#" id="update_tree" title="Обновить события. Последний раз обновлялось - ">
+                    <img src="gallery/img/up32.png"/>
+                </a>
                 <div id="tree_new">
                 </div>
             </div>
@@ -285,7 +288,9 @@
                 min_cell_width: <?php print $conf['gallery-min_cell_width'];?>,
                 min_cell_height: <?php print $conf['gallery-min_cell_height'];?>
             },
-            show_timeout: <?php print isset($conf['gallery-show_timeout']) ? $conf['gallery-show_timeout'] : 1 ;?>
+            show_timeout: <?php print isset($conf['gallery-show_timeout']) ? $conf['gallery-show_timeout'] : 1 ;?>,
+	        check_tree_sync_period: <?php print isset($conf['gallery-check_tree_sync_period']) ?
+                $conf['gallery-check_tree_sync_period'] < 10 ? 10 : $conf['gallery-check_tree_sync_period'] : 60 ;?>
         };
 
         $('body').css('overflow', 'hidden');
