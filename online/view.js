@@ -33,11 +33,6 @@ var FS_WIN_DIV;
 
 ///Высота элемента в кот. выводится название камеры
 var NAME_DIV_H = PrintCamNames ? 25 : 0;
-var CUR_WIN_HEADER_H;
-
-///корректировка размеров контейнера для плеера
-var CORRECT_H = 4;
-var CORRECT_W = 4;
 
 /// Статусы камер
 var CAM_STATUSES;
@@ -49,9 +44,6 @@ var SUBSCRIBE = true;
 var imgs = [];
 
 $(document).ready(function () {
-    if (MSIE) {
-        CORRECT_H = CORRECT_W = 0;
-    }
     //Кнопки свернуть/развернуть
     imgs['fs'] = new Image();
     imgs['fs'].src = "../img/fs.png";
@@ -73,6 +65,10 @@ $(document).ready(function () {
     imgs['pl_plus'].src = "../img/ZoomIn.png";
     imgs['pl_minus'] = new Image();
     imgs['pl_minus'].src = "../img/ZoomOut.png";
+    imgs['pl_ptz'] = new Image();
+    imgs['pl_ptz'].src =  "../img/ico_ptz.png";
+    imgs['pl_ptz_active'] = new Image();
+    imgs['pl_ptz_active'].src =  "../img/ico_ptz_active.png";
 
     imgs['original_size'] = new Image();
     imgs['original_size'].src = "../img/1to1.png";
@@ -89,6 +85,7 @@ $(document).ready(function () {
     fill_canvas();
 
     if (MSIE) {
+        // fallback for unsupported css property linear gradient
         $('body').css({
             'background-image': "url('../img/BG.png')",
             'background-repeat': 'repeat',
@@ -140,7 +137,7 @@ function img_click(clicked_div) {
     var win_geo;
     var i;
     //номер ячейки
-    var win_nr = parseInt(($(clicked_div).attr('id')).match(/\d+/gi));
+   var win_nr = parseInt((clicked_div_jq.attr('id')).match(/\d+/gi));
     //устанавливаемый src
     var current_src = null;
     //если номер камеры не определен
@@ -168,6 +165,7 @@ function img_click(clicked_div) {
             //Переустанвливаем плеер для алтернативного источника
             if (current_src != null) {
                 $('.pl_cont', clicked_div_jq).addPlayer({
+                    hasExtraWrapper: true,
                     'src': current_src,
                     'controls': false,
                     'scale': 'on',
@@ -186,19 +184,14 @@ function img_click(clicked_div) {
             var border_h = clicked_div.offsetHeight - clicked_div.clientHeight;
             $(clicked_div).width(WIN_DIV_W + border_w).height(WIN_DIV_H + border_h);
 
-            $('.pl_cont', clicked_div_jq).width(IMG_IN_DIV_W).height(IMG_IN_DIV_H);
-
-            if (MSIE) {
-                $('.pl_cont', clicked_div_jq).aplayerSetSize({'height': IMG_IN_DIV_H, 'width': IMG_IN_DIV_W});
-//      		if(current_src!=null)  $('.pl_cont',clicked_div_jq).aplayerSetMjpegSrc( current_src ) ;
-            } else {
-                $('.pl_cont', clicked_div_jq).aplayerResizeToParent();
-//         	if(current_src!=null) $('.pl_cont',clicked_div_jq).aplayerSetMjpegSrc( current_src );
-            }
+            $('.pl_cont',clicked_div_jq)
+            .aplayerResizeToParent();
+            //if(current_src!=null)  $('.pl_cont',clicked_div_jq).aplayerSetMjpegSrc( current_src ) ;
 
             //Переустанвливаем плеер для алтернативного источника
             if (current_src != null) {
                 $('.pl_cont', clicked_div_jq).addPlayer({
+                    hasExtraWrapper: true,
                     'src': current_src,
                     'controls': false,
                     'scale': 'on',
@@ -217,7 +210,9 @@ function img_click(clicked_div) {
         }
         for (i = 0; i < WIN_DIVS.length; i++) {
             tmp_div = WIN_DIVS[i];
-            if (tmp_div !== clicked_div) {
+            if (tmp_div == clicked_div) {
+                continue;
+            } else {
                 //отображаем остальные камеры
                 //$(tmp_div).show();
                 $(tmp_div).css({
@@ -226,12 +221,11 @@ function img_click(clicked_div) {
             }
         }
         //меняем кнопку на Развернуть
-        $('img.fs_tc', '#cell_header_' + win_nr).height($('#cell_header_' + win_nr).height() - 4).attr({
+      $('img.fs_tc', '#cell_header_'+win_nr)
+      .attr({
             'src': imgs['fs'].src,
             'title': strToolbarControls['max']
         });
-
-        set_win_header_size(clicked_div_jq, CUR_WIN_HEADER_H);
 
         FS_WIN_DIV = undefined;
 
@@ -240,7 +234,9 @@ function img_click(clicked_div) {
         // current - NO fullscreen
         for (i = 0; i < WIN_DIVS.length; i++) {
             tmp_div = WIN_DIVS[i];
-            if (tmp_div !== clicked_div) {
+            if (tmp_div == clicked_div) {
+                continue;
+            } else {
                 //прячем остальные камеры
                 //$(tmp_div).hide();
                 $(tmp_div).css({
@@ -255,42 +251,37 @@ function img_click(clicked_div) {
         WIN_DIV_TOP = clicked_div.offsetTop;
         IMG_IN_DIV_W = pl_cont.width();
         IMG_IN_DIV_H = pl_cont.height();
-        //Сохраняем текущее значение высоты хидера
-        CUR_WIN_HEADER_H = $('.cell_header', clicked_div_jq).height() || 0;
-        set_win_header_size(clicked_div_jq, NAME_DIV_H);
+
+        if (NAME_DIV_H == null) {
+            NAME_DIV_H = 0;
+        }
 
         win_geo = new calc_win_geo(CANVAS_W, CANVAS_H, CamsAspectRatio, 1, 1, 1);
         //alert(win_geo.cam_h +'\n'+win_geo.cam_w);
         clicked_div_jq.css('top', calc_win_top(win_geo, 0));
         clicked_div_jq.css('left', calc_win_left(win_geo, 0));
 
-        $('.pl_cont', clicked_div_jq).width(win_geo.cam_w + CORRECT_W).height(win_geo.cam_h + CORRECT_H);
+        $('.pl_cont', clicked_div_jq)
         //меняем на источник для ячейки
         if (active_cams_srcs[win_nr]['type'] != 'avregd') {
-            if (active_cams_srcs[win_nr]['fs'] != null && active_cams_srcs[win_nr]['fs'] != '' && active_cams_srcs[win_nr]['cell'].toLowerCase() !== active_cams_srcs[win_nr]['fs'].toLowerCase()) {
+            if (active_cams_srcs[win_nr]['fs'] != null && active_cams_srcs[win_nr]['fs'] != ''
+                && active_cams_srcs[win_nr]['cell'].toLowerCase() !== active_cams_srcs[win_nr]['fs'].toLowerCase()) {
                 current_src = active_cams_srcs[win_nr]['fs'];
-                //get_cam_alt_url(active_cams_srcs[win_nr]['fs'], win_nr ,true) ;
+                //get_cam_alt_url(active_cams_srcs[win_nr]['fs'], win_nr ,true);
             }
         }
 
-        if (MSIE) {
-            $(clicked_div_jq).width(win_geo.win_w + CORRECT_W).height(win_geo.win_h + CORRECT_H);
-            $('.pl_cont', clicked_div_jq).aplayerSetSize({'height': win_geo.cam_h + CORRECT_H, 'width': win_geo.cam_w + CORRECT_W});
-//    		if(current_src!=null) {
-//    			$('.pl_cont',clicked_div_jq).aplayerSetMjpegSrc( current_src );
-//    		}
-
-        } else {
-            $(clicked_div_jq).width(win_geo.win_w).height(win_geo.win_h);
-            $('.pl_cont', clicked_div_jq).aplayerResizeToParent();
+       $(clicked_div_jq).width(win_geo.win_w).height(win_geo.win_h);
+       $('.pl_cont', clicked_div_jq)
+           .aplayerResizeToParent();
 //        	if(current_src!=null){
 //        		$('.pl_cont',clicked_div_jq).aplayerSetMjpegSrc( current_src );
 //        	}
-        }
 
         //Переустанвливаем плеер для алтернативного источника
         if (current_src != null) {
             $('.pl_cont', clicked_div_jq).addPlayer({
+                hasExtraWrapper: true,
                 'src': current_src,
                 'controls': false,
                 'scale': 'on',
@@ -305,7 +296,8 @@ function img_click(clicked_div) {
         }
 
         //меняем кнопку на Свернуть
-        $('img.fs_tc', '#cell_header_' + win_nr).height($('#cell_header_' + win_nr).height() - 4).attr({
+        $('img.fs_tc', '#cell_header_'+win_nr)
+        .attr({
             'src': imgs['tc'].src,
             'title': strToolbarControls['min']
         });
@@ -333,27 +325,14 @@ function img_click(clicked_div) {
 
     }
 
+    clicked_div_jq.find('.font-scaled').textfill(true); // force recalculation of scaled fonts
+
     //проверка связи с камерами
     if (GECKO || WEBKIT) {
         checking_connection.init_check();
     }
 
 } // img_click()
-
-/**
- * Изменяет высоту заголовка ячейки при смене режима полноэкранный/раскладка
- * @param clicked_div_jq
- * @param header_height
- */
-function set_win_header_size(clicked_div_jq, header_height) {
-    if (PrintCamNames && $('.cell_header', clicked_div_jq).height() != header_height) {
-        var header = $('.cell_header', clicked_div_jq);
-        $(header).height(header_height); //Высота заголовка
-        $('span', header).css({'top': (header_height / 2 - 14) + 'px'}).end(); //Название камеры
-        var ht = header_height - 6;
-        $(header).find('img').height(ht); //ToolBar
-    }
-}
 
 /**
  * Функция осуществляет инициализацию и установку элемента,
@@ -374,10 +353,10 @@ function brout(win_nr, win_div, win_geo) {
     var url = WINS_DEF[win_nr].cam.url;
 
     //Установка плеера в элемент  // win_geo.cam_h
-    var cont = $('<div class="pl_cont" />').width(win_geo.cam_w + CORRECT_W).height(win_geo.cam_h + CORRECT_H);
+    var $cont = $(win_div);
 
-    $(win_div).append(cont);
-    $(cont).addPlayer({
+    $cont.addPlayer({
+        hasExtraWrapper: true,
         'src': url,
         'controls': false,
         'scale': 'on',
@@ -390,16 +369,10 @@ function brout(win_nr, win_div, win_geo) {
         }
     });
 
-    if (MSIE) {
-        $(win_div).width(win_geo.win_w + CORRECT_W).height(win_geo.win_h + CORRECT_H);
-        $('.pl_cont', cont).aplayerSetSize({'height': win_geo.cam_h + CORRECT_H + 2, 'width': win_geo.cam_w + CORRECT_W + 2});
-
-    } else {
-        $(cont).aplayerResizeToParent();
-    }
+    $cont.aplayerResizeToParent();
 
     //установка обработчика клика по изображению камеры
-    $(win_div).click(function (e) {
+    $cont.parent().click( function(e) {
         if (typeof(e.target) == "undefined" || typeof(e.target.tagName) == "undefined") {
             return img_click(this);
         } else {
@@ -410,13 +383,12 @@ function brout(win_nr, win_div, win_geo) {
     });
 
     //установка тултипа
-    $(win_div).bind('mouseover', function () {
+    $cont.bind('mouseover', function () {
         img_mouseover(this, win_nr);
     });
-    win_div.mouseout(function () {
+    $cont.mouseout(function () {
         hideddrivetip();
     });
-
 }
 
 /**
@@ -911,78 +883,38 @@ function calc_win_geo(_canvas_w, _canvas_h, img_aspect_ratio, _rows_nr, _cols_nr
         _rowspan = 1;
     }
 
-    if (MSIE) {
-
-        if (img_aspect_ratio == undefined || img_aspect_ratio == 'fs') {
-
-            // соотношение сторон видеоизображения нас не волнует,
-            //  растягиваем окна камер и сами изображения по всему CANVAS
-            cam_w = parseInt(_canvas_w / _cols_nr);
-            cam_h = parseInt(_canvas_h / _rows_nr) - NAME_DIV_H * _rowspan;
-        } else {
-            // create wins
-            var calc_canvas_h = _canvas_h - ((NAME_DIV_H * _rowspan ) * _rows_nr);
-
-            if ((_canvas_w / calc_canvas_h) >= (img_aspect_ratio.num * _cols_nr) / (img_aspect_ratio.den * _rows_nr)) {
-                cam_h = parseInt(calc_canvas_h / _rows_nr);
-                cam_h = parseInt(cam_h / img_aspect_ratio.den);
-                cam_w = cam_h * img_aspect_ratio.num;
-                cam_h *= img_aspect_ratio.den;
-
-            } else {
-
-                cam_w = parseInt(_canvas_w / _cols_nr);
-                cam_w = parseInt(cam_w / img_aspect_ratio.num);
-                cam_h = cam_w * img_aspect_ratio.den;
-                cam_w *= img_aspect_ratio.num;
-            }
-        }
-
-        this.win_w = cam_w;
-        this.win_h = cam_h + NAME_DIV_H * _rowspan;
-
-        this.offsetX = parseInt((_canvas_w - this.win_w * _cols_nr) / 2);
-        this.offsetY = parseInt((_canvas_h - this.win_h * _rows_nr) / 2);
-
-        this.cam_w = cam_w;
-        this.cam_h = cam_h;
-
+    if (img_aspect_ratio == undefined || img_aspect_ratio == 'fs') {
+        // соотношение сторон видеоизображения нас не волнует,
+        //  растягиваем окна камер и сами изображения по всему CANVAS
+        cam_w = parseInt(_canvas_w / _cols_nr);
+        cam_h = parseInt(_canvas_h / _rows_nr) - NAME_DIV_H * _rowspan;
     } else {
+        // create wins
+        var calc_canvas_h = _canvas_h - ((NAME_DIV_H * _rowspan ) * _rows_nr);
 
-        if (img_aspect_ratio == undefined || img_aspect_ratio == 'fs') {
+        if ((_canvas_w / calc_canvas_h) >= (img_aspect_ratio.num * _cols_nr) / (img_aspect_ratio.den * _rows_nr)) {
+            cam_h = parseInt(calc_canvas_h / _rows_nr);
+            cam_h = parseInt(cam_h / img_aspect_ratio.den);
+            cam_w = cam_h * img_aspect_ratio.num;
+            cam_h *= img_aspect_ratio.den;
 
-            // соотношение сторон видеоизображения нас не волнует,
-            //  растягиваем окна камер и сами изображения по всему CANVAS
-            cam_w = parseInt(_canvas_w / _cols_nr) - BorderLeft - BorderRight;
-            cam_h = parseInt(_canvas_h / _rows_nr) - NAME_DIV_H * _rowspan - BorderTop - BorderBottom;
         } else {
-            // create wins
-            var calc_canvas_h = _canvas_h - ((NAME_DIV_H * _rowspan + BorderTop + BorderBottom) * _rows_nr);
 
-            if ((_canvas_w / calc_canvas_h) >= (img_aspect_ratio.num * _cols_nr) / (img_aspect_ratio.den * _rows_nr)) {
-                cam_h = parseInt(calc_canvas_h / _rows_nr);
-                cam_h = parseInt(cam_h / img_aspect_ratio.den);
-                cam_w = cam_h * img_aspect_ratio.num;
-                cam_h *= img_aspect_ratio.den;
-
-            } else {
-
-                cam_w = parseInt(_canvas_w / _cols_nr - BorderLeft - BorderRight);
-                cam_w = parseInt(cam_w / img_aspect_ratio.num);
-                cam_h = cam_w * img_aspect_ratio.den;
-                cam_w *= img_aspect_ratio.num;
-            }
+            cam_w = parseInt(_canvas_w / _cols_nr);
+            cam_w = parseInt(cam_w / img_aspect_ratio.num);
+            cam_h = cam_w * img_aspect_ratio.den;
+            cam_w *= img_aspect_ratio.num;
         }
-
-        this.win_w = cam_w + BorderLeft + BorderRight;
-        this.win_h = cam_h + NAME_DIV_H * _rowspan + BorderTop + BorderBottom;
-
-        this.offsetX = parseInt((_canvas_w - this.win_w * _cols_nr) / 2);
-        this.offsetY = parseInt((_canvas_h - this.win_h * _rows_nr) / 2);
-
-        this.cam_w = cam_w;
-        this.cam_h = cam_h;
     }
+
+    this.win_w = cam_w;
+    this.win_h = cam_h + NAME_DIV_H * _rowspan;
+
+    this.offsetX = parseInt((_canvas_w - this.win_w * _cols_nr) / 2);
+    this.offsetY = parseInt((_canvas_h - this.win_h * _rows_nr) / 2);
+
+    this.cam_w = cam_w;
+    this.cam_h = cam_h;
 } // calc_win_geo()
 
 /**
@@ -1028,17 +960,12 @@ function change_fs_win_geo(fs_win) {
     fs_win_div_jq.css('top', calc_win_top(win_geo, 0));
     fs_win_div_jq.css('left', calc_win_left(win_geo, 0));
 
-    if (GECKO || WEBKIT) {
-        $(fs_win_div_jq).width(win_geo.win_w).height(win_geo.win_h);
+    $(fs_win_div_jq)
+        .width(win_geo.win_w)
+        .height(win_geo.win_h);
 
-        $('.pl_cont', fs_win_div_jq).width(win_geo.cam_w + CORRECT_W).height(win_geo.cam_h + CORRECT_H).aplayerResizeToParent();
-        // .attr('alt',win_geo.cam_w + 'x' + win_geo.cam_h);
-    } else if (MSIE) {
-        $(fs_win_div_jq).width(win_geo.win_w + CORRECT_W).height(win_geo.win_h + CORRECT_H);
-
-        $('.pl_cont', fs_win_div_jq).width(win_geo.cam_w + CORRECT_W).height(win_geo.cam_h + CORRECT_H).aplayerSetSize({'height': win_geo.cam_h + CORRECT_H, 'width': win_geo.cam_w + CORRECT_W});
-        // .text(win_geo.cam_w + 'x' + win_geo.cam_h)
-    }
+    $('.pl_cont', fs_win_div_jq).aplayerResizeToParent();
+    // .attr('alt',win_geo.cam_w + 'x' + win_geo.cam_h);
 } // change_fs_win_geo()
 
 /**
@@ -1069,19 +996,22 @@ function change_wins_geo() {
         if (win_def.rowspan == 1 && win_def.colspan == 1) {
             win_geo = base_win_geo;
         } else {
-            win_geo = new calc_win_geo(base_win_geo.win_w * win_def.colspan, base_win_geo.win_h * win_def.rowspan, CamsAspectRatio, 1, 1, win_def.rowspan);
+            win_geo = new calc_win_geo(
+                base_win_geo.win_w * win_def.colspan,
+                base_win_geo.win_h * win_def.rowspan,
+                CamsAspectRatio, 1, 1, win_def.rowspan);
         }
 
         tmp_div.css('top', calc_win_top(base_win_geo, win_def.row));
         tmp_div.css('left', calc_win_left(base_win_geo, win_def.col));
 
-        if (GECKO || WEBKIT) {
-            $(tmp_div).width(win_geo.win_w).height(win_geo.win_h);
-            $('.pl_cont', tmp_div).width(win_geo.cam_w + CORRECT_W).height(win_geo.cam_h + CORRECT_H).aplayerResizeToParent();
-        } else if (MSIE) {
-            $(tmp_div).width(win_geo.win_w + CORRECT_W).height(win_geo.win_h + CORRECT_H);
-            $('.pl_cont', tmp_div).width(win_geo.cam_w + CORRECT_W).height(win_geo.cam_h + CORRECT_H).aplayerSetSize({'height': win_geo.cam_h + CORRECT_H, 'width': win_geo.cam_w + CORRECT_W});
-        } else {
+        if (GECKO || WEBKIT || MSIE) {
+            $(tmp_div)
+                .width(win_geo.win_w)
+                .height(win_geo.win_h);
+            $('.pl_cont', tmp_div)
+                .aplayerResizeToParent();
+        } else { // todo - выяснить для чего это условие
             $('applet', tmp_div).width(win_geo.cam_w).height(win_geo.cam_h);
         }
     } // for(allwin)
@@ -1290,6 +1220,7 @@ function change_layout(mon_nr) {
     if (AspectRatio == 'fs') {
         CamsAspectRatio = 'fs';
     } else { //если сохраняем пропорции
+
         var rex = new RegExp("[0-9]+", "g");
         if (AspectRatio == 'calc') {
             ar = calcAspectForGeo(major_win_cam_geo[0], major_win_cam_geo[1]);
@@ -1469,21 +1400,28 @@ function fill_canvas() {
                 ipcamhost_link_end = ' &rarr;<\/a>';
             }
 
-            var hdr = $('<div id="cell_header_' + win_nr + '" class="cell_header"  style="cursor:default;' + ' padding:0px; margin:0px; overflow:hidden; border:0px; height:' + NAME_DIV_H * win_def.rowspan + 'px;">' + '<span style="' + 'vertical-align: middle; position: absolute; top: ' + (NAME_DIV_H * win_def.rowspan / 2 - 14) + 'px; padding-left:8px; padding-top:2px; padding-bottom:2px; padding-right:2px;' + ' color:#e5e5e5; font-size:' + 14 + 'px; font-weight: bold; width:100%; overflow:hidden;">' + ipcamhost_link_begin + WINS_DEF[win_nr].cam.name + ipcamhost_link_end + '<\/span><\/div>').appendTo(win_div);
+                 var hdr = $('<div id="cell_header_'+win_nr+'" class="cell_header"  style="cursor:default;'+
+                       ' padding:0px; margin:0px; overflow:hidden; border:0px;">'+
+                       '<div class="camera_name_wrapper font-scaled">' +
+                       '<span class="camera_name">' +
+                       ipcamhost_link_begin + WINS_DEF[win_nr].cam.name + ipcamhost_link_end +
+                       '</span></div></div>')
+                       .appendTo(win_div);
+
+                // font scaler
+                hdr.find('.font-scaled').textfill();
 
             //ToolBar
-            var ht = $(hdr).height() - 4;
-            var toolbar = $('<div class="tool_bar"></div>').height(ht).css({
-                'position': 'absolute',
-                'top': '1px',
-                'right': '1px'
-            }).appendTo(hdr);
+                 var toolbar = $('<div class="tool_bar"></div>')
+                 .appendTo(hdr);
 
             //свернуть/развернуть
-            $('<img src=' + imgs['fs'].src + ' class="tool fs_tc" title="' + strToolbarControls['max'] + '">').height(ht - 4).appendTo(toolbar);
+                 $('<img src='+imgs['fs'].src+' class="tool fs_tc" title="'+strToolbarControls['max']+'">')
+                 .appendTo(toolbar);
 
             //Кнопка включить/выключить toolbar
-            $('<img src=' + imgs['controlsOnOff_on'].src + ' id="controlsOnOff_' + win_nr + '" class="tool controlsOnOff" title="' + strToolbarControls['on'] + '" >').height(ht - 4).click(function (e) {
+                 $('<img src='+imgs['controlsOnOff_on'].src+' id="controlsOnOff_'+win_nr+'" class="tool controlsOnOff" title="'+strToolbarControls['on']+'" >')
+                 .click(function(e){
                 e.preventDefault();
                 e.stopPropagation();
                 controls_handlers.controlsOnOff_click(e);
@@ -1502,21 +1440,24 @@ function fill_canvas() {
 
             //панель контролов
 
-            var normal_size = $('<img id="normal_size_' + win_nr + '" class="normal_size" title="' + strToolbarControls['cell_size'] + '" src=' + imgs['normal_size'].src + ' />').height(ht - 4).click(function (e) {
+                 var normal_size = $('<img id="normal_size_'+win_nr+'" class="normal_size" title="'+strToolbarControls['cell_size']+'" src='+imgs['normal_size'].src+' />')
+                 .click(function(e){
                 e.preventDefault();
                 e.stopPropagation();
                 controls_handlers.normal_size_click(e);
                 return false;
             });
 
-            var original_size = $('<img id="original_size_' + win_nr + '" class="original_size" title="' + strToolbarControls['orig_size'] + '" src=' + imgs['original_size'].src + ' />').height(ht - 4).click(function (e) {
+                 var original_size = $('<img id="original_size_'+win_nr+'" class="original_size" title="'+strToolbarControls['orig_size']+'" src='+imgs['original_size'].src+' />')
+                 .click(function(e){
                 e.preventDefault();
                 e.stopPropagation();
                 controls_handlers.original_size_click(e);
                 return false;
             });
 
-            var start = $('<img id="pl_start_' + win_nr + '" class="pl_start" title="' + strToolbarControls['play'] + '" src=' + imgs['pl_start'].src + ' />').height(ht - 4).click(function (e) {
+                 var start = $('<img id="pl_start_'+win_nr+'" class="pl_start" title="'+strToolbarControls['play']+'" src='+imgs['pl_start'].src+' />')
+                 .click(function(e){
                 e.preventDefault();
                 e.stopPropagation();
                 controls_handlers.pl_start_click(e);
@@ -1525,12 +1466,13 @@ function fill_canvas() {
 
             var stop = '';
             if (!WEBKIT) {
-                stop = $('<img id="pl_stop_' + win_nr + '" class="pl_stop" title="' + strToolbarControls['stop'] + '" src=' + imgs['pl_stop'].src + ' />').height(ht - 4).click(function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    controls_handlers.pl_stop_click(e);
-                    return false;
-                });
+                stop = $('<img id="pl_stop_' + win_nr + '" class="pl_stop" title="' + strToolbarControls['stop'] + '" src=' + imgs['pl_stop'].src + ' />')
+                    .click(function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        controls_handlers.pl_stop_click(e);
+                        return false;
+                    });
             }
 
             var plus = $('<img id="pl_plus_' + win_nr + '" class="pl_plus" title="' + strToolbarControls['zoom_in'] + '" src=' + imgs['pl_plus'].src + ' />').click(function (e) {
@@ -1538,21 +1480,24 @@ function fill_canvas() {
                 e.stopPropagation();
                 controls_handlers.pl_plus_click(e);
                 return false;
-            }).height(ht - 4);
+                 })
 
             var minus = $('<img id="pl_minus_' + win_nr + '" class="pl_minus" title="' + strToolbarControls['zoom_out'] + '" src=' + imgs['pl_minus'].src + ' />').click(function (e) {
                 e.preventDefault();
                 e.stopPropagation();
                 controls_handlers.pl_minus_click(e);
                 return false;
-            }).height(ht - 4);
+                 })
 
-            var plc = $('<div id="pl_controls_' + win_nr + '" class="pl_controls"></div>').height(ht).width($(hdr).width() - $(toolbar).width()).css({
-                'position': 'absolute',
-                'top': '1px',
-                'left': '1px',
-                'padding': '3 5'
-            }).append(start, stop, minus, plus, normal_size, original_size).click(function (e) {
+                var ptz = $('<img data-win-index="'+ win_nr +'" class="pl_ptz" title="' + strToolbarControls['ptz'] + '" src='+imgs['pl_ptz'].src+' />')
+                .click(function (e) {
+                    controls_handlers.pl_ptz_click(e);
+                    return false;
+                })
+
+                 var plc = $('<div id="pl_controls_'+win_nr+'" class="pl_controls"></div>')
+                 .append(start, stop, minus, plus, normal_size, original_size, ptz)
+                 .click(function(e){
                     e.preventDefault();
                     e.stopPropagation();
                     return false;
@@ -1569,21 +1514,16 @@ function fill_canvas() {
                 }).hide().prependTo(hdr);
 
             if (MSIE) {
-                var offset_x = 2;
-                $('#pl_stop_' + win_nr + ', #pl_start_' + win_nr).css({'position': 'absolute', 'top': '0', 'left': offset_x + 'px'});
-                offset_x += ht;
-
                 $('#original_size_' + win_nr).remove(); //не работает установка оригинального размера для MSIE
-                $('#normal_size_' + win_nr).css({'position': 'absolute', 'top': '0', 'left': offset_x + 'px'});
-                offset_x += ht;
-                $('#pl_minus_' + win_nr).css({'position': 'absolute', 'top': '0', 'left': offset_x + 'px'});
-                offset_x += ht;
-                $('#pl_plus_' + win_nr).css({'position': 'absolute', 'top': '0', 'left': offset_x + 'px'});
-                offset_x += ht;
             }
         }
-        //Установка плеера
-        brout(win_nr, win_div, win_geo);
+               //Установка плеера
+               var $win = $("<div data-win-index="+ win_nr +"'></div>");
+               hdr.after($win);
+               brout(win_nr, $win, win_geo);
+               // append ptz areas containers
+               hdr.after($('<div class="ptz_area_right"></div>'));
+               hdr.parent(":first").append($('<div class="ptz_area_bottom"></div>'));
     }
 
     WIN_DIVS = $('div.win');
@@ -1835,8 +1775,8 @@ var controls_handlers = {
         $(gw).attr({
             'src': imgs['controlsOnOff_off'].src
         });
-
-        $('span', "#cell_header_" + cell_nr).addClass('hidden');
+        // hide camera name
+        $("#cell_header_" + cell_nr).children('span').addClass('hidden');
         $('span', "#cell_header_" + cell_nr).fadeOut(200, function () {
 
             $(".pl_controls", "#win" + cell_nr).fadeIn(200);
@@ -1908,8 +1848,94 @@ var controls_handlers = {
         var cell_nr = parseInt(($(minus).attr('id')).replace('pl_minus_', ''));
         var aplayer_id = $('.aplayer', '#win' + cell_nr).attr('id');
         $.aplayer.zoomOut(aplayer_id);
+    },
+
+    pl_ptz_click : function(e){
+        var $button = $(e.currentTarget);                   // header button
+        var $win = $('#win' + $button.data('win-index'));
+        var $player = $win.find('.aplayer');
+
+        if ($button.data('async-in-progress')) {
+            // prevent multiple clicks / async operations
+            return
+        }
+
+        if (!$button.hasClass('active')) {
+            // flag that async operation is in progress
+            $button.data('async-in-progress', true);
+
+            loadPtzAreasContent($win, function (success) {
+                if (success) {
+                    $button.prop('src', imgs['pl_ptz_active'].src);
+                    // button style
+                    $button.addClass('active');
+                }
+
+                $button.data('async-in-progress', false);
+            });
+        } else {
+            // скрываем PTZ области
+            $win
+                .removeClass('with_ptz_right')
+                .removeClass('with_ptz_bottom');
+
+            $player.parent().aplayerResizeToParent();
+            $button.prop('src', imgs['pl_ptz'].src);
+            $button.removeClass('active');
+
+        }
     }
 };
+
+/**
+ * Загружает HTML содержимое областей PTZ и вставляет в соответствующие контейнеры.
+ *
+ * @param {Function} callback       callback асинхронной операции, передается boolean флаг (успех/неудача)
+ *                                  в качестве первого агрумента
+ * @param $win
+ */
+function loadPtzAreasContent($win, callback) {
+    var $player = $win.find('.aplayer');
+
+    var dfdPtzGet = $.get('./ptz.php');
+
+    dfdPtzGet
+        .done(function (response) {
+            var $ptzContent = $(response),
+                $right = $ptzContent.filter('.ptz_area_right'),
+                $bottom = $ptzContent.filter('.ptz_area_bottom');
+
+            if ($right.size()) {
+                $win
+                    .addClass('with_ptz_right')
+                    .find('.ptz_area_right')
+                    .html($right.html());
+            } else {
+                $win
+                    .removeClass('with_ptz_right')
+                    .find('.ptz_area_right')
+            }
+
+            if ($bottom.size()) {
+                $win
+                    .addClass('with_ptz_bottom')
+                    .find('.ptz_area_bottom')
+                    .html($bottom.html())
+            } else {
+                $win
+                    .removeClass('with_ptz_bottom')
+                    .find('.ptz_area_bottom');
+            }
+
+            callback && callback(true);
+        })
+        .fail(function () {
+            callback && callback(false);
+        })
+        .always(function () {
+            $player.parent().aplayerResizeToParent();
+        });
+}
 
 var timer = 0;
 

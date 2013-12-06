@@ -25,11 +25,13 @@ $link_javascripts = array(
     'lib/js/third-party/jquery.mousewheel.min.js',
     'lib/js/jquery.aplayer.js',
     'lib/js/user_layouts.js',
-    'lib/js/third-party/json2.js'
+    'lib/js/third-party/json2.js',
+    'lib/js/misc_utils.js',
 );
 
 $body_addons = 'scroll="no"';
 $ie6_quirks_mode = true;
+$IE_COMPAT='10';
 $lang_file = '_online.php';
 require('../head.inc.php');
 
@@ -473,11 +475,6 @@ if (empty($AspectRatio)) {
         }
     }
 }
-
-printf("var BorderLeft   = %u;\n", empty($BorderLeft) ? 2 : $BorderLeft);
-printf("var BorderRight  = %u;\n", empty($BorderRight) ? 2 : $BorderRight);
-printf("var BorderTop    = %u;\n", empty($BorderTop) ? 2 : $BorderTop);
-printf("var BorderBottom = %u;\n", empty($BorderBottom) ? 2 : $BorderBottom);
 
 // $user_info config.inc.php
 print 'var ___u="' . $user_info['USER'] . "\"\n";

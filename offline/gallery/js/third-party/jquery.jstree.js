@@ -983,7 +983,7 @@
 (function ($) {
 	var scrollbar_width, e1, e2;
 	$(function() {
-		if (/msie/.test(navigator.userAgent.toLowerCase())) {
+		if ($.browser.msie) {
 			e1 = $('<textarea cols="10" rows="2"></textarea>').css({ position: 'absolute', top: -1000, left: 0 }).appendTo('body');
 			e2 = $('<textarea cols="10" rows="2" style="overflow: hidden;"></textarea>').css({ position: 'absolute', top: -1000, left: 0 }).appendTo('body');
 			scrollbar_width = e1.width() - e2.width();

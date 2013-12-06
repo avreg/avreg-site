@@ -41,7 +41,8 @@ $strToolbarControls = array(
     'to_cam_interface' => 'Перейти в веб интерфейс IP-камеры',
     'max' => 'Развернуть',
     'min' => 'К раскладке',
-    'select_view' => 'Выбрать раскладку'
+    'select_view' => 'Выбрать раскладку',
+    'ptz'=>'Панорамирование/наклон',
 );
 
 $strCamName_Yes = 'Да';

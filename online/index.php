@@ -18,7 +18,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<script src="../lib/js/third-party/jquery-1.7.1.min.js" type="text/javascript"></script>
+	<script src="../lib/js/third-party/jquery.js" type="text/javascript"></script>
 	<script src="../lib/js/user_layouts.js" type="text/javascript"></script>
 	<script type="text/javascript">
 		$(function(){

@@ -58,6 +58,7 @@ function tohtml($var)
 /**
  * возвращает объект для конфигурации плеера для клиентской ОС
  * @param array $aplayer_config - массив $conf['aplayerConfig']
+ * TODO: Android, iPad, MAC, etc
  */
 function aplayer_configurate($aplayer_config)
 {
@@ -345,7 +346,7 @@ $ua = strtolower($_SERVER['HTTP_USER_AGENT']);
 ///  Движок браузера пользователя
 $MSIE = $GECKO = $PRESTO = $WEBKIT = false;
 
-if (false !== strpos($ua, 'msie')) {
+if (false !== strpos($ua, 'msie') || false !== strpos($ua, 'trident')) {
     $MSIE = true;
 } elseif (false !== strpos($ua, 'gecko')) {
     $GECKO = true;

@@ -52,7 +52,7 @@ DENY($arch_status);
     <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $GLOBALS['charset']; ?>"/>
     <meta name="author" content="Andrey Nikitin &lt;nik-a at mail dot ru&gt;">
     <!-- inc. jquery -->
-    <script type="text/javascript" src="<?php print $conf['prefix']; ?>/lib/js/third-party/jquery-1.7.1.js"></script>
+    <script type="text/javascript" src="<?php print $conf['prefix']; ?>/lib/js/third-party/jquery.js"></script>
 
     <style type="text/css">
         <!--

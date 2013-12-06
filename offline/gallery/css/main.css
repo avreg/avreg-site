@@ -1058,7 +1058,7 @@ a, label, h2, button, span, div {
 }
 
 #scroll_content .active .elem .refBox {
-    margin: 2px auto;
+    margin: 0px auto;
 }
 
 #content #win_top {

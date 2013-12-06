@@ -37,7 +37,6 @@
  * @param '-p' - название файла профиля с дополнительными настройками
  *
  */
-use \Avreg as Avreg;
 
 $methods = array(
     'update_tree_events',
@@ -96,7 +95,7 @@ if (in_array('-m', $argv) && isset($argv[array_search('-m', $argv) + 1]) && in_a
     }
 
     $gallery = new \Avreg\Gallery($params);
-    echo $gallery->{$method}($params);
+    echo $gallery->{$classMethodName}($params);
     // Возврат ответа запроса
 }
 

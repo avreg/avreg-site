@@ -22,11 +22,12 @@ ini_set('display_errors', 1);
 if (!isset($_POST['method']) && !isset($_GET['method'])) {
     /// Загрузка главной страницы галереи
     $pageTitle = 'gallery_title';
-    //$USE_JQUERY = true;
+
+    $IE_COMPAT='10';
     $ie6_quirks_mode = true;
 
     /// Подключение стилей
-    if (stristr($_SERVER['HTTP_USER_AGENT'], 'MSIE')) {
+    if (preg_match('/(msie|trident)/i', $_SERVER['HTTP_USER_AGENT'])) {
         //для MSIE
         $main_css = 'offline/gallery/css/ie_main.css';
     } else {

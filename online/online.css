@@ -43,13 +43,7 @@
     margin: 1% 0 1% 0;
 }
 
-.pl_stop, .pl_start {
-    cursor: pointer;
-    float: left;
-    margin-right: 15px;
-}
-
-.pl_plus, .pl_minus, .original_size, .normal_size {
+.pl_stop, .pl_start, .pl_plus, .pl_minus, .original_size, .normal_size, .pl_ptz{
     cursor: pointer;
     float: left;
 }
@@ -145,3 +139,32 @@ div.cell_header span a:hover {
     width: auto;
 }
 
+/* player areas layout */
+.pl_wrapper {
+    float: left;
+    width: 100%;
+    height: 92%;
+}
+.with_ptz_right .pl_wrapper {
+    width: 80%;
+}
+.with_ptz_bottom .pl_wrapper {
+    height: 72%;
+}
+.with_ptz_right .ptz_area_right {
+    display: block;
+}
+.ptz_area_right {
+    display: none;
+    width: 20%;
+    height: 72%;
+    float: right;
+}
+.with_ptz_bottom .ptz_area_bottom {
+    display: block;
+}
+.ptz_area_bottom {
+    display: none;
+    clear: both;
+    height: 20%;
+}
