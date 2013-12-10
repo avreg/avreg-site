@@ -797,7 +797,7 @@ var gallery = {
                             clearTimeout(self.timeUpdateTree);
                         }
                         self.timeUpdateTree = setTimeout(function () {
-                            gallery.tree_event.init(holder, {'method': 'getTreeEvents', 'update': false});
+                            gallery.tree_event.init(holder, {'method': 'getTreeEvents', 'update': false, 'on_dbld_evt': 'inform_user'});
                         }, gallery.config.check_tree_sync_period * 1000);
                     } else if (data.status == 'error' && data.code == '0') {
                         alert(lang.empty_tree);
@@ -985,7 +985,7 @@ var gallery = {
 
                         message_box.yes_delegate = function (event) {
                             $('#matrix_load').show();
-                            gallery.tree_event.init(holder, {'method': 'reindexTreeEvents'});
+                            gallery.tree_event.init(holder, {'method': 'reindexTreeEvents', 'on_dbld_evt': 'inform_user'});
                         };
 
                         message_box.no_delegate = function (event) {
@@ -1402,7 +1402,7 @@ var gallery = {
         $('#update_tree').bind('click', function (e) {
             e.preventDefault();
             $('#matrix_load').show();
-            gallery.tree_event.init(gallery.tree_event.holder, {'method': 'getTreeEvents', 'last': true});
+            gallery.tree_event.init(gallery.tree_event.holder, {'method': 'getTreeEvents', 'last': true, 'on_dbld_evt': 'inform_user'});
             return false;
         });
     }
