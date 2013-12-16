@@ -789,6 +789,38 @@ var gallery = {
                             matrix.tree_events = data.tree_events;
                             matrix.cameras = data.cameras;
                             gallery.tree_event.reload();
+
+                            // Временное сообщение
+
+                            var message = "<h2 style='color: #000;'>" + "Дерево рассинхронизированно.</h2><br />"
+                                + "Причины:<br />"
+                                + "1. самое раннее событие позже чем самое раннее событие в дереве<br />"
+                                + "2. рассинхронизация в середине дерева<br /><br />"
+                                + "<table>"
+
+                                + "<tr >"
+                                + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>" + data.count_event + "</td>"
+                                + "<td style='color:black;'>количество событий <br /></td>"
+                                + "</tr>"
+
+                                + "<tr >"
+                                + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>" + data.count_tree_event + "</td>"
+                                + "<td style='color:black;'>количество событий в дереве<br /></td>"
+                                + "</tr>"
+
+                                + "<tr >"
+                                + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>" + data.last_event_date + "</td>"
+                                + "<td style='color:black;'>дата и время последнего события<br /></td>"
+                                + "</tr>"
+
+                                + "<tr >"
+                                + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>" + data.last_tree_date + "</td>"
+                                + "<td style='color:black;'>дата и время последнего события в дереве<br /></td>"
+                                + "</tr>";
+                            +"</table>";
+                            message_box.show(message);
+                            // удалить временное сообщение
+
                         } else {
                             $('#matrix_load').hide();
                         }
@@ -799,6 +831,7 @@ var gallery = {
                         self.timeUpdateTree = setTimeout(function () {
                             gallery.tree_event.init(holder, {'method': 'getTreeEvents', 'update': false, 'on_dbld_evt': 'inform_user'});
                         }, gallery.config.check_tree_sync_period * 1000);
+
                     } else if (data.status == 'error' && data.code == '0') {
                         alert(lang.empty_tree);
                         $('#matrix_load').hide();
@@ -951,16 +984,6 @@ var gallery = {
                             + "<tr >"
                             + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>" + data.last_tree_date + "</td>"
                             + "<td style='color:black;'>дата и время последнего события в дереве<br /></td>"
-                            + "</tr>"
-
-                            + "<tr >"
-                            + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>" + data.oldest_event_date + "</td>"
-                            + "<td style='color:black;'>дата и время первого события<br /></td>"
-                            + "</tr>"
-
-                            + "<tr >"
-                            + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>" + data.oldest_tree_date + "</td>"
-                            + "<td style='color:black;'>дата и время первого события в дереве<br /></td>"
                             + "</tr>"
 
                             + "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>"
