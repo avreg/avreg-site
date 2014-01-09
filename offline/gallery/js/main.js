@@ -751,6 +751,20 @@ var gallery = {
             gallery.treeObject = $(self.holder);
             matrix.build();
         },
+        updateTree :function(){
+            var self = this;
+            //запускаем таймер проверки рассинхронизации дерева
+            if (self.timeUpdateTree) {
+                clearTimeout(self.timeUpdateTree);
+            }
+            var upTimeTree = gallery.cookie.get('upTimeTree');
+            if (upTimeTree > 0) {
+                self.timeUpdateTree = setTimeout(function () {
+                    gallery.tree_event.init(self.holder, {'method': 'getTreeEvents', 'update': false, 'on_dbld_evt': 'inform_user'});
+                },  upTimeTree* 1000);
+            }
+
+        },
         // инициалзация дерева
         init: function (holder, ajax_params) {
             var self = this;
@@ -768,21 +782,6 @@ var gallery = {
                 data: ajax_params,
                 success: function (data) {
                     if (data.status == 'success') {
-                        // если не полная информация за последний час, выводим сообщение и показываем кнопку обновить
-                        if ("update_tree" in data && data.update_tree) {
-                            if (typeof(ajax_params.update) == "undefined") {
-                                var message = "<h2 style='color: #000;'>Неполная информация за последний час</h2>";
-                                message_box.show(message);
-                            }
-                            $('#update_tree').attr('title', 'Обновить последние события. Последнее событие - ' + data.last_tree_date);
-                            $('#update_tree').show();
-                        } else {
-                            $('#update_tree').hide();
-                            if (typeof(ajax_params.update) == "undefined") {
-                                message_box.close();
-                            }
-                        }
-
 
                         // если пришли обновления, то обновляем дерево и запускаем перестройку матрицы
                         if ("tree_events" in data) {
@@ -792,13 +791,9 @@ var gallery = {
                         } else {
                             $('#matrix_load').hide();
                         }
-                        //запускаем таймер проверки рассинхронизации дерева
-                        if (self.timeUpdateTree) {
-                            clearTimeout(self.timeUpdateTree);
-                        }
-                        self.timeUpdateTree = setTimeout(function () {
-                            gallery.tree_event.init(holder, {'method': 'getTreeEvents', 'update': false, 'on_dbld_evt': 'inform_user'});
-                        }, gallery.config.check_tree_sync_period * 1000);
+
+                        self.updateTree();
+                        $('#update_tree').hide();
 
                     } else if (data.status == 'error' && data.code == '0') {
                         alert(lang.empty_tree);
@@ -922,74 +917,47 @@ var gallery = {
                         }, 5000);
 
                     } else if (data.status == 'error' && data.code == '4') { //если дерево не актуально
-
+                                console.log(data);
 
                         $('#matrix_load').hide();
+                        $('#update_tree').show();
+                        if (gallery.cookie.get('isBlockUpTree')) {
+                            self.updateTree();
+                            return;
+                        }
 
                         var header = "Ошибка.";
 
-                        var message = "<h2 style='color: #000;'>" + "Дерево рассинхронизированно.</h2><br />"
-                            + "Причины:<br />"
-                            + "1. самое раннее событие позже чем самое раннее событие в дереве<br />"
-                            + "2. рассинхронизация в середине дерева<br /><br />"
-                            + "<table>"
+                        var message = "<h2 style='color: #000;'>" + "Обнаружено изменение данных.</h2><br />"
+                            + "Необходимо обновление.<br/><br/>";
 
-                            + "<tr >"
-                            + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>" + data.count_event + "</td>"
-                            + "<td style='color:black;'>количество событий <br /></td>"
-                            + "</tr>"
+                        message +='<span class="niceCheck"';
+                        message +='><input type="checkbox" id="is_update_settings" name="is_update_settings" value="t"';
+                        message +='/></span>';
+                        message +='<label form="is_update_settings">Больше не беспокоить</label>';
 
-                            + "<tr >"
-                            + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>" + data.count_tree_event + "</td>"
-                            + "<td style='color:black;'>количество событий в дереве<br /></td>"
-                            + "</tr>"
-
-                            + "<tr >"
-                            + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>" + data.last_event_date + "</td>"
-                            + "<td style='color:black;'>дата и время последнего события<br /></td>"
-                            + "</tr>"
-
-                            + "<tr >"
-                            + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>" + data.last_tree_date + "</td>"
-                            + "<td style='color:black;'>дата и время последнего события в дереве<br /></td>"
-                            + "</tr>"
-
-                            + "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>"
-                            + "<tr >"
-                            + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Выход'- </td>"
-                            + "<td style='color:black;'>выход на главную страницу <br /></td>"
-                            + "</tr>";
-                        if (data.access_update_tree) {
-                            message += "<tr>"
-                                + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Обновить'- </td>"
-                                + "<td style='color:black;'>обновление всего дерева."
-                                + "</td>"
-                                + "</tr>";
-                        } else {
-                            message += "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>"
-                                + "<tr>"
-                                + "<td style='color:black;' colspan='2'>Рекомендуем обратиться к администратору системы"
-                                + "</td>"
-                                + "</tr>";
-                        }
-                        +"</table>";
 
                         message_box.yes_delegate = function (event) {
+                            if ($('#is_update_settings').attr('checked')) {
+                                gallery.cookie.set('isBlockUpTree', 1);
+                            } else {
+                                gallery.cookie.set('isBlockUpTree', 0);
+                            }
                             $('#matrix_load').show();
                             gallery.tree_event.init(holder, {'method': 'reindexTreeEvents', 'on_dbld_evt': 'inform_user'});
                         };
 
                         message_box.no_delegate = function (event) {
-                            location = "../index.php";
-                        };
-                        message_box.ok_delegate = function (event) {
-                            location = "../index.php";
+                            if ($('#is_update_settings').attr('checked')) {
+                                gallery.cookie.set('isBlockUpTree', 1);
+                            } else {
+                                gallery.cookie.set('isBlockUpTree', 0);
+                            }
                         };
                         message_box.buttons_name.No = "Выход";
-                        message_box.buttons_name.OK = "Выход";
                         message_box.buttons_name.Yes = "Обновить";
 
-                        message_box.show(message, header, message_box.message_type.error, data.access_update_tree ? message_box.button_type.YesNo : message_box.button_type.OK);
+                        message_box.show(message, header, message_box.message_type.error,  message_box.button_type.YesNo);
 
                     }
                 }
@@ -1227,6 +1195,16 @@ var gallery = {
                 $(this).children().attr('checked', 'checked');
             }
         });
+        $('#message_box .niceCheck').live('click',function () {
+            if ( $(this).children().attr('checked')) {
+                $(this).children().attr('checked', false);
+                $(this).attr('style', 'background-position: 0px -0px');
+            } else {
+                $(this).children().attr('checked', 'checked');
+                $(this).attr('style', 'background-position: 0px -14px');
+            }
+        });
+
 
         //Кнопка смены режима просмотра - детальный/миниатюры
         var btnCangeMode = $('<div class="select_mode"> <img src="' + gallery.images['preview'].src + '" /></div>');
@@ -1393,9 +1371,77 @@ var gallery = {
         $('#update_tree').bind('click', function (e) {
             e.preventDefault();
             $('#matrix_load').show();
-            gallery.tree_event.init(gallery.tree_event.holder, {'method': 'getTreeEvents', 'last': true, 'on_dbld_evt': 'inform_user'});
+            gallery.tree_event.init(gallery.tree_event.holder, {'method': 'reindexTreeEvents', 'on_dbld_evt': 'inform_user'});
             return false;
         });
+
+        $('#settings').bind('click', function(e){
+            e.preventDefault();
+            var header = "Настройки";
+
+            var message = '<label form="update_time_settings">Проверять необходимость обновления каждые:</label><select id="update_time_settings" name="update_time_settings">';
+
+            var times = {
+                60 :"1 мин.",
+                180: "3 мин.",
+                300: "5 мин.",
+                0 : "не проверять"
+            }
+            var upTimeTree = gallery.cookie.get('upTimeTree');
+            if (typeof(times[upTimeTree]) == "undefined") {
+                upTimeTree = 60;
+                gallery.cookie.set('upTimeTree', upTimeTree);
+            }
+
+            for (var i in times) {
+                message +='<option  value="'+i+'"';
+                if (i ==  upTimeTree) {
+                    message += 'selected="selected"';
+                }
+                message +='>'+times[i]+'</option>';
+            }
+            message +='</select><br>';
+
+            message +='<label form="is_update_settings">Не блокировать интерфейс при рассинхронизации:</label>';
+
+
+            message +='<span class="niceCheck"';
+            if (gallery.cookie.get('isBlockUpTree')) {
+                message += ' style="background-position: 0px -14px"';
+            }
+            message +='><input type="checkbox" id="is_update_settings" name="is_update_settings" value="t"';
+            if (gallery.cookie.get('isBlockUpTree')) {
+                message += ' checked="checked"';
+            }
+            message +='/></span>';
+
+            message_box.yes_delegate = function (event) {
+            };
+
+            message_box.no_delegate = function (event) {
+                if ($('#is_update_settings').attr('checked')) {
+                    gallery.cookie.set('isBlockUpTree', 1);
+                } else {
+                    gallery.cookie.set('isBlockUpTree', 0);
+                }
+                if (gallery.cookie.get('upTimeTree') != $('#update_time_settings').val()) {
+                    gallery.cookie.set('upTimeTree', $('#update_time_settings').val());
+                    gallery.tree_event.updateTree();
+                }
+
+            };
+
+            message_box.buttons_name.No = "Сохранить";
+            message_box.buttons_name.Yes = "Закрыть";
+
+            message_box.show(message, header, message_box.message_type.info,  message_box.button_type.YesNo);
+            return false;
+
+        });
+
+
+
+
     }
 };
 
@@ -1463,18 +1509,18 @@ var message_box = {
         this.images[message_box.message_type.question].src = WwwPrefix + '/offline/gallery/img/mb_question.png';
 
         $('#mb_btn_ok').live('click', function (e) {
-            message_box.close();
             message_box.ok_delegate(e);
+            message_box.close();
             message_box.reset_delegates();
         });
         $('#mb_btn_no').live('click', function (e) {
-            message_box.close();
             message_box.no_delegate(e);
+            message_box.close();
             message_box.reset_delegates();
         });
         $('#mb_btn_yes').live('click', function (e) {
-            message_box.close();
             message_box.yes_delegate(e);
+            message_box.close();
             message_box.reset_delegates();
         });
     },

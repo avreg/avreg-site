@@ -150,65 +150,25 @@ class Gallery
         // сравниваем количество событий в дереве и в событиях если не равно то
         if ($count_event !== $count_tree_event || $last_tree_date <= $last_event_date ||
             $oldest_event_date > $oldest_tree_date) {
-
-            //обновляем дерево последними событиями если:
-            //1- пришел принудительный запрос
-            //2- последний час в дереве и событиях не совпадает
-//            if ($count_event !== $count_tree_event && $update &&
-//                (($update_last && $last_tree_date <= $last_event_date) ||
-//                    date('Y-m-d-H', strtotime($last_tree_date)) !== date('Y-m-d-H', strtotime($last_event_date)))) {
-//                $this->cache->set('gallery_update', true);
-//                $evt_updt_rst = $this->db->galleryUpdateTreeEvents(
-//                    $last_tree_date,
-//                    $last_event_date,
-//                    array(),
-//                    $param["on_dbld_evt"]
-//                );
-//                $this->cache->delete('gallery_update');
-//                //проверка дублей событий
-//                if ($evt_updt_rst['status'] == 'error') {
-//                    $this->result = $evt_updt_rst;
-//                    return;
-//                }
-//
-//                $count_event = $this->db->galleryGetCountEvent(array('cameras' => array_keys($GCP_cams_params)));
-//                $count_tree_event = $this->db->galleryGetCountTreeEvent(
-//                    array('cameras' => array_keys($GCP_cams_params))
-//                );
-//                $last_tree_date = $last_event_date;
-//            }
-            // если до сих пор дерево рассинхроннизированно
-            if ($count_event !== $count_tree_event || $last_tree_date !== $last_event_date ||
-                $oldest_event_date > $oldest_tree_date) {
-                $count_last_event = $this->db->galleryGetCountEvent(
-                    array('cameras' => array_keys($GCP_cams_params), 'date' => $last_tree_date)
-                );
-                $count_last_tree_event = $this->db->galleryGetCountTreeEvent(
-                    array('cameras' => array_keys($GCP_cams_params), 'date' => $last_tree_date)
-                );
                 //если рассинхронизация из-за последнего часа, то не возвращать ошибку
-//                if ($count_event == $count_tree_event + (abs($count_last_tree_event - $count_last_event))) {
-//                    $update_tree = true;
-//                } else {
-                    $access_update_tree = in_array(
-                        $GLOBALS['user_status'],
-                        array($GLOBALS['install_status'], $GLOBALS['admin_status'], $GLOBALS['arch_status'])
-                    );
-                    $this->result = array(
-                        'status' => 'error',
-                        'code' => '4',
-                        'description' => 'Дерево не синхронизированно',
-                        'count_event' => $count_event,
-                        'count_tree_event' => $count_tree_event,
-                        'last_event_date' => $last_event_date,
-                        'last_tree_date' => $last_tree_date,
-                        'oldest_event_date' => $oldest_event_date,
-                        'oldest_tree_date' => $oldest_tree_date,
-                        'access_update_tree' => $access_update_tree
-                    );
-                    return;
-//                }
-            }
+                $access_update_tree = in_array(
+                    $GLOBALS['user_status'],
+                    array($GLOBALS['install_status'], $GLOBALS['admin_status'], $GLOBALS['arch_status'])
+                );
+                $this->result = array(
+                    'status' => 'error',
+                    'code' => '4',
+                    'description' => 'Дерево не синхронизированно',
+                    'count_event' => $count_event,
+                    'count_tree_event' => $count_tree_event,
+                    'last_event_date' => $last_event_date,
+                    'last_tree_date' => $last_tree_date,
+                    'oldest_event_date' => $oldest_event_date,
+                    'oldest_tree_date' => $oldest_tree_date,
+                    'access_update_tree' => $access_update_tree
+                );
+                return;
+
         } else {
             $last_tree_date = $this->db->galleryGetLastTreeEventDate(array('cameras' => array_keys($GCP_cams_params)));
         }

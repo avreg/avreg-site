@@ -192,6 +192,7 @@ a {
     position: relative;
     left: 10px;
     top: 2px;
+    float: left;
 }
 
 #more_cam {
@@ -1248,6 +1249,15 @@ a.set_camera_color:hover {
 
 
 #update_tree {
-    float:right;
     display:none;
+}
+
+.rightBtn {
+    float: right;
+}
+.rightBtn a {
+    display: block;
+    height: 32px;
+    width: 32px;
+    float: left;
 }
