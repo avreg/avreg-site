@@ -1792,3 +1792,4 @@ if (isset($_SERVER['PHP_AUTH_USER'])) {
 } else {
     DENY(null, 401);
 }
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */

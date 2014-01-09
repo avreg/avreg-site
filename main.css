@@ -72,11 +72,19 @@ h4 {
     color: gray;
 }
 
-a {
+a, .href {
     color: #196bba;
     font-size: inherit;
     font-weight: bold;
     text-decoration: none;
+}
+
+.href {
+    cursor:pointer;
+}
+
+.href {
+    cursor:pointer;
 }
 
 a:hover, a:active {
@@ -384,6 +392,7 @@ th.layout {
     position: relative;
     height: 8%;
 }
+
 
 .pl_wrapper {
     position: relative;

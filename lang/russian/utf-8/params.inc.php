@@ -116,8 +116,8 @@ $PAR_GROUPS = array(
         'desc' => 'видео/аудио захват по протоколу &#171;rtsp://&#187;',
         'flags' => $F_BASEPAR | $F_IN_DEF | $F_IN_CAM,
         'mstatus' => 1,
-        'help_page' => null
-    ),
+        'help_page' => null,
+     ),
     array(
         'id' => '3.1.1',
         'name' => 'http://',
@@ -650,12 +650,24 @@ $PARAMS = array(
         'name' => 'rtsp_play',
         'type' => $STRING200_VAL,
         'def_val' => '/',
-        'desc' => '<b>Строка RTSP-запроса &quot;PLAY&quot;</b> (завершающая часть rtsp URL-а), адресующая конкретный
-            медиа-поток камеры:<br /><br />
-            Например, для камер Axis с прошивками версий от 5.00 и выше:
-            <br /><b>/axis-media/media.amp?resolution=640x480&amp;videocodec=h264&amp;audio=0</b>
-            <br /><br />Не знаете запрос для вашей камеры - читайте <a href="http://www.soleratec.com/rtsp/"
-            target="_blank">здесь &gt;&gt;</a>  или обратитесь к нам.<br /><br />' . $ROOT_RES_DEF,
+        'desc' => '<b>Строка RTSP-запроса &quot;PLAY&quot;</b> (завершающая часть rtsp URL-а),
+        адресующая медиа-поток камеры:<br /><br />
+        Например, для камер Axis с прошивками версий от 5.00 и выше:
+        <br /><b>/axis-media/media.amp?resolution=640x480&amp;videocodec=h264&amp;audio=0</b>
+        <br /><br />Не знаете запрос для вашей камеры?
+        <ul>
+        <li> 
+        <div class="href" onclick="do_onvif_uri_req(cam_tune_info);">
+        Спросить у камеры если она поддерживает ONVIF &gt;&gt;
+        </div>
+        </li>
+        <li>поищите тут <a href="http://www.soleratec.com/rtsp/"
+        target="_blank">[ 1 ]</a>,  <a href="http://www.ispyconnect.com/sources.aspx" target="_blank">[ 2 ]</a>;</li>
+        <li>или обратитесь к нам.</li>
+        </ul>
+        Для проверки можете воспользоваться плеером VLC, открыв в нём URL вида
+        <nobr>rtsp://{InetCam_USER}:{InetCam_PASSWD}@{InetCam_IP}:{InetCam_rtsp_port}{rtsp_play}</nobr>
+        <br /><br />' . $ROOT_RES_DEF,
         'flags' => $F_BASEPAR | $F_RELOADED | $F_IN_DEF | $F_IN_CAM,
         'cats' => '3.1.2',
         'subcats' => null,

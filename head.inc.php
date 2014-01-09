@@ -5,15 +5,6 @@
  * @file head.inc.php
  * @brief В файле реализовано формирование базовой функциональности и структуры страниц сайта
  *
- *<ul>
- *<li> Формируется структура страницы
- *<li> Добавляется базовое содержимое тега \<head\>
- *<li> Инициализируются js-переменные
- *<li> Определяются  js-функции
- *<li> Добавляется тег \<body\> со стилями
- *</ul>
- *
- *
  */
 
 ob_start();
@@ -95,7 +86,7 @@ if (isset($link_javascripts) && is_array($link_javascripts)) {
 }
 ?>
 
-<script type="text/javascript" src="/avreg/lib/js/utils.js"></script>
+<script type="text/javascript" src="<?php echo $conf['prefix']; ?>/lib/js/utils.js"></script>
 
 <script type="text/javascript">
     <!--
