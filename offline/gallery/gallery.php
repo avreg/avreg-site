@@ -147,10 +147,22 @@ class Gallery
         $oldest_event_date = $this->db->galleryGetOldestEventDate(array('cameras' => array_keys($GCP_cams_params)));
         $oldest_tree_date = $this->db->galleryGetOldestTreeEventDate(array('cameras' => array_keys($GCP_cams_params)));
         $update_tree = false;
+
+        if ($last_tree_date == $last_event_date && $count_event > 0) {
+            $count_last_event = $this->db->galleryGetCountEvent(
+                array('cameras' => array_keys($GCP_cams_params), 'date' => $last_tree_date)
+            );
+            $count_last_tree_event = $this->db->galleryGetCountTreeEvent(
+                array('cameras' => array_keys($GCP_cams_params), 'date' => $last_tree_date)
+            );
+            //если рассинхронизация из-за последнего часа, то не возвращать ошибку
+            if ($count_event == $count_tree_event + abs($count_last_tree_event - $count_last_event)) {
+                $update_tree = true;
+            }
+        }
         // сравниваем количество событий в дереве и в событиях если не равно то
-        if ($count_event !== $count_tree_event || $last_tree_date <= $last_event_date ||
+        if ($update_tree || $count_event != $count_tree_event || $last_tree_date < $last_event_date ||
             $oldest_event_date > $oldest_tree_date) {
-                //если рассинхронизация из-за последнего часа, то не возвращать ошибку
                 $access_update_tree = in_array(
                     $GLOBALS['user_status'],
                     array($GLOBALS['install_status'], $GLOBALS['admin_status'], $GLOBALS['arch_status'])
@@ -173,15 +185,6 @@ class Gallery
             $last_tree_date = $this->db->galleryGetLastTreeEventDate(array('cameras' => array_keys($GCP_cams_params)));
         }
 
-        // выходим если не нужно вернуть дерево
-        if (!$update || ($update_last && !$update_tree)) {
-            $this->result = array(
-                'update_tree' => $update_tree,
-                'last_tree_date' => $last_tree_date,
-                'status' => 'success'
-            );
-            return;
-        }
 
         // получаем дерево из кеша, если его нет, то из базы, результат помещаем в кеш.
         $key = md5($cameras . '-' . $last_tree_date);

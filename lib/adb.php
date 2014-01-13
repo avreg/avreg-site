@@ -314,7 +314,7 @@ class Adb
      */
     public function galleryGetCountEvent($param = array())
     {
-
+        $count = 0;
         $query = 'SELECT COUNT(*) FROM EVENTS WHERE EVT_ID in (12, 15,16,17, 23, 32)';
         if (isset($param['cameras'])) {
             $query .= ' AND EVENTS.CAM_NR in (' . implode(",", $param['cameras']) . ')';
@@ -327,7 +327,7 @@ class Adb
         $res = $this->db->query($query);
         $this->error($res);
         if ($res->fetchInto($line)) {
-            $count = $line[0];
+            $count = (int)$line[0];
         }
         return $count;
     }
@@ -401,7 +401,7 @@ class Adb
      */
     public function galleryGetCountTreeEvent($param = array())
     {
-
+        $count = 0;
         $query = "SELECT SUM(IMAGE_COUNT+VIDEO_COUNT+AUDIO_COUNT)";
         $query .= ' FROM TREE_EVENTS';
         if (isset($param['cameras'])) {
@@ -415,7 +415,7 @@ class Adb
         $res = $this->db->query($query);
         $this->error($res);
         if ($res->fetchInto($line)) {
-            $count = $line[0];
+            $count = (int)$line[0];
         }
         return $count;
     }
