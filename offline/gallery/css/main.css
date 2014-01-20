@@ -30,8 +30,6 @@
 }
 
 #message_box {
-
-    height: 55%;
     width: 45%;
     position: absolute;
     top: 20%;
@@ -51,7 +49,7 @@
 }
 
 #message_box #mb_header {
-    height: 7%;
+    height: 24px;
     text-align: center;
     font-size: 14pt;
     overflow: hidden;

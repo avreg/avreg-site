@@ -459,6 +459,7 @@ var gallery = {
     tree_event: {
         holder: null,
         timeUpdateTree: false, // таймер, который показывает кнопку обновить дерево
+        first : true, // первая ли загрузка
         // функция обновления дерева
         reload: function () {
             var self = this;
@@ -781,6 +782,7 @@ var gallery = {
                 url: WwwPrefix + '/offline/gallery.php',
                 data: ajax_params,
                 success: function (data) {
+
                     if (data.status == 'success') {
 
                         // если пришли обновления, то обновляем дерево и запускаем перестройку матрицы
@@ -791,7 +793,7 @@ var gallery = {
                         } else {
                             $('#matrix_load').hide();
                         }
-
+                        self.first = false;
                         self.updateTree();
                         $('#update_tree').hide();
 
@@ -921,11 +923,12 @@ var gallery = {
 
                         $('#matrix_load').hide();
                         $('#update_tree').show();
-                        if (gallery.cookie.get('isBlockUpTree')) {
+                        if (gallery.cookie.get('isBlockUpTree') || self.first) {
+                            self.first = false;
                             self.updateTree();
                             return;
                         }
-
+                        self.first = false;
                         var header = "Ошибка.";
 
                         var message = "<h2 style='color: #000;'>" + "Обнаружено изменение данных.</h2><br />"
