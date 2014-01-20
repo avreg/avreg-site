@@ -12,7 +12,17 @@ if (isset($_POST)) {
 /// Языковый файл
 $lang_file = '_admin_cams.php';
 $USE_JQUERY = true;
-$link_javascripts = array('lib/js/checkbox.js');
+$link_javascripts = array(
+    'lib/js/misc_utils.js',
+    'lib/js/checkbox.js',
+    'lib/js/third-party/URI.js',
+    'lib/js/onvif-helpers.js',
+    'lib/js/third-party/jqModal.js'
+ );
+$css_links = array(
+    'lib/js/third-party/jqModal.css',
+    'admin/admin.css',
+);
 require('../head.inc.php');
 DENY($admin_status);
 require_once($params_module_name);
@@ -104,19 +114,33 @@ require('./param-grp.inc.php');
 if (isset($categories)) {
     $result = $adb->getDefCamParams($cam_nr);
 
-    $cam_params = array();
-    $def_params = array();
+    $CAM_PARAMS = array();
+    $DEF_CAM_PARAMS = array();
     foreach ($result as $row) {
+        if (is_null($row['VALUE']) ||
+            $row['VALUE'] == '' /* trim() в $adb->getDefCamParams() делается */ ) {
+            continue;
+        }
         if ($cam_nr === 0) {
-            $cam_params[$row['PARAM']] = $row['VALUE'] . '~' . $row['CHANGE_HOST'] . '~' . $row['CHANGE_USER']
-                . '~' . $row['CHANGE_TIME'];
+            // if user choose "group" camera - use $CAM_PARAMS instead $DEF_CAM_PARAMS
+            $CAM_PARAMS[$row['PARAM']] = array(
+                'value'        => $row['VALUE'],
+                'changed_by'   => $row['CHANGE_USER'] . '@' . $row['CHANGE_HOST'],
+                'changed_time' => $row['CHANGE_TIME'],
+            );
         } else {
             if ($row['CAM_NR'] > 0) {
-                $cam_params[$row['PARAM']] = $row['VALUE'] . '~' . $row['CHANGE_HOST'] . '~' . $row['CHANGE_USER']
-                    . '~' . $row['CHANGE_TIME'];
+                $CAM_PARAMS[$row['PARAM']] = array(
+                    'value'        => $row['VALUE'],
+                    'changed_by'   => $row['CHANGE_USER'] . '@' . $row['CHANGE_HOST'],
+                    'changed_time' => $row['CHANGE_TIME'],
+                );
             } else {
-                $def_params[$row['PARAM']] = $row['VALUE'] . '~' . $row['CHANGE_HOST'] . '~' . $row['CHANGE_USER']
-                    . '~' . $row['CHANGE_TIME'];
+                $DEF_CAM_PARAMS[$row['PARAM']] = array(
+                    'value'        => $row['VALUE'],
+                    'changed_by'   => $row['CHANGE_USER'] . '@' . $row['CHANGE_HOST'],
+                    'changed_time' => $row['CHANGE_TIME'],
+                );
             }
         }
     }
@@ -185,24 +209,38 @@ if (isset($categories)) {
             continue;
         }
 
-        if ($cam_nr > 0 && array_key_exists($parname1, $def_params)) {
-            list($DEF_VALUE, $DEF_CHANGE_HOST, $DEF_CHANGE_USER, $DEF_CHANGE_TIME) =
-                explode('~', $def_params[$parname1]);
-        } else {
-            $DEF_VALUE = null;
-            $DEF_CHANGE_HOST = null;
-            $DEF_CHANGE_USER = null;
-            $DEF_CHANGE_TIME = null;
+        if (isset($DEF_VALUE)) {
+            unset($DEF_VALUE);
         }
-        if (array_key_exists($parname1, $cam_params)) {
-            list($VALUE, $CHANGE_HOST, $CHANGE_USER, $CHANGE_TIME) =
-                explode('~', $cam_params[$parname1]);
-            //print $cam_params[$parname1]."\n";
+        if (isset($DEF_CHANGED_BY)) {
+            unset($DEF_CHANGED_BY);
+        }
+        if (isset($DEF_CHANGED_TIME)) {
+            unset($DEF_CHANGED_TIME);
+        }
+        if (isset($VALUE)) {
+            unset($VALUE);
+        }
+        if (isset($CHANGED_BY)) {
+            unset($CHANGED_BY);
+        }
+        if (isset($CHANGED_TIME)) {
+            unset($CHANGED_TIME);
+        }
+
+        if ($cam_nr > 0 && array_key_exists($parname1, $DEF_CAM_PARAMS)) {
+            $DEF_VALUE        = &$DEF_CAM_PARAMS[$parname1]['value'];
+            $DEF_CHANGED_BY   = &$DEF_CAM_PARAMS[$parname1]['changed_by'];
+            $DEF_CHANGED_TIME = &$DEF_CAM_PARAMS[$parname1]['changed_time'];
         } else {
-            $VALUE = null;
-            $CHANGE_HOST = null;
-            $CHANGE_USER = null;
-            $CHANGE_TIME = null;
+            $DEF_VALUE = $DEF_CHANGED_BY = $DEF_CHANGED_TIME = null;
+        }
+        if (array_key_exists($parname1, $CAM_PARAMS)) {
+            $VALUE        = &$CAM_PARAMS[$parname1]['value'];
+            $CHANGED_BY   = &$CAM_PARAMS[$parname1]['changed_by'];
+            $CHANGED_TIME = &$CAM_PARAMS[$parname1]['changed_time'];
+        } else {
+            $VALUE = $CHANGED_BY = $CHANGED_TIME = null;
         }
         print '<tr><td valign="middle" nowrap><div>' . "\n";
 
@@ -299,11 +337,11 @@ if (isset($categories)) {
         }
         print '</div></div></td>' . "\n";
         print '<td>' . $COMMENT . '</td>' . "\n";
-        if (empty($CHANGE_TIME)) {
+        if (empty($CHANGED_TIME)) {
             print "<td align=\"center\">-</td>\n";
         } else {
-            print '<td align="center" nowrap>' . $CHANGE_USER . '@' . $CHANGE_HOST . '<br>'
-                . (empty($CHANGE_TIME) ? '-' : $CHANGE_TIME) . "\n";
+            print '<td align="center" nowrap>' . $CHANGED_BY . '<br>'
+                . (empty($CHANGED_TIME) ? '-' : $CHANGED_TIME) . "\n";
         }
         print '<input type="hidden" name="types[' . $parname1 . ']" value="' . $VAL_TYPE . '">' . "\n";
         print '<input type="hidden" name="olds[' . $parname1 . ']" value="' . $val . '">' . "\n";
@@ -321,6 +359,27 @@ if (isset($categories)) {
     print '<input type="reset" name="reset_btn" value="' . $strRevoke . '">' . "\n";
     print '</form>' . "\n";
     print "<br>\n";
+
+    // объединяем оба массива
+    $all = array_merge($DEF_CAM_PARAMS, $CAM_PARAMS);
+    $cam_main_info = array(
+        'cam_nr' => (int)$cam_nr,
+        'cam_name' => empty($all['text_left']['value']) ? '' : $all['text_left']['value'],
+        'video_src' => empty($all['video_src']['value']) ? '' : $all['video_src']['value'],
+        'audio_src' => empty($all['audio_src']['value']) ? '' : $all['video_src']['value'],
+        'InetCam_IP' => empty($all['InetCam_IP']['value']) ? '' : $all['InetCam_IP']['value'],
+        'InetCam_http_port' => empty($all['InetCam_port']['value']) ? 80 : (int)($all['InetCam_port']['value']),
+        'InetCam_USER' => empty($all['InetCam_USER']['value']) ? '' : $all['InetCam_USER']['value'],
+        'InetCam_PASSWD' => empty($all['InetCam_PASSWD']['value']) ? '' : $all['InetCam_PASSWD']['value'],
+    );
+
+    print "<script type='text/javascript'>\n";
+    print 'var cam_tune_info = '. json_encode($cam_main_info) . ";\n";
+    print "</script>\n";
+
+    require('./modal_onvif_connect.php');
+    require('./modal_onvif_profiles.php');
 }
 
 require('../foot.inc.php');
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */

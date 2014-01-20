@@ -12,10 +12,9 @@ define('COMPACT_URL_LEN', 30);
 function print_compact_url(&$url)
 {
     if (strlen($url) < COMPACT_URL_LEN) {
-        print($url);
-        return;
+        return $url;
     }
-    printf('<span title="%s">%s...&rarr;</span>', $url, substr($url, 0, COMPACT_URL_LEN - 1));
+    return sprintf('<span title="%s">%s...&rarr;</span>', $url, substr($url, 0, COMPACT_URL_LEN - 1));
 }
 
 function _warn_emptied_param($param, $print_warn)
@@ -29,7 +28,7 @@ function _warn_emptied_param($param, $print_warn)
 }
 
 /**
- * return NULL  if no video sorce
+ * return NULL  if have no video source
  *        TRUE  if has video and complete url
  *        FALSE if has video but not complete url
  */
@@ -93,9 +92,9 @@ function cam_has_video($cam_detail, $print_warn, &$url)
 }
 
 /**
- * return NULL  if no video sorce
- *        TRUE  if has video and complete url
- *        FALSE if has video but not complete url
+ * return NULL  if have no audio source
+ *        TRUE  if has audio and complete url
+ *        FALSE if has audio but not complete url
  */
 function cam_has_audio($cam_detail, $print_warn, &$url)
 {
@@ -233,30 +232,23 @@ function print_cam_detail_row($conf, $cam_nr, $cam_detail, $columns = null)
     /* print cameras source/type <td> */
     if (isset($_cols['SRC']) && $_cols['SRC']) {
         print('<td>');
-        if ($cam_has_video === true) {
-            print('V: ');
-            print_compact_url($video_url);
-        } elseif ($cam_has_video === false) {
-            print('V: ' . $video_url);
-        }
-        if ($cam_has_audio === true) {
+        if (!is_null($cam_has_video) && !is_null($cam_has_video) && $video_url == $audio_url) {
+            printf('AV: %s', $cam_has_video ? print_compact_url($video_url) : $video_url);
+        } else {
             if (!is_null($cam_has_video)) {
-                print("<br />\n");
+                printf('V: %s', $cam_has_video ? print_compact_url($video_url) : $video_url);
             }
-            print('A: ');
-            print_compact_url($audio_url);
-        } elseif ($cam_has_audio === false) {
-            if (!is_null($cam_has_video)) {
-                print("<br />\n");
+            if (!is_null($cam_has_audio)) {
+                if (!is_null($cam_has_video)) {
+                    print("<br />\n");
+                }
+                printf('A: %s', $cam_has_audio ? print_compact_url($audio_url) : $audio_url);
             }
-            print('A: ');
-            print($audio_url);
-        }
-        if (is_null($cam_has_video) && is_null($cam_has_video)) {
-            print('&nbsp;');
+            if (!is_null($cam_has_video) && !is_null($cam_has_audio)) {
+                print('&nbsp;');
+            }
         }
         print('</td>');
-
     }
 
     /* print cameras short capabilities <td> */

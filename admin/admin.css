@@ -1,0 +1,71 @@
+#modal-profiles-loading {
+    width: 200px;
+    margin-left: -100px;
+    top: 30%;
+}
+
+/* ---------------------- #modal-onvif-connector ---------------------- */
+
+#modal-onvif-connector {
+    width: 320px;
+    margin-left: -160px;
+}
+
+#modal-onvif-connector .modal-head .jqmClose {
+    float: right;
+}
+
+#onvif-connect-info label {
+    width: 100px;
+    display: inline-block;
+}
+
+#onvif-connect-info input {
+    width: 200px;
+    display: inline-block;
+}
+
+#modal-onvif-connector .validations {
+    margin-bottom: 10px;
+    color: red;
+}
+
+/* ---------------------- #modal-onvif-profiles ---------------------- */
+
+
+#modal-onvif-profiles {
+    top: 10%;
+}
+
+#modal-onvif-profiles .modal-head .jqmClose {
+    float: right;
+}
+
+#modal-onvif-profiles .modal-body {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.onvif-profile-list {
+    list-style-type: none;
+    word-wrap: break-word;
+    padding: 0 0 5px;
+}
+
+.onvif-profile-list li {
+    overflow: hidden;
+    border-bottom: 1px solid grey;
+    margin-bottom: 5px;
+}
+
+.onvif-profile-list li p {
+    margin: 0 0 10px 0;
+}
+.onvif-profile-list li .left {
+    width: 80%;
+    float: left;
+}
+.onvif-profile-list li .right {
+    width: 15%;
+    float: right;
+}
