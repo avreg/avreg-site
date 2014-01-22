@@ -79,6 +79,55 @@ class OnvifPtzController extends OnvifAjaxController
             $this->error();
         }
     }
+
+    /**
+     * Expected movement data:
+     * pan : 0..1
+     * tilt : 0..1
+     * zoom : 0..1
+     *
+     * @param array $data
+     * @throws \Exception
+     */
+    public function moveAbsolute($data = array())
+    {
+        $this->connectCamera($data);
+
+        if (!isset($data['pan']) && !isset($data['tilt']) && !isset($data['zoom'])) {
+            throw new \Exception('Position not set');
+        }
+
+        if (!$this->checkAuthData()) {
+            $this->error('', 401);
+            return;
+        }
+
+        // collect move coordinates
+        $position = array(
+            'PanTilt' => array(),
+            'Zoom' => array()
+        );
+
+        isset($data['pan']) ? $position['PanTilt']['x'] = $data['pan'] : '';
+        isset($data['tilt']) ? $position['PanTilt']['y'] = $data['tilt'] : '';
+        isset($data['zoom']) ? $position['Zoom']['x'] = $data['zoom'] : '';
+
+        $moveResponse = $this->onvifClient->doSoapRequest(
+            'ptz',
+            'AbsoluteMove',
+            array('Position' => $position, 'ProfileToken' => 'balanced_jpeg')
+        );
+
+        if ($moveResponse['isOk']) {
+            $this->success(array(
+                'AbsoluteMoveResponse' => $moveResponse['result']->AbsoluteMoveResponse
+            ));
+        } else {
+            $this->error();
+        }
+
+
+    }
 }
 
 $controller = new OnvifPtzController();
