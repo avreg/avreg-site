@@ -6,11 +6,7 @@
 
 $USE_JQUERY = true;
 
-$link_javascripts = array( ////установка плеера
-// 						'lib/js/third-party/jquery-ui-1.8.17.custom.min.js',
-// 						'lib/js/third-party/jquery.mousewheel.min.js',
-// 						'lib/js/jquery.aplayer.js',
-);
+$link_javascripts = array();
 
 $pageTitle = sprintf('Камера №%u', $_GET['camera']);
 // $body_onload='body_loaded();';

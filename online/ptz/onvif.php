@@ -10,7 +10,7 @@ require('common.inc.php');
 if (empty($cam_nr)) {
     die('cam_nr is empty');
 }
-$GCP_cams_list="$cam_nr";
+$GCP_cams_list = "$cam_nr";
 $GCP_query_param_list = array(
     'text_left',
     'InetCam_IP',
@@ -27,15 +27,29 @@ array(5) {
   ["InetCam_IP"]=> string(9) "127.0.0.1"
   ["InetCam_USER"]=> NULL
   ["InetCam_PASSWD"]=> NULL
-  ["InetCam_http_port"]=> string(5) "60001"
+  ["InetCam_http_port"]=> string(5) "60001",
 }
 */
+
 ?>
 
 <div class="ptz_area_right">
-     <p>ptz bottom content</p>
+    <div style="margin-top: 10px; margin-left: 20px;">
+        <p>TILT</p>
+        <div style="margin: 1em 0;" id="ptzTiltSlider"></div>
+    </div>
 </div>
 
 <div class="ptz_area_bottom">
-     <p>ptz bottom content</p>
+    <div style="padding: 5px; overflow: hidden;">
+        <div style="float: left; width: 20%">
+            <p>ZOOM</p>
+
+            <p>PAN</p>
+        </div>
+        <div style="float: right; width: 80%">
+            <div style="margin: 1em 0;" id="ptzZoomSlider"></div>
+            <div style="margin: 1em 0;" id="ptzPanSlider"></div>
+        </div>
+    </div>
 </div>

@@ -1895,12 +1895,19 @@ var controls_handlers = {
     }
 };
 
+// debug
+setTimeout(function(){
+    loadPtzAreasContent($('#win0'), 5, 'onvif');
+}, 100);
+// eof debug
+
 /**
  * Загружает HTML содержимое областей PTZ и вставляет в соответствующие контейнеры.
  * @param $win                 окно камеры
- * @param ptz_hadnler          строка - идентификатор ptz, online/ptz/{ptz_handler}.php
+ * @param ptz_handler          строка - идентификатор ptz, online/ptz/{ptz_handler}.php
  * @param {Function} callback  callback асинхронной операции, передается boolean флаг (успех/неудача)
  *                             в качестве первого агрумента
+ * @param cam_nr
  */
 function loadPtzAreasContent($win, cam_nr, ptz_handler, callback) {
     var $player = $win.find('.aplayer');
@@ -1934,6 +1941,8 @@ function loadPtzAreasContent($win, cam_nr, ptz_handler, callback) {
                     .removeClass('with_ptz_bottom')
                     .find('.ptz_area_bottom');
             }
+
+            var ptzContols = new OnvifPTZControls($win, cam_nr);
 
             callback && callback(true);
         })
