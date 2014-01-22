@@ -5,6 +5,9 @@ OnvifPTZControls = function ($container, cameraNumber) {
         step: 0.000001
     }
 
+    var __moveInProgress,
+        __lastPosition = {};
+
     var $zoomSlider = $container.find('#ptzZoomSlider').slider(defaultSliderOptions),
         $panSlider = $container.find('#ptzPanSlider').slider(defaultSliderOptions),
         $tiltSlider = $container.find('#ptzTiltSlider').slider($.extend(
@@ -14,6 +17,8 @@ OnvifPTZControls = function ($container, cameraNumber) {
                 orientation: "vertical"
             }
         ));
+
+    setSlidersEnableState(false);
 
     var jqxhrGetPtzStatus = getStatus();
 
@@ -25,6 +30,9 @@ OnvifPTZControls = function ($container, cameraNumber) {
         $zoomSlider.on('slidechange', move);
         $panSlider.on('slidechange', move);
         $tiltSlider.on('slidechange', move);
+
+        __lastPosition = getSlidersPosition();
+        setSlidersEnableState(true);
     });
 
     function getStatus() {
@@ -42,18 +50,9 @@ OnvifPTZControls = function ($container, cameraNumber) {
         });
     }
 
-    var __moveInProgress,
-        __lastPosition = {};
-
     function move() {
         if (__moveInProgress) {
             return;
-        }
-
-        __lastPosition = {
-            zoom: $zoomSlider.slider('value'),
-            pan: $panSlider.slider('value'),
-            tilt: $tiltSlider.slider('value')
         }
 
         var jqXhr = $.ajax({
@@ -61,21 +60,45 @@ OnvifPTZControls = function ($container, cameraNumber) {
             url: WwwPrefix + '/lib/OnvifPtzController.php',
             data: {
                 method: 'moveAbsolute',
-                data: $.extend({cameraNumber: cameraNumber}, __lastPosition)
+                data: $.extend({cameraNumber: cameraNumber}, getSlidersPosition())
             },
             dataType: 'json'
         });
 
+        __moveInProgress = true;
+        setSlidersEnableState(false);
+
         jqXhr
             .done(function () {
-
+                __lastPosition = getSlidersPosition();
             })
             .fail(function () {
-
+                setSlidersPosition(__lastPosition);
             })
             .always(function () {
+                setSlidersEnableState(true);
                 __moveInProgress = false;
             });
+    }
+
+    function setSlidersEnableState(enabled) {
+        $zoomSlider.slider(!!enabled ? "enable" : "disable");
+        $panSlider.slider(!!enabled ? "enable" : "disable");
+        $tiltSlider.slider(!!enabled ? "enable" : "disable");
+    }
+
+    function getSlidersPosition() {
+        return {
+            zoom: $zoomSlider.slider('value'),
+            pan: $panSlider.slider('value'),
+            tilt: $tiltSlider.slider('value')
+        };
+    }
+
+    function setSlidersPosition(position) {
+        $zoomSlider.slider('option', 'value', position.zoom);
+        $panSlider.slider('option', 'value', position.pan);
+        $tiltSlider.slider('option', 'value', position.tilt);
     }
 
     this.destruct = function () {

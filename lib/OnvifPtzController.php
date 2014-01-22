@@ -119,9 +119,7 @@ class OnvifPtzController extends OnvifAjaxController
         );
 
         if ($moveResponse['isOk']) {
-            $this->success(array(
-                'AbsoluteMoveResponse' => $moveResponse['result']->AbsoluteMoveResponse
-            ));
+            $this->success();
         } else {
             $this->error();
         }
