@@ -60,10 +60,6 @@ class OnvifPtzController extends OnvifAjaxController
     {
         $this->connectCamera($data);
 
-        if (!isset($data['ProfileToken'])) {
-            throw new \Exception('ProfileToken not set');
-        }
-
         if (!$this->checkAuthData()) {
             $this->error('', 401);
             return;
@@ -123,8 +119,6 @@ class OnvifPtzController extends OnvifAjaxController
         } else {
             $this->error();
         }
-
-
     }
 }
 

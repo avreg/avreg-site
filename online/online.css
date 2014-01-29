@@ -157,7 +157,7 @@ div.cell_header span a:hover {
 .ptz_area_right {
     display: none;
     width: 20%;
-    height: 72%;
+    height: 92%;
     float: right;
 }
 .with_ptz_bottom .ptz_area_bottom {
@@ -165,6 +165,56 @@ div.cell_header span a:hover {
 }
 .ptz_area_bottom {
     display: none;
-    clear: both;
     height: 20%;
+    float: left;
+    width: 80%;
+}
+
+/* ptz areas */
+
+#ptzTiltSlider {
+}
+
+#ptzZoomSlider {
+}
+
+#ptzPanSlider {
+}
+
+
+.ptz_area_right .topContainer {
+    margin-left: 20px;
+    height: 76%;
+}
+
+.ptz_area_right .bottomContainer {
+    height: 24%;
+    background: red;
+}
+
+.ptz_area_bottom .container {
+    padding: 5px;
+    overflow: hidden;
+}
+
+.bottomSliderContainer td {
+    padding-top: 0;
+}
+
+.bottomSliderContainer .label p {
+    width: 50px;
+    margin: 2px 0 5px 0;
+}
+
+.bottomSliderContainer .button input {
+    font-size: 1em;
+    height: 1.2em;
+    padding: 0;
+    margin: 0;
+    border: 1px solid grey;
+    width: 15px;
+}
+
+.bottomSliderContainer .control {
+    width: 100%;
 }

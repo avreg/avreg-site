@@ -3,6 +3,23 @@ OnvifPTZControls = function ($container, cameraNumber) {
         min: 0,
         max: 1,
         step: 0.000001
+    };
+
+    var incDecStep = 20;
+
+    var coordSpaces = {
+        pan: {
+            min: -1,
+            max: 1
+        },
+        tilt: {
+            min: -1,
+            max: 1
+        },
+        zoom: {
+            min: -1,
+            max: 1
+        }
     }
 
     var __moveInProgress,
@@ -10,15 +27,36 @@ OnvifPTZControls = function ($container, cameraNumber) {
 
     var $zoomSlider = $container.find('#ptzZoomSlider').slider(defaultSliderOptions),
         $panSlider = $container.find('#ptzPanSlider').slider(defaultSliderOptions),
-        $tiltSlider = $container.find('#ptzTiltSlider').slider($.extend(
-            {},
-            defaultSliderOptions,
-            {
-                orientation: "vertical"
-            }
-        ));
+        $tiltSlider = $container.find('#ptzTiltSlider').slider(defaultSliderOptions);
 
-    setSlidersEnableState(false);
+    var $tiltDec = $container.find('#ptzTiltDecrease').data('component', 'tilt').data('action', 'dec'),
+        $tiltInc = $container.find('#ptzTiltIncrease').data('component', 'tilt').data('action', 'inc'),
+        $panDec = $container.find('#ptzPanDecrease').data('component', 'pan').data('action', 'dec'),
+        $panInc = $container.find('#ptzPanIncrease').data('component', 'pan').data('action', 'inc'),
+        $zoomInc = $container.find('#ptzZoomIncrease').data('component', 'zoom').data('action', 'inc'),
+        $zoomDec = $container.find('#ptzZoomDecrease').data('component', 'zoom').data('action', 'dec');
+
+    var incDecButtons = [$tiltInc, $tiltDec, $panDec, $panInc, $zoomDec, $zoomInc];
+
+    setControlsEnableState(false);
+
+    // set up sliders
+    $.each(incDecButtons, function (i, $button) {
+        $button.on('click', function (e) {
+            var cmp = $button.data('component'),
+                mult = $button.data('action') === 'dec' ? -1 : 1,
+                $slider = cmp === 'tilt' ? $tiltSlider :
+                    cmp === 'pan' ? $panSlider :
+                        cmp === 'zoom' ? $zoomSlider : null;
+
+            $slider.slider(
+                'value', $slider.slider('value') + mult * (coordSpaces[cmp].max - coordSpaces[cmp].min) / incDecStep
+            );
+
+            e.stopPropagation();
+        })
+    });
+
 
     var jqxhrGetPtzStatus = getStatus();
 
@@ -32,7 +70,7 @@ OnvifPTZControls = function ($container, cameraNumber) {
         $tiltSlider.on('slidechange', move);
 
         __lastPosition = getSlidersPosition();
-        setSlidersEnableState(true);
+        setControlsEnableState(true);
     });
 
     function getStatus() {
@@ -42,8 +80,7 @@ OnvifPTZControls = function ($container, cameraNumber) {
             data: {
                 method: 'getPtzStatus',
                 data: {
-                    cameraNumber: cameraNumber,
-                    ProfileToken: 'balanced_jpeg'
+                    cameraNumber: cameraNumber
                 }
             },
             dataType: 'json'
@@ -66,7 +103,7 @@ OnvifPTZControls = function ($container, cameraNumber) {
         });
 
         __moveInProgress = true;
-        setSlidersEnableState(false);
+        setControlsEnableState(false);
 
         jqXhr
             .done(function () {
@@ -76,15 +113,19 @@ OnvifPTZControls = function ($container, cameraNumber) {
                 setSlidersPosition(__lastPosition);
             })
             .always(function () {
-                setSlidersEnableState(true);
+                setControlsEnableState(true);
                 __moveInProgress = false;
             });
     }
 
-    function setSlidersEnableState(enabled) {
+    function setControlsEnableState(enabled) {
         $zoomSlider.slider(!!enabled ? "enable" : "disable");
         $panSlider.slider(!!enabled ? "enable" : "disable");
         $tiltSlider.slider(!!enabled ? "enable" : "disable");
+
+        $.each(incDecButtons, function (i, $button) {
+            $button.prop('disabled', !enabled);
+        });
     }
 
     function getSlidersPosition() {
