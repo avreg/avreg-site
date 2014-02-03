@@ -1896,9 +1896,9 @@ var controls_handlers = {
 };
 
 // debug
-//setTimeout(function(){
-//    loadPtzAreasContent($('#win0'), 5, 'onvif');
-//}, 100);
+setTimeout(function(){
+    loadPtzAreasContent($('#win0'), 5, 'onvif');
+}, 100);
 // eof debug
 
 /**

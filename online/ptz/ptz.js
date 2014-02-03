@@ -1,10 +1,4 @@
 OnvifPTZControls = function ($container, cameraNumber) {
-    var defaultSliderOptions = {
-        min: -1,
-        max: 1,
-        step: 0.000001
-    };
-
     var incDecStep = 20;
 
     var coordSpaces = {
@@ -17,26 +11,42 @@ OnvifPTZControls = function ($container, cameraNumber) {
             max: 1
         },
         zoom: {
-            min: -1,
+            min: 0,
             max: 1
         }
-    }
+    };
 
-    var __moveInProgress,
+    var defaultSliderOptions = {
+        min: -1,
+        max: 1,
+        step: 0.000001
+    };
+
+    // status variables
+    var __blockMoveOperation,
         __lastPosition = {};
 
-
+    // debounced versions of functions
     var move = $.debounce(doMove, 300);
 
     // setup sliders
 
-    var $zoomSlider = $container.find('#ptzZoomSlider').slider(defaultSliderOptions),
-        $panSlider = $container.find('#ptzPanSlider').slider(defaultSliderOptions),
-        $tiltSlider = $container.find('#ptzTiltSlider').slider(defaultSliderOptions);
+    var $zoomSlider = $container.find('#ptzZoomSlider').slider($.extend({}, defaultSliderOptions, {
+            min: coordSpaces.zoom.min,
+            max: coordSpaces.zoom.max
+        })),
+        $panSlider = $container.find('#ptzPanSlider').slider($.extend({}, defaultSliderOptions, {
+            min: coordSpaces.pan.min,
+            max: coordSpaces.pan.max
+        })),
+        $tiltSlider = $container.find('#ptzTiltSlider').slider($.extend({}, defaultSliderOptions, {
+            min: coordSpaces.tilt.min,
+            max: coordSpaces.tilt.max
+        }));
 
-    $zoomSlider.on('slidechange', move);
-    $panSlider.on('slidechange', move);
-    $tiltSlider.on('slidechange', move);
+    $zoomSlider.on('slidechange', function() { !__blockMoveOperation && move(); });
+    $panSlider.on('slidechange', function() { !__blockMoveOperation && move(); });
+    $tiltSlider.on('slidechange', function() { !__blockMoveOperation && move(); });
 
     // set up dec/inc buttons
 
@@ -63,59 +73,96 @@ OnvifPTZControls = function ($container, cameraNumber) {
         })
     });
 
+    // what goes in ptz area, stays in ptz area..
+    $container.find('.ptz_area_right, .ptz_area_bottom').on('click', function(e) {e.stopPropagation()});
+
     // set up presets
 
     var $presets = $container.find('.ptzPresets'),
         presetTpl = $presets.html();
 
     $presets.empty();
-    $container.find('.ptz_area_right, .ptz_area_bottom').on('click', function(e) {e.stopPropagation()});
 
     $presets.on('click', '.presetName', function(e) {
-        gotoPreset($(e.currentTarget).parent('.preset').data('token'));
+        var presetToken = $(e.currentTarget).parents('.preset').data('token'),
+            presetPosition = $(e.currentTarget).parents('.preset').data('position');
+
+        gotoPreset(presetToken, presetPosition);
+    });
+    $presets.on('click', '.presetRemove', function (e) {
+        var presetToken = $(e.currentTarget).parents('.preset').data('token');
+
+        if (confirm("Действительно удалить пресет?")) {
+            setControlsEnableState(false);
+
+            removePreset(presetToken)
+                .done(function () {
+                    updatePresets();
+                })
+                .always(function () {
+                    setControlsEnableState(true);
+                })
+        }
+    });
+    $container.find('.ptz_area_right, .ptz_area_bottom').on('click', '.presetAdd', function (e) {
+        var presetName = prompt("Имя нового пресета");
+
+        if (presetName) {
+            setControlsEnableState(false);
+
+            createPreset(presetName)
+                .done(function(){
+                    updatePresets();
+                })
+                .always(function(){
+                    setControlsEnableState(true);
+                })
+        }
     });
 
     // initialize ui
 
     setControlsEnableState(false);
 
-    var jqxhrGetPtzPosition = getStatus();
-
-    jqxhrGetPtzPosition.done(function (response) {
-        setSlidersPosition({
-            zoom: response['PTZStatus']['Position']['Zoom']['x'],
-            pan: response['PTZStatus']['Position']['PanTilt']['x'],
-            tilt: response['PTZStatus']['Position']['PanTilt']['y']
-        });
-
-        __lastPosition = getSlidersPosition();
-    });
-
-    var jqxhrGetPtzPresets = getPresets();
-
-    jqxhrGetPtzPresets.done(function (response) {
-        $presets.empty();
-
-        for (var i = 0, I = response['Presets'].length; i < I; i++) {
-            var presetData = response['Presets'][i],
-                $preset = $(presetTpl
-                    .replace(/\$name/g, presetData['Name'])
-                );
-
-            $preset
-                .data('position', {
-                    zoom: presetData['PTZPosition']['Zoom']['x'],
-                    pan: presetData['PTZPosition']['PanTilt']['x'],
-                    tilt: presetData['PTZPosition']['PanTilt']['y']
-                })
-                .data('token', presetData['token'])
-                .appendTo($presets);
-        }
-    });
-
-    $.when(jqxhrGetPtzPosition, jqxhrGetPtzPresets).done(function() {
+    $.when(updatePresets(), updatePosition()).done(function() {
         setControlsEnableState(true);
     });
+
+    // action methods
+
+    function updatePosition() {
+        return getStatus().done(function (response) {
+            setSlidersPosition({
+                zoom: response['PTZStatus']['Position']['Zoom']['x'],
+                pan: response['PTZStatus']['Position']['PanTilt']['x'],
+                tilt: response['PTZStatus']['Position']['PanTilt']['y']
+            });
+
+            __lastPosition = getSlidersPosition();
+        });
+    }
+
+    function updatePresets() {
+        return getPresets().done(function (response) {
+            $presets.empty();
+
+            for (var i = 0, I = response['Presets'].length; i < I; i++) {
+                var presetData = response['Presets'][i],
+                    $preset = $(presetTpl
+                        .replace(/\$name/g, presetData['Name'])
+                    );
+
+                $preset
+                    .data('position', {
+                        zoom: presetData['PTZPosition']['Zoom']['x'],
+                        pan: presetData['PTZPosition']['PanTilt']['x'],
+                        tilt: presetData['PTZPosition']['PanTilt']['y']
+                    })
+                    .data('token', presetData['token'])
+                    .appendTo($presets);
+            }
+        });
+    }
 
     // ajax methods
 
@@ -148,7 +195,7 @@ OnvifPTZControls = function ($container, cameraNumber) {
     }
 
     function doMove() {
-        if (__moveInProgress) {
+        if (__blockMoveOperation) {
             return;
         }
 
@@ -162,7 +209,7 @@ OnvifPTZControls = function ($container, cameraNumber) {
             dataType: 'json'
         });
 
-        __moveInProgress = true;
+        __blockMoveOperation = true;
         setControlsEnableState(false);
 
         jqXhr
@@ -174,12 +221,12 @@ OnvifPTZControls = function ($container, cameraNumber) {
             })
             .always(function () {
                 setControlsEnableState(true);
-                __moveInProgress = false;
+                __blockMoveOperation = false;
             });
     }
 
-    function gotoPreset(presetToken) {
-        if (__moveInProgress) {
+    function gotoPreset(presetToken, presetPosition) {
+        if (__blockMoveOperation) {
             return;
         }
 
@@ -196,23 +243,48 @@ OnvifPTZControls = function ($container, cameraNumber) {
             dataType: 'json'
         });
 
-        __moveInProgress = true;
+        __blockMoveOperation = true;
         setControlsEnableState(false);
 
         jqXhr
             .done(function (response) {
-                setSlidersPosition({
-                    zoom: response['PTZStatus']['Position']['Zoom']['x'],
-                    pan: response['PTZStatus']['Position']['PanTilt']['x'],
-                    tilt: response['PTZStatus']['Position']['PanTilt']['y']
-                });
-
+                setSlidersPosition(presetPosition);
                 __lastPosition = getSlidersPosition();
             })
             .always(function () {
                 setControlsEnableState(true);
-                __moveInProgress = false;
+                __blockMoveOperation = false;
             })
+    }
+
+    function createPreset(presetName) {
+        return $.ajax({
+            type: "POST",
+            url: WwwPrefix + '/lib/OnvifPtzController.php',
+            data: {
+                method: 'createPreset',
+                data: {
+                    cameraNumber: cameraNumber,
+                    presetName: presetName
+                }
+            },
+            dataType: 'json'
+        });
+    }
+
+    function removePreset(presetToken) {
+        return $.ajax({
+            type: "POST",
+            url: WwwPrefix + '/lib/OnvifPtzController.php',
+            data: {
+                method: 'removePreset',
+                data: {
+                    cameraNumber: cameraNumber,
+                    presetToken: presetToken
+                }
+            },
+            dataType: 'json'
+        });
     }
 
     // ui methods
@@ -236,11 +308,11 @@ OnvifPTZControls = function ($container, cameraNumber) {
     }
 
     function setSlidersPosition(position) {
-        __moveInProgress = true; // hack - prevent extra move ajax operation
+        __blockMoveOperation = true; // hack - prevent extra move ajax operation
         position.zoom && $zoomSlider.slider('option', 'value', position.zoom);
         position.pan && $panSlider.slider('option', 'value', position.pan);
         position.tilt && $tiltSlider.slider('option', 'value', position.tilt);
-        setTimeout(function(){__moveInProgress = false;}, 310); // hack
+        __blockMoveOperation = false;
     }
 
     this.destruct = function () {

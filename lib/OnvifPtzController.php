@@ -85,11 +85,17 @@ class OnvifPtzController extends OnvifAjaxController
             return;
         }
 
-        $ptzStatus = $this->onvifClient->doSoapRequest('ptz', 'GetPresets', array('ProfileToken' => 'balanced_jpeg'));
+        $ptzPresets = $this->onvifClient->doSoapRequest('ptz', 'GetPresets', array('ProfileToken' => 'balanced_jpeg'));
 
-        if ($ptzStatus['isOk']) {
+        if ($ptzPresets['isOk']) {
+            foreach ($ptzPresets['result']->Preset as $preset) {
+                $preset->PTZPosition->PanTilt->x = sprintf('%f', $preset->PTZPosition->PanTilt->x);
+                $preset->PTZPosition->PanTilt->y = sprintf('%f', $preset->PTZPosition->PanTilt->y);
+                $preset->PTZPosition->Zoom->x = sprintf('%f', $preset->PTZPosition->Zoom->x);
+            }
+
             $this->success(array(
-                'Presets' => $ptzStatus['result']->Preset
+                'Presets' => $ptzPresets['result']->Preset
             ));
         } else {
             $this->error();
@@ -157,6 +163,58 @@ class OnvifPtzController extends OnvifAjaxController
             $this->success(array(
                 'PTZStatus' => $statusResult['result']->PTZStatus
             ));
+        } else {
+            $this->error();
+        }
+    }
+
+    public function createPreset($data = array())
+    {
+        $this->connectCamera($data);
+
+        if (!isset($data['presetName'])) {
+            throw new \Exception('presetName not set');
+        }
+
+        if (!$this->checkAuthData()) {
+            $this->error('', 401);
+            return;
+        }
+
+        $result = $this->onvifClient->doSoapRequest(
+            'ptz',
+            'SetPreset',
+            array('PresetName' => $data['presetName'], 'ProfileToken' => 'balanced_jpeg')
+        );
+
+        if ($result['isOk']) {
+            $this->success();
+        } else {
+            $this->error();
+        }
+    }
+
+    public function removePreset($data = array())
+    {
+        $this->connectCamera($data);
+
+        if (!isset($data['presetToken'])) {
+            throw new \Exception('presetToken not set');
+        }
+
+        if (!$this->checkAuthData()) {
+            $this->error('', 401);
+            return;
+        }
+
+        $result = $this->onvifClient->doSoapRequest(
+            'ptz',
+            'RemovePreset',
+            array('PresetToken' => $data['presetToken'], 'ProfileToken' => 'balanced_jpeg')
+        );
+
+        if ($result['isOk']) {
+            $this->success();
         } else {
             $this->error();
         }

@@ -7,11 +7,14 @@
                     <p class="name">$name</p>
                 </div>
                 <div class="presetAction">
-                    <input type="button" value="-"/>
+                    <input type="button" class="presetRemove" value="-" title="Удалить"/>
                 </div>
             </li>
             <!-- template end -->
         </ul>
+        <div class="presetAdd">
+            <p>Добавить</p>
+        </div>
     </div>
     <div class="bottomContainer">
 
