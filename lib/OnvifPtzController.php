@@ -76,15 +76,26 @@ class OnvifPtzController extends OnvifAjaxController
         }
     }
 
-    /**
-     * Expected movement data:
-     * pan : 0..1
-     * tilt : 0..1
-     * zoom : 0..1
-     *
-     * @param array $data
-     * @throws \Exception
-     */
+    public function getPtzPresets($data = array())
+    {
+        $this->connectCamera($data);
+
+        if (!$this->checkAuthData()) {
+            $this->error('', 401);
+            return;
+        }
+
+        $ptzStatus = $this->onvifClient->doSoapRequest('ptz', 'GetPresets', array('ProfileToken' => 'balanced_jpeg'));
+
+        if ($ptzStatus['isOk']) {
+            $this->success(array(
+                'Presets' => $ptzStatus['result']->Preset
+            ));
+        } else {
+            $this->error();
+        }
+    }
+
     public function moveAbsolute($data = array())
     {
         $this->connectCamera($data);
@@ -116,6 +127,36 @@ class OnvifPtzController extends OnvifAjaxController
 
         if ($moveResponse['isOk']) {
             $this->success();
+        } else {
+            $this->error();
+        }
+    }
+
+    public function gotoPreset($data = array())
+    {
+        $this->connectCamera($data);
+
+        if (!isset($data['presetToken'])) {
+            throw new \Exception('presetToken not set');
+        }
+
+        if (!$this->checkAuthData()) {
+            $this->error('', 401);
+            return;
+        }
+
+        $gotoResult = $this->onvifClient->doSoapRequest(
+            'ptz',
+            'GotoPreset',
+            array('PresetToken' => $data['presetToken'], 'ProfileToken' => 'balanced_jpeg')
+        );
+
+        $statusResult = $this->onvifClient->doSoapRequest('ptz', 'GetStatus', array('ProfileToken' => 'balanced_jpeg'));
+
+        if ($gotoResult['isOk'] && $statusResult['isOk']) {
+            $this->success(array(
+                'PTZStatus' => $statusResult['result']->PTZStatus
+            ));
         } else {
             $this->error();
         }

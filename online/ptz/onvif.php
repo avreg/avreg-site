@@ -1,6 +1,17 @@
 <div class="ptz_area_right">
     <div class="topContainer">
-
+        <ul class="ptzPresets">
+            <!-- template start -->
+            <li class="preset" data-name="$name" title="$name">
+                <div class="presetName">
+                    <p class="name">$name</p>
+                </div>
+                <div class="presetAction">
+                    <input type="button" value="-"/>
+                </div>
+            </li>
+            <!-- template end -->
+        </ul>
     </div>
     <div class="bottomContainer">
 

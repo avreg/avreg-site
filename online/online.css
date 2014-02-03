@@ -183,7 +183,6 @@ div.cell_header span a:hover {
 
 
 .ptz_area_right .topContainer {
-    margin-left: 20px;
     height: 76%;
 }
 
@@ -217,4 +216,49 @@ div.cell_header span a:hover {
 
 .bottomSliderContainer .control {
     width: 100%;
+}
+
+ul.ptzPresets {
+    list-style-type: none;
+    padding: 0 5px 0 5px;
+    margin: 0;
+}
+
+.ptzPresets .preset {
+    width: 100%;
+    overflow: hidden;
+}
+
+.ptzPresets .preset input[type=button] {
+    font-size: 1em;
+    height: 1.5em;
+    padding: 0;
+    margin: 5px 0 0 0;
+    border: 1px solid grey;
+    width: 15px;
+}
+
+.ptzPresets .presetName  {
+    float: left;
+    width: 100%;
+    cursor: pointer;
+}
+
+.ptzPresets .presetName p:hover  {
+    color: red;
+}
+
+.ptzPresets .presetName p {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    padding: 0;
+    margin: 5px 0 0 0;
+}
+
+.ptzPresets .presetAction  {
+    float: right;
+    width: 20%;
+    overflow: hidden;
+    display: none;
 }
