@@ -1,33 +1,127 @@
 OnvifPTZControls = function ($container, cameraNumber) {
-    var incDecStep = 20;
+    var self = this;
 
+    // constants
+    var incDecStep = 20,
+        pollingTimeout = 150,
+        moveDebounceTimeout = 300;
+
+    // defaults
     var coordSpaces = {
-        pan: {
-            min: -1,
-            max: 1
+            pan: {
+                min: -1,
+                max: 1
+            },
+            tilt: {
+                min: -1,
+                max: 1
+            },
+            zoom: {
+                min: 0,
+                max: 1
+            }
         },
-        tilt: {
+        defaultSliderOptions = {
             min: -1,
-            max: 1
+            max: 1,
+            step: 0.000001
+        };
+
+    // status variables
+    var __lastPosition = {},
+        __pollInterval;
+
+    // state machine
+    this.state = null;
+
+    var states = {
+        /**
+         * Initial state
+         */
+        'initial': {
+            name: 'initial',
+            enter: function () {
+                setControlsEnableState(false);
+
+                $.when(updatePresets(), updatePosition()).done(function () {
+                    transitionTo(states.polling);
+                });
+            },
+            exit: function () {}
         },
-        zoom: {
-            min: 0,
-            max: 1
+        /**
+         * Polling for position
+         */
+        'polling': {
+            name: 'polling',
+            enter: function () {
+                setControlsEnableState(true);
+
+                var __jqXhrPoll;
+
+                __pollInterval = setInterval(function () {
+                    if (self.state === states.polling && (!__jqXhrPoll || __jqXhrPoll.state() !== 'pending')) {
+                        __jqXhrPoll = updatePosition();
+                    }
+                }, pollingTimeout);
+            },
+            exit: function () {
+                clearInterval(__pollInterval);
+            }
+        },
+        /**
+         * Waiting for user input
+         */
+        'input': {
+            name: 'input',
+            enter: function() {
+            },
+            exit: function() {
+            }
+        },
+        /**
+         * Controls are locked
+         */
+        'locked': {
+            name: 'locked',
+            enter: function() {
+                setControlsEnableState(false);
+            },
+            exit: function() {
+                setControlsEnableState(true);
+            }
+        },
+        /**
+         * Async action in progress
+         */
+        'action': {
+            name: 'action',
+            enter: function () {
+                setControlsEnableState(false);
+                // cache current position to be able to revert position on action fail
+                __lastPosition = getSlidersPosition();
+            },
+            exit: function () {}.bind(this)
         }
     };
 
-    var defaultSliderOptions = {
-        min: -1,
-        max: 1,
-        step: 0.000001
+    this.transitionTo = function(state) {
+        if (state === this.state) {
+            return;
+        }
+
+        this.state && this.state.exit && this.state.exit();
+        this.__oldState = this.state;
+        this.state = state;
+        this.state.enter();
     };
 
-    // status variables
-    var __blockMoveOperation,
-        __lastPosition = {};
+    var transitionTo = this.transitionTo.bind(this); // alias
+    var transitionBack = function(){ this.transitionTo(this.__oldState); }.bind(this); // alias
 
     // debounced versions of functions
-    var move = $.debounce(doMove, 300);
+
+    var move = $.debounce(doMove, moveDebounceTimeout);
 
     // setup sliders
 
@@ -44,9 +138,15 @@ OnvifPTZControls = function ($container, cameraNumber) {
             max: coordSpaces.tilt.max
         }));
 
-    $zoomSlider.on('slidechange', function() { !__blockMoveOperation && move(); });
-    $panSlider.on('slidechange', function() { !__blockMoveOperation && move(); });
-    $tiltSlider.on('slidechange', function() { !__blockMoveOperation && move(); });
+    var onSliderChange = function () {
+        if (self.state !== states.action && self.state !== states.locked) {
+            transitionTo(states.input);
+            move();
+        }
+    };
+    $zoomSlider.on('slidechange', onSliderChange);
+    $panSlider.on('slidechange', onSliderChange);
+    $tiltSlider.on('slidechange', onSliderChange);
 
     // set up dec/inc buttons
 
@@ -74,7 +174,10 @@ OnvifPTZControls = function ($container, cameraNumber) {
     });
 
     // what goes in ptz area, stays in ptz area..
-    $container.find('.ptz_area_right, .ptz_area_bottom').on('click', function(e) {e.stopPropagation()});
+
+    $container.find('.ptz_area_right, .ptz_area_bottom').on('click', function (e) {
+        e.stopPropagation()
+    });
 
     // set up presets
 
@@ -83,62 +186,67 @@ OnvifPTZControls = function ($container, cameraNumber) {
 
     $presets.empty();
 
-    $presets.on('click', '.presetName', function(e) {
-        var presetToken = $(e.currentTarget).parents('.preset').data('token'),
-            presetPosition = $(e.currentTarget).parents('.preset').data('position');
-
-        gotoPreset(presetToken, presetPosition);
+    $presets.on('click', '.presetName', function (e) {
+        var preset = $(e.currentTarget).parents('.preset');
+        gotoPreset(preset.data('token'), preset.data('position'));
     });
     $presets.on('click', '.presetRemove', function (e) {
         var presetToken = $(e.currentTarget).parents('.preset').data('token');
 
+        if (self.state === states.action) {
+            return;
+        }
+
         if (confirm("Действительно удалить пресет?")) {
-            setControlsEnableState(false);
+            transitionTo(states.action);
 
             removePreset(presetToken)
                 .done(function () {
                     updatePresets();
                 })
                 .always(function () {
-                    setControlsEnableState(true);
+                    transitionTo(states.polling);
                 })
         }
     });
-    $container.find('.ptz_area_right, .ptz_area_bottom').on('click', '.presetAdd', function (e) {
+    $container.find('.ptz_area_right').on('click', '.presetAdd', function (e) {
+        if (self.state === states.action) {
+            return;
+        }
+
         var presetName = prompt("Имя нового пресета");
 
         if (presetName) {
-            setControlsEnableState(false);
+            transitionTo(states.action);
 
             createPreset(presetName)
-                .done(function(){
+                .done(function () {
                     updatePresets();
                 })
-                .always(function(){
-                    setControlsEnableState(true);
+                .always(function () {
+                    transitionTo(states.polling);
                 })
         }
     });
 
     // initialize ui
 
-    setControlsEnableState(false);
-
-    $.when(updatePresets(), updatePosition()).done(function() {
-        setControlsEnableState(true);
-    });
+    transitionTo(states.initial);
 
     // action methods
 
     function updatePosition() {
         return getStatus().done(function (response) {
+            if ( self.state === states.input || self.state === states.action) {
+                // do nothing if we're in the middle of the actions; need to deal with polling & debounce combination
+                return;
+            }
+
             setSlidersPosition({
                 zoom: response['PTZStatus']['Position']['Zoom']['x'],
                 pan: response['PTZStatus']['Position']['PanTilt']['x'],
                 tilt: response['PTZStatus']['Position']['PanTilt']['y']
             });
-
-            __lastPosition = getSlidersPosition();
         });
     }
 
@@ -195,9 +303,11 @@ OnvifPTZControls = function ($container, cameraNumber) {
     }
 
     function doMove() {
-        if (__blockMoveOperation) {
+        if (self.state === states.action) {
             return;
         }
+
+        transitionTo(states.action);
 
         var jqXhr = $.ajax({
             type: "POST",
@@ -209,26 +319,21 @@ OnvifPTZControls = function ($container, cameraNumber) {
             dataType: 'json'
         });
 
-        __blockMoveOperation = true;
-        setControlsEnableState(false);
-
         jqXhr
-            .done(function () {
-                __lastPosition = getSlidersPosition();
-            })
             .fail(function () {
                 setSlidersPosition(__lastPosition);
             })
             .always(function () {
-                setControlsEnableState(true);
-                __blockMoveOperation = false;
+                transitionTo(states.polling);
             });
     }
 
     function gotoPreset(presetToken, presetPosition) {
-        if (__blockMoveOperation) {
+        if (self.state === states.action) {
             return;
         }
+
+        transitionTo(states.action);
 
         var jqXhr = $.ajax({
             type: "POST",
@@ -243,17 +348,12 @@ OnvifPTZControls = function ($container, cameraNumber) {
             dataType: 'json'
         });
 
-        __blockMoveOperation = true;
-        setControlsEnableState(false);
-
         jqXhr
             .done(function (response) {
                 setSlidersPosition(presetPosition);
-                __lastPosition = getSlidersPosition();
             })
             .always(function () {
-                setControlsEnableState(true);
-                __blockMoveOperation = false;
+                transitionTo(states.polling);
             })
     }
 
@@ -308,14 +408,14 @@ OnvifPTZControls = function ($container, cameraNumber) {
     }
 
     function setSlidersPosition(position) {
-        __blockMoveOperation = true; // hack - prevent extra move ajax operation
+        transitionTo(states.locked);
         position.zoom && $zoomSlider.slider('option', 'value', position.zoom);
         position.pan && $panSlider.slider('option', 'value', position.pan);
         position.tilt && $tiltSlider.slider('option', 'value', position.tilt);
-        __blockMoveOperation = false;
+        transitionBack();
     }
 
     this.destruct = function () {
-        // todo
+        this.state.exit();
     }
 };

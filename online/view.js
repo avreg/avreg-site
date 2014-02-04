@@ -1885,7 +1885,8 @@ var controls_handlers = {
             // скрываем PTZ области
             $win
                 .removeClass('with_ptz_right')
-                .removeClass('with_ptz_bottom');
+                .removeClass('with_ptz_bottom')
+                .trigger('ptzHide');
 
             $player.parent().aplayerResizeToParent();
             $button.prop('src', imgs['pl_ptz'].src);
@@ -1943,6 +1944,11 @@ function loadPtzAreasContent($win, cam_nr, ptz_handler, callback) {
             }
 
             var ptzContols = new OnvifPTZControls($win, cam_nr);
+
+            $win.one('ptzHide', function() {
+                ptzContols.destruct();
+                ptzContols = null;
+            });
 
             callback && callback(true);
         })

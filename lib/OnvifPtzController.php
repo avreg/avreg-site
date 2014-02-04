@@ -29,7 +29,6 @@ class OnvifPtzController extends OnvifAjaxController
         }
 
         $link = null;
-        require_once($conf['site-dir'] . '/offline/gallery/memcache.php');
         $non_config = true;
         require_once($conf['site-dir'] . '/lib/adb.php');
 
@@ -157,12 +156,8 @@ class OnvifPtzController extends OnvifAjaxController
             array('PresetToken' => $data['presetToken'], 'ProfileToken' => 'balanced_jpeg')
         );
 
-        $statusResult = $this->onvifClient->doSoapRequest('ptz', 'GetStatus', array('ProfileToken' => 'balanced_jpeg'));
-
-        if ($gotoResult['isOk'] && $statusResult['isOk']) {
-            $this->success(array(
-                'PTZStatus' => $statusResult['result']->PTZStatus
-            ));
+        if ($gotoResult['isOk']) {
+            $this->success();
         } else {
             $this->error();
         }
