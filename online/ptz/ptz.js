@@ -350,7 +350,8 @@ OnvifPTZControls = function ($container, cameraNumber) {
 
         jqXhr
             .done(function (response) {
-                setSlidersPosition(presetPosition);
+                // commented out, see issue https://github.com/yojeek/avreg-site/issues/6
+                //setSlidersPosition(presetPosition);
             })
             .always(function () {
                 transitionTo(states.polling);
