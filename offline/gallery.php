@@ -84,3 +84,4 @@ if (!isset($_POST['method']) && !isset($_GET['method'])) {
     // Возврат ответа запроса
     $gallery->printResult();
 }
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */
