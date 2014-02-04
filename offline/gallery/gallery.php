@@ -203,9 +203,11 @@ class Gallery
                 $this->cache->set('tree_events_keys', $tree_events_keys);
             }
         }
+
         // возвращаем результат
         if (empty($tree_events_result)) {
             $this->result = array('status' => 'error', 'code' => '0', 'description' => 'No events.', 'qtty' => 0);
+            return;
         }
 
         $this->result = array(
@@ -291,3 +293,4 @@ class Gallery
         }
     }
 }
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */
