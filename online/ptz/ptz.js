@@ -43,9 +43,14 @@ OnvifPTZControls = function ($container, cameraNumber) {
             enter: function () {
                 setControlsEnableState(false);
 
-                $.when(updatePresets(), updatePosition()).done(function () {
-                    transitionTo(states.polling);
-                });
+                $.when(updatePresets(), updatePosition())
+                    .done(function () {
+                        transitionTo(states.polling);
+                    })
+                    .fail(function() {
+                        transitionTo(states.locked);
+                        transitionTo(states.initial);
+                    });
             },
             exit: function () {}
         },
@@ -141,8 +146,10 @@ OnvifPTZControls = function ($container, cameraNumber) {
             max: coordSpaces.tilt.max
         }));
 
-    var onSliderChange = function () {
-        if (self.state !== states.action && self.state !== states.locked) {
+    var onSliderChange = function (e) {
+        var $slider = $(e.currentTarget);
+
+        if (!$slider.slider('option', 'disabled') && self.state !== states.action && self.state !== states.locked) {
             transitionTo(states.input);
             move();
         }
@@ -412,11 +419,11 @@ OnvifPTZControls = function ($container, cameraNumber) {
     }
 
     function setSlidersPosition(position) {
-        transitionTo(states.locked);
+        setControlsEnableState(false);
         position.zoom && $zoomSlider.slider('option', 'value', position.zoom);
         position.pan && $panSlider.slider('option', 'value', position.pan);
         position.tilt && $tiltSlider.slider('option', 'value', position.tilt);
-        transitionBack();
+        setControlsEnableState(true);
     }
 
     this.destruct = function () {
