@@ -919,13 +919,15 @@ var gallery = {
                         }, 5000);
 
                     } else if (data.status == 'error' && data.code == '4') { //если дерево не актуально
-                                console.log(data);
+                        console.log(data);
 
                         $('#matrix_load').hide();
                         $('#update_tree').show();
                         if (gallery.cookie.get('isBlockUpTree') || self.first) {
                             self.first = false;
-                            self.updateTree();
+                            $('#matrix_load').show();
+                            gallery.tree_event.init(holder,
+                                    {'method': 'reindexTreeEvents', 'on_dbld_evt': 'inform_user'});
                             return;
                         }
                         self.first = false;
