@@ -49,7 +49,7 @@ class OnvifAjaxController
             $data['origin'] . $data['path'],
             "http://127.0.0.1$site_prefix/lib/OnvifClient/wsdl",
             array(
-                'logSoapRequests' => true
+                'logSoapRequests' => false
             )
         );
 

@@ -59,11 +59,14 @@ OnvifPTZControls = function ($container, cameraNumber) {
 
                 var __jqXhrPoll;
 
-                __pollInterval = setInterval(function () {
+                var poller = function () {
                     if (self.state === states.polling && (!__jqXhrPoll || __jqXhrPoll.state() !== 'pending')) {
                         __jqXhrPoll = updatePosition();
                     }
-                }, pollingTimeout);
+                };
+
+                poller();
+                __pollInterval = setInterval(poller, pollingTimeout);
             },
             exit: function () {
                 clearInterval(__pollInterval);

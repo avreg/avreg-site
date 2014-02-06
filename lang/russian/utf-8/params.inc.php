@@ -1666,6 +1666,16 @@ rtsp://login:password@axis-camera-ip/axis-media/media.amp?resolution=320x240&vid
         'subcats' => null,
         'mstatus' => 1,
     ),
+    array(
+        'name' => 'onvif_profile_token',
+        'type' => $STRING200_VAL,
+        'def_val' => null,
+        'desc' => 'ONVIF токен профиля медиа потока.',
+        'flags' => $F_RELOADED | $F_IN_CAM | $F_IN_DEF,
+        'cats' => '15.2',
+        'subcats' => null,
+        'mstatus' => 1,
+    ),
     /* EVENTS */
     array(
         'name' => 'events2db',

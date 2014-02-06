@@ -6,9 +6,17 @@ require './OnvifClient/OnvifAjaxController.php';
 
 class OnvifPtzController extends OnvifAjaxController
 {
-    protected function connectCamera($data = array())
+    /**
+     * Connect to ONVIF-enabled camera by camera number.
+     * Returns an array of relevant stored params,
+     *
+     * @param array $connectionData
+     * @return array
+     * @throws \Exception
+     */
+    protected function connectCamera($connectionData = array())
     {
-        if (!isset($data['cameraNumber'])) {
+        if (!isset($connectionData['cameraNumber'])) {
             throw new \Exception('cameraNumber not set');
         }
 
@@ -33,58 +41,72 @@ class OnvifPtzController extends OnvifAjaxController
         require_once($conf['site-dir'] . '/lib/adb.php');
 
         $camsData = $adb->getCamParams(
-            $data['cameraNumber'],
-            "'text_left', 'InetCam_IP', 'InetCam_http_port', 'InetCam_USER', 'InetCam_PASSWD'"
+            $connectionData['cameraNumber'],
+            "'text_left', 'InetCam_IP', 'InetCam_http_port', 'InetCam_USER', 'InetCam_PASSWD', 'onvif_profile_token'"
         );
 
         $camData = array();
 
         foreach ($camsData as $row) {
-            if ($row['CAM_NR'] === $data['cameraNumber']) {
+            if ($row['CAM_NR'] === $connectionData['cameraNumber']) {
                 $camData[$row['PARAM']] = $row['VALUE'];
             }
         }
         // end of mess
 
-        $data = array_merge($data, array(
+        $connectionData = array(
             'origin' => 'http://' . $camData['InetCam_IP'] . ':' . '80',
             'username' => $camData['InetCam_USER'],
             'password' => $camData['InetCam_PASSWD'],
-        ));
+        );
 
-        $this->connect($data);
+        $this->connect($connectionData);
+
+        $cameraParams = array(
+            'profile_token' => $camData['onvif_profile_token']
+        );
+
+        return $cameraParams;
     }
 
     public function getPtzStatus($data = array())
     {
-        $this->connectCamera($data);
+        $cameraParams = $this->connectCamera($data);
 
         if (!$this->checkAuthData()) {
             $this->error('', 401);
             return;
         }
 
-        $ptzStatus = $this->onvifClient->doSoapRequest('ptz', 'GetStatus', array('ProfileToken' => 'balanced_jpeg'));
+        $ptzStatus = $this->onvifClient->doSoapRequest(
+            'ptz',
+            'GetStatus',
+            array('ProfileToken' => $cameraParams['profile_token'])
+        );
 
         if ($ptzStatus['isOk']) {
             $this->success(array(
                 'PTZStatus' => $ptzStatus['result']->PTZStatus
             ));
         } else {
-            $this->error();
+            $this->error('Could not get PTZ status.');
         }
     }
 
     public function getPtzPresets($data = array())
     {
-        $this->connectCamera($data);
+        $cameraParams = $this->connectCamera($data);
 
         if (!$this->checkAuthData()) {
             $this->error('', 401);
             return;
         }
 
-        $ptzPresets = $this->onvifClient->doSoapRequest('ptz', 'GetPresets', array('ProfileToken' => 'balanced_jpeg'));
+        $ptzPresets = $this->onvifClient->doSoapRequest(
+            'ptz',
+            'GetPresets',
+            array('ProfileToken' => $cameraParams['profile_token'])
+        );
 
         if ($ptzPresets['isOk']) {
             foreach ($ptzPresets['result']->Preset as $preset) {
@@ -103,7 +125,7 @@ class OnvifPtzController extends OnvifAjaxController
 
     public function moveAbsolute($data = array())
     {
-        $this->connectCamera($data);
+        $cameraParams = $this->connectCamera($data);
 
         if (!isset($data['pan']) && !isset($data['tilt']) && !isset($data['zoom'])) {
             throw new \Exception('Position not set');
@@ -127,7 +149,7 @@ class OnvifPtzController extends OnvifAjaxController
         $moveResponse = $this->onvifClient->doSoapRequest(
             'ptz',
             'AbsoluteMove',
-            array('Position' => $position, 'ProfileToken' => 'balanced_jpeg')
+            array('Position' => $position, 'ProfileToken' => $cameraParams['profile_token'])
         );
 
         if ($moveResponse['isOk']) {
@@ -139,7 +161,7 @@ class OnvifPtzController extends OnvifAjaxController
 
     public function gotoPreset($data = array())
     {
-        $this->connectCamera($data);
+        $cameraParams = $this->connectCamera($data);
 
         if (!isset($data['presetToken'])) {
             throw new \Exception('presetToken not set');
@@ -153,7 +175,7 @@ class OnvifPtzController extends OnvifAjaxController
         $gotoResult = $this->onvifClient->doSoapRequest(
             'ptz',
             'GotoPreset',
-            array('PresetToken' => $data['presetToken'], 'ProfileToken' => 'balanced_jpeg')
+            array('PresetToken' => $data['presetToken'], 'ProfileToken' => $cameraParams['profile_token'])
         );
 
         if ($gotoResult['isOk']) {
@@ -165,7 +187,7 @@ class OnvifPtzController extends OnvifAjaxController
 
     public function createPreset($data = array())
     {
-        $this->connectCamera($data);
+        $cameraParams = $this->connectCamera($data);
 
         if (!isset($data['presetName'])) {
             throw new \Exception('presetName not set');
@@ -179,7 +201,7 @@ class OnvifPtzController extends OnvifAjaxController
         $result = $this->onvifClient->doSoapRequest(
             'ptz',
             'SetPreset',
-            array('PresetName' => $data['presetName'], 'ProfileToken' => 'balanced_jpeg')
+            array('PresetName' => $data['presetName'], 'ProfileToken' => $cameraParams['profile_token'])
         );
 
         if ($result['isOk']) {
@@ -191,7 +213,7 @@ class OnvifPtzController extends OnvifAjaxController
 
     public function removePreset($data = array())
     {
-        $this->connectCamera($data);
+        $cameraParams = $this->connectCamera($data);
 
         if (!isset($data['presetToken'])) {
             throw new \Exception('presetToken not set');
@@ -205,7 +227,7 @@ class OnvifPtzController extends OnvifAjaxController
         $result = $this->onvifClient->doSoapRequest(
             'ptz',
             'RemovePreset',
-            array('PresetToken' => $data['presetToken'], 'ProfileToken' => 'balanced_jpeg')
+            array('PresetToken' => $data['presetToken'], 'ProfileToken' => $cameraParams['profile_token'])
         );
 
         if ($result['isOk']) {
