@@ -1,3 +1,5 @@
+var DEBUG = 0;
+
 function Enum() {
     this.allValues = [];
     this.currentValue = 0;
@@ -462,6 +464,9 @@ var gallery = {
         first : true, // первая ли загрузка
         // функция обновления дерева
         reload: function () {
+            if (DEBUG == 1) {
+                console.log('tree_event.reload()');
+            }
             var self = this;
             // получения настроек формирование дерева
             var variable = {};
@@ -752,7 +757,10 @@ var gallery = {
             gallery.treeObject = $(self.holder);
             matrix.build();
         },
-        updateTree :function(){
+        updateTree: function() {
+            if (DEBUG == 1) {
+                console.log('tree_event.updateTree()');
+            }
             var self = this;
             //запускаем таймер проверки рассинхронизации дерева
             if (self.timeUpdateTree) {
@@ -768,6 +776,9 @@ var gallery = {
         },
         // инициалзация дерева
         init: function (holder, ajax_params) {
+            if (DEBUG == 1) {
+                console.log('tree_event.init()', holder, ajax_params);
+            }
             var self = this;
             self.holder = holder;
 
@@ -782,9 +793,10 @@ var gallery = {
                 url: WwwPrefix + '/offline/gallery.php',
                 data: ajax_params,
                 success: function (data) {
-
+                    if (DEBUG == 1) {
+                        console.log('xhr response:', data);
+                    }
                     if (data.status == 'success') {
-
                         // если пришли обновления, то обновляем дерево и запускаем перестройку матрицы
                         if ("tree_events" in data) {
                             matrix.tree_events = data.tree_events;
@@ -919,8 +931,6 @@ var gallery = {
                         }, 5000);
 
                     } else if (data.status == 'error' && data.code == '4') { //если дерево не актуально
-                        console.log(data);
-
                         $('#matrix_load').hide();
                         $('#update_tree').show();
                         if (gallery.cookie.get('isBlockUpTree') || self.first) {
@@ -1107,6 +1117,9 @@ var gallery = {
     },
     // инициализация галереи
     init: function (config) {
+        if (DEBUG == 1) {
+            console.log('gallery.init()', config);
+        }
 
         var self = this;
         // обновление настроек
@@ -1621,6 +1634,9 @@ var matrix = {
     },
 
     init: function (config) {
+        if (DEBUG == 1) {
+            console.log('matrix.init()', config);
+        }
 
         // отменяет действие по клику
         $('#scroll_content').click(function (event) {
@@ -2388,6 +2404,9 @@ var matrix = {
 
     // обновление матрицы
     update: function (sp) {
+        if (DEBUG == 1) {
+            console.log('matrix.update()', sp);
+        }
         $('#matrix_load').show();
         var hide_over = true;
 
@@ -2761,6 +2780,9 @@ var matrix = {
 
     // выполнения запроса новых событий
     get_events: function (sp) {
+        if (DEBUG == 1) {
+            console.log('matrix.get_events()', sp);
+        }
         // определяем тип событий и список камер
         var type = '', cameras = '';
         // проверяем закончился ли предыдущий запрос
@@ -2800,6 +2822,9 @@ var matrix = {
                     'type': type,
                     'cameras': cameras},
                 function (data) {
+                    if (DEBUG == 1) {
+                        console.log('xhr getEvents response:', data);
+                    }
 
                     var i = get_sp;
 
@@ -2868,6 +2893,10 @@ var matrix = {
 
     // постройка матрицы временного диапазона
     build: function () {
+        if (DEBUG == 1) {
+            console.log('matrix.build()');
+        }
+
         scrollPopUp.init();
         $('#matrix_load').show();
 
@@ -2905,7 +2934,9 @@ var matrix = {
         var me = [];
         // заполняем кеш матрицы элементами из общего кеша
         $.each(matrix.all_events, function (i, value) {
-            if ($.inArray(value[7], type) != -1 && $.inArray(value[5], variable) != -1 && (matrix.tree == 'all' || matrix.tree == value[0].substr(0, matrix.tree.length))) {
+            if ($.inArray(value[7], type) != -1 &&
+                $.inArray(value[5], variable) != -1 &&
+                (matrix.tree == 'all' || matrix.tree == value[0].substr(0, matrix.tree.length))) {
                 matrix.events[count_events] = value;
                 me[count_events] = i;
                 count_events++;
