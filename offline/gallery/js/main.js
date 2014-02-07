@@ -801,6 +801,9 @@ var gallery = {
                         if ("tree_events" in data) {
                             matrix.tree_events = data.tree_events;
                             matrix.cameras = data.cameras;
+                            // принудительно очищаем события
+                            matrix.events = {};
+                            matrix.all_events = {};
                             gallery.tree_event.reload();
                         } else {
                             $('#matrix_load').hide();
