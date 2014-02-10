@@ -117,16 +117,30 @@
 
             for (var i = 0, I = profiles.length; i < I; i++) {
                 var profile = profiles[i],
-                    videoProfile;
+                    videoProfile,
+                    vEncConf;
 
-                if (profile['VideoEncoderConfiguration']['H264']) {
-                    videoProfile = profile['VideoEncoderConfiguration']['H264']['H264Profile']
-                } else if (profile['VideoEncoderConfiguration']['MPEG4']) {
-                    profile['VideoEncoderConfiguration']['MPEG4']['Mpeg4Profile']
-                } else {
-                    videoProfile = '';
+                // console.log(profile['VideoEncoderConfiguration']);
+                if (typeof(profile['VideoSourceConfiguration'])  === 'undefined' ||
+                    typeof(profile['VideoEncoderConfiguration']) === 'undefined') {
+                    // XXX if empty not configured profile
+                    // TODO audio-only profiles
+                    continue;
                 }
 
+                videoProfile = '';
+
+                if (typeof(profile['VideoEncoderConfiguration']['H264']) !== 'undefined') {
+                    vEncConf = profile['VideoEncoderConfiguration']['H264'];
+                    if (typeof(vEncConf['H264Profile']) !== 'undefined') {
+                        videoProfile = vEncConf['H264Profile'];
+                    }
+                } else if (typeof(profile['VideoEncoderConfiguration']['MPEG4']) !== 'undefined') {
+                    vEncConf = profile['VideoEncoderConfiguration']['MPEG4'];
+                    if (typeof(vEncConf['Mpeg4Profile']) !== 'undefined') {
+                        videoProfile = vEncConf['Mpeg4Profile'];
+                    }
+                }
                 var $tplEntry = $(
                     tplProfileEntry
                         .replace('$name', profile['Name'])
