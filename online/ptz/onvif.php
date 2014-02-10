@@ -17,7 +17,51 @@
         </div>
     </div>
     <div class="bottomContainer">
+        <input type="button" class="settingsShow" value="Настройки"/>
 
+        <!-- modal will be moved to body eleement -->
+        <div class="modal-onvif-ptz-settings jqmWindow" style="display: none">
+            <div class="modal-head">
+                <span>Настройки PTZ</span>
+                <a href="#" class="jqmClose">X</a>
+            </div>
+            <hr>
+            <div class="modal-body">
+                <div class="modal-ptz-form">
+                    <p>Скорость движения</p>
+                    <div class="modal-ptz-row">
+                        <div class="modal-ptz-left">
+                            PAN
+                        </div>
+                        <div class="modal-ptz-right">
+                            <div class="modal-ptz-speed-pan"></div>
+                        </div>
+                    </div>
+                    <div class="modal-ptz-row">
+                        <div class="modal-ptz-left">
+                            TILT
+                        </div>
+                        <div class="modal-ptz-right">
+                            <div class="modal-ptz-speed-tilt"></div>
+                        </div>
+                    </div>
+                    <div class="modal-ptz-row">
+                        <div class="modal-ptz-left">
+                            ZOOM
+                        </div>
+                        <div class="modal-ptz-right">
+                            <div class="modal-ptz-speed-zoom"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <p>Настройки будут сохранены в вашем браузере.</p>
+            <hr>
+            <div class="modal-foot">
+                <input type="button" class="settings-save" value="Сохранить настройки"/>
+            </div>
+        </div>
     </div>
 </div>
 

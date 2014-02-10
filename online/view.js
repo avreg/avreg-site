@@ -1872,7 +1872,7 @@ var controls_handlers = {
             // flag that async operation is in progress
             $button.data('async-in-progress', true);
 
-            loadPtzAreasContent($win, cam_nr, ptz_handler, function (success) {
+            loadPtzAreasContent($win, cam_nr, win_nr, ptz_handler, function (success) {
                 if (success) {
                     $button.prop('src', imgs['pl_ptz_active'].src);
                     // button style
@@ -1898,7 +1898,7 @@ var controls_handlers = {
 
 // debug
 //setTimeout(function(){
-//    loadPtzAreasContent($('#win0'), 5, 'onvif');
+//    loadPtzAreasContent($('#win0'), 5, 0, 'onvif');
 //}, 100);
 // eof debug
 
@@ -1909,8 +1909,9 @@ var controls_handlers = {
  * @param {Function} callback  callback асинхронной операции, передается boolean флаг (успех/неудача)
  *                             в качестве первого агрумента
  * @param cam_nr
+ * @param win_nr
  */
-function loadPtzAreasContent($win, cam_nr, ptz_handler, callback) {
+function loadPtzAreasContent($win, cam_nr, win_nr, ptz_handler, callback) {
     var $player = $win.find('.aplayer');
 
     var dfdPtzGet = $.get('./ptz/' + ptz_handler + '.php', { 'cam_nr': cam_nr });
@@ -1943,7 +1944,7 @@ function loadPtzAreasContent($win, cam_nr, ptz_handler, callback) {
                     .find('.ptz_area_bottom');
             }
 
-            var ptzContols = new OnvifPTZControls($win, cam_nr);
+            var ptzContols = new OnvifPTZControls($win, cam_nr, WINS_DEF[win_nr].cam);
 
             $win.one('ptzHide', function() {
                 ptzContols.destruct();

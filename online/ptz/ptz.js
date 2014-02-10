@@ -1,10 +1,11 @@
-OnvifPTZControls = function ($container, cameraNumber) {
+OnvifPTZControls = function ($container, cameraNumber, cameraData) {
     var self = this;
 
     // constants
     var incDecStep = 20,
         pollingTimeout = 150,
-        moveDebounceTimeout = 300;
+        moveDebounceTimeout = 300,
+        lsKeySettings = 'avreg-ptz-settings';
 
     // defaults
     var coordSpaces = {
@@ -14,6 +15,16 @@ OnvifPTZControls = function ($container, cameraNumber) {
             },
             tilt: {
                 min: -1,
+                max: 1
+            },
+            zoom: {
+                min: 0,
+                max: 1
+            }
+        },
+        speedSpaces = {
+            position: {
+                min: 0,
                 max: 1
             },
             zoom: {
@@ -119,6 +130,7 @@ OnvifPTZControls = function ($container, cameraNumber) {
         }
 
         this.state && this.state.exit && this.state.exit();
+        //if (window.console) window.console.log(this.state && this.state.name, state.name);
         this.__oldState = this.state;
         this.state = state;
         this.state.enter();
@@ -239,6 +251,74 @@ OnvifPTZControls = function ($container, cameraNumber) {
         }
     });
 
+    // set up settings modal
+    var $settingsModal = $container.find('.modal-onvif-ptz-settings').detach().appendTo('body').jqm(),
+        $stPanSpeedSlider, $stTiltSpeedSlider, $stZoomSpeedSlider;
+
+    $container.find('.settingsShow').on('click', function() {
+        if (!$settingsModal.data('initialized')) {
+            // lazy init
+            $stPanSpeedSlider = $settingsModal.find('.modal-ptz-speed-pan').slider($.extend({}, defaultSliderOptions, {
+                min: speedSpaces.position.min,
+                max: speedSpaces.position.max
+            }));
+            $stTiltSpeedSlider = $settingsModal.find('.modal-ptz-speed-tilt').slider($.extend({}, defaultSliderOptions, {
+                min: speedSpaces.position.min,
+                max: speedSpaces.position.max
+            }));
+            $stZoomSpeedSlider = $settingsModal.find('.modal-ptz-speed-zoom').slider($.extend({}, defaultSliderOptions, {
+                min: speedSpaces.zoom.min,
+                max: speedSpaces.zoom.max
+            }));
+
+            $settingsModal.data('initialized', true);
+        }
+
+        var settings = getSettings();
+
+        settings.speedPan && $stPanSpeedSlider.slider('value', settings.speedPan);
+        settings.speedTilt && $stTiltSpeedSlider.slider('value', settings.speedTilt);
+        settings.speedZoom && $stZoomSpeedSlider.slider('value', settings.speedZoom);
+
+        $settingsModal.jqmShow();
+    });
+
+    function getSettings() {
+        var settings;
+
+        try {
+            settings = JSON.parse(localStorage.getItem(lsKeySettings));
+        } catch (e) {
+            settings = {};
+        }
+
+        return settings[MD5(JSON.stringify(cameraData))] || {};
+    }
+
+    $settingsModal.on('click', '.settings-save', function() {
+        var settings;
+
+        try {
+            settings = JSON.parse(localStorage.getItem(lsKeySettings));
+        } catch (e) {
+            settings = {};
+        }
+
+        if (localStorage) {
+            settings[MD5(JSON.stringify(cameraData))] = {
+                speedPan: $stPanSpeedSlider.slider('value'),
+                speedTilt: $stTiltSpeedSlider.slider('value'),
+                speedZoom: $stZoomSpeedSlider.slider('value')
+            };
+
+            localStorage.setItem(lsKeySettings, JSON.stringify(settings));
+        } else {
+            alert('LocalStorage is not supported');
+        }
+
+        $settingsModal.jqmHide();
+    });
+
     // initialize ui
 
     transitionTo(states.initial);
@@ -319,12 +399,19 @@ OnvifPTZControls = function ($container, cameraNumber) {
 
         transitionTo(states.action);
 
+        var settings = getSettings();
+
         var jqXhr = $.ajax({
             type: "POST",
             url: WwwPrefix + '/lib/OnvifPtzController.php',
             data: {
                 method: 'moveAbsolute',
-                data: $.extend({cameraNumber: cameraNumber}, getSlidersPosition())
+                data: $.extend({
+                    cameraNumber: cameraNumber,
+                    panSpeed: settings['speedPan'],
+                    tiltSpeed: settings['speedTilt'],
+                    zoomSpeed: settings['speedZoom']
+                }, getSlidersPosition())
             },
             dataType: 'json'
         });
@@ -428,5 +515,7 @@ OnvifPTZControls = function ($container, cameraNumber) {
 
     this.destruct = function () {
         this.state.exit();
+        $settingsModal.remove();
+        $settingsModal = null;
     }
 };

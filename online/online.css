@@ -278,3 +278,14 @@ ul.ptzPresets {
     border: 1px solid grey;
     background-color: white;
 }
+
+/* ---------------------- .modal-onvif-ptz-settings ---------------------- */
+
+.modal-onvif-ptz-settings {
+    width: 320px;
+    margin-left: -160px;
+}
+
+.modal-onvif-ptz-settings .modal-head .jqmClose {
+    float: right;
+}

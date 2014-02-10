@@ -146,10 +146,24 @@ class OnvifPtzController extends OnvifAjaxController
         isset($data['tilt']) ? $position['PanTilt']['y'] = $data['tilt'] : '';
         isset($data['zoom']) ? $position['Zoom']['x'] = $data['zoom'] : '';
 
+        // collect speed data
+        $speed = array(
+            'PanTilt' => array(),
+            'Zoom' => array()
+        );
+
+        isset($data['panSpeed']) ? $speed['PanTilt']['x'] = $data['panSpeed'] : '';
+        isset($data['tiltSpeed']) ? $speed['PanTilt']['y'] = $data['tiltSpeed'] : '';
+        isset($data['zoomSpeed']) ? $speed['Zoom']['x'] = $data['zoomSpeed'] : '';
+
         $moveResponse = $this->onvifClient->doSoapRequest(
             'ptz',
             'AbsoluteMove',
-            array('Position' => $position, 'ProfileToken' => $cameraParams['profile_token'])
+            array(
+                'Position' => $position,
+                'Speed' => $speed,
+                'ProfileToken' => $cameraParams['profile_token']
+            )
         );
 
         if ($moveResponse['isOk']) {
