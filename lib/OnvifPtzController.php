@@ -147,23 +147,34 @@ class OnvifPtzController extends OnvifAjaxController
         isset($data['zoom']) ? $position['Zoom']['x'] = $data['zoom'] : '';
 
         // collect speed data
-        $speed = array(
-            'PanTilt' => array(),
-            'Zoom' => array()
+        $speed = array();
+
+        if (isset($data['panSpeed']) || isset($data['tiltSpeed'])) {
+            $speed['PanTilt'] = array();
+
+            isset($data['panSpeed']) ? $speed['PanTilt']['x'] = $data['panSpeed'] : '';
+            isset($data['tiltSpeed']) ? $speed['PanTilt']['y'] = $data['tiltSpeed'] : '';
+        }
+
+        if (isset($data['zoomSpeed'])) {
+            $speed['Zoom'] = array('x' => $data['zoomSpeed']);
+        }
+
+        // do the request
+        $requestParams = array(
+            'Position' => $position,
+            'Speed' => $speed,
+            'ProfileToken' => $cameraParams['profile_token']
         );
 
-        isset($data['panSpeed']) ? $speed['PanTilt']['x'] = $data['panSpeed'] : '';
-        isset($data['tiltSpeed']) ? $speed['PanTilt']['y'] = $data['tiltSpeed'] : '';
-        isset($data['zoomSpeed']) ? $speed['Zoom']['x'] = $data['zoomSpeed'] : '';
+        if (!empty($speed)) {
+            $requestParams['Speed'] = $speed;
+        }
 
         $moveResponse = $this->onvifClient->doSoapRequest(
             'ptz',
             'AbsoluteMove',
-            array(
-                'Position' => $position,
-                'Speed' => $speed,
-                'ProfileToken' => $cameraParams['profile_token']
-            )
+            $requestParams
         );
 
         if ($moveResponse['isOk']) {
