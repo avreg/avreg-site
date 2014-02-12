@@ -5,6 +5,7 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
     var incDecStep = 20,
         pollingTimeout = 150,
         moveDebounceTimeout = 300,
+        maxConnectionTries = 5,
         lsKeySettings = 'avreg-ptz-settings';
 
     // defaults
@@ -51,16 +52,27 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
          */
         'initial': {
             name: 'initial',
+            connectionTries: 0,
             enter: function () {
                 setControlsEnableState(false);
 
                 $.when(updatePresets(), updatePosition())
                     .done(function () {
+                        states.initial.connectionTries = 0;
                         transitionTo(states.polling);
                     })
                     .fail(function() {
                         transitionTo(states.locked);
-                        transitionTo(states.initial);
+
+                        if (states.initial.connectionTries++ < maxConnectionTries) {
+                            transitionTo(states.initial);
+                        } else {
+                            alert(
+                                'Не удается подключиться к камере. Проверьте правильность настроек ONVIF: \n'
+                                + '- Имя пользователя и пароль \n'
+                                + '- Выбранный медиа-профиль \n'
+                            )
+                        }
                     });
             },
             exit: function () {}
@@ -231,7 +243,7 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
                 })
         }
     });
-    $container.find('.ptz_area_right').on('click', '.presetAdd', function (e) {
+    $container.find('.ptz_area_right').on('click', '.presetAdd input', function (e) {
         if (self.state === states.action) {
             return;
         }
@@ -252,6 +264,7 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
     });
 
     // set up settings modal
+
     var $settingsModal = $container.find('.modal-onvif-ptz-settings').detach().appendTo('body').jqm(),
         $stPanSpeedSlider, $stTiltSpeedSlider, $stZoomSpeedSlider;
 
@@ -276,9 +289,12 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
 
         var settings = getSettings();
 
-        settings.speedPan && $stPanSpeedSlider.slider('value', settings.speedPan);
-        settings.speedTilt && $stTiltSpeedSlider.slider('value', settings.speedTilt);
-        settings.speedZoom && $stZoomSpeedSlider.slider('value', settings.speedZoom);
+        $stPanSpeedSlider.slider('value',
+            typeof settings.speedPan !== 'undefined' ? settings.speedPan : speedSpaces.position.max);
+        $stTiltSpeedSlider.slider('value',
+            typeof settings.speedTilt !== 'undefined' ? settings.speedTilt : speedSpaces.position.max);
+        $stZoomSpeedSlider.slider('value',
+            typeof settings.speedZoom !== 'undefined' ? settings.speedZoom : speedSpaces.position.max);
 
         $settingsModal.jqmShow();
     });
@@ -495,6 +511,9 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
         $.each(incDecButtons, function (i, $button) {
             $button.prop('disabled', !enabled);
         });
+
+        $container.find('.settingsShow').prop('disabled', !enabled);
+        $container.find('.presetAdd input').prop('disabled', !enabled);
     }
 
     function getSlidersPosition() {

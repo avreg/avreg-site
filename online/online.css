@@ -183,12 +183,12 @@ div.cell_header span a:hover {
 
 
 .ptz_area_right .topContainer {
-    height: 76%;
+    height: 78%;
 }
 
 .ptz_area_right .bottomContainer {
-    height: 24%;
-    background: red;
+    height: 22%;
+    border-top: 1px solid grey;
 }
 
 .ptz_area_bottom .container {
@@ -206,11 +206,9 @@ div.cell_header span a:hover {
 }
 
 .bottomSliderContainer .button input {
-    font-size: 1em;
     height: 1.2em;
     padding: 0;
     margin: 0;
-    border: 1px solid grey;
     width: 15px;
 }
 
@@ -230,11 +228,9 @@ ul.ptzPresets {
 }
 
 .ptzPresets .preset input[type=button] {
-    font-size: 1em;
     height: 1.5em;
     padding: 0;
     margin: 5px 0 0 0;
-    border: 1px solid grey;
     width: 100%;
     text-align: center;
 }
@@ -264,6 +260,7 @@ ul.ptzPresets {
 }
 
 .ptzPresets .presetAction  input {
+    padding: 2px;
     cursor: pointer;
 }
 
@@ -271,10 +268,9 @@ ul.ptzPresets {
     padding: 0 5px 0 5px;
 }
 
-.presetAdd p {
+.ptzButton {
     cursor: pointer;
     font-size: 1em;
-    padding: 2px;
     border: 1px solid grey;
     background-color: white;
 }

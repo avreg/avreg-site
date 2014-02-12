@@ -13,11 +13,11 @@
             <!-- template end -->
         </ul>
         <div class="presetAdd">
-            <p>Добавить</p>
+            <input type="button" class="ptzButton" value="Добавить"/>
         </div>
     </div>
     <div class="bottomContainer">
-        <input type="button" class="settingsShow" value="Настройки"/>
+        <input type="button" class="settingsShow ptzButton" value="Настройки"/>
 
         <!-- modal will be moved to body eleement -->
         <div class="modal-onvif-ptz-settings jqmWindow" style="display: none">
@@ -71,25 +71,25 @@
             <table class="bottomSliderContainer">
                 <tr>
                     <td class="label"><p>TILT</p></td>
-                    <td class="button"><input type="button" id="ptzTiltDecrease" value="<"/></td>
+                    <td class="button"><input type="button" id="ptzTiltDecrease" value="<" class="ptzButton"/></td>
                     <td class="control"><div id="ptzTiltSlider"></div></td>
-                    <td class="button"><input type="button" id="ptzTiltIncrease" value=">"/></td>
+                    <td class="button"><input type="button" id="ptzTiltIncrease" value=">" class="ptzButton"/></td>
                 </tr>
             </table>
             <table class="bottomSliderContainer">
                 <tr>
                     <td class="label"><p>ZOOM</p></td>
-                    <td class="button"><input type="button" id="ptzZoomDecrease" value="<"/></td>
+                    <td class="button"><input type="button" id="ptzZoomDecrease" value="<" class="ptzButton"/></td>
                     <td class="control"><div id="ptzZoomSlider"></div></td>
-                    <td class="button"><input type="button" id="ptzZoomIncrease" value=">"/></td>
+                    <td class="button"><input type="button" id="ptzZoomIncrease" value=">" class="ptzButton"/></td>
                 </tr>
             </table>
             <table class="bottomSliderContainer">
                 <tr>
                     <td class="label"><p>PAN</p></td>
-                    <td class="button"><input type="button" id="ptzPanDecrease" value="<"/></td>
+                    <td class="button"><input type="button" id="ptzPanDecrease" value="<" class="ptzButton"/></td>
                     <td class="control"><div id="ptzPanSlider"></div></td>
-                    <td class="button"><input type="button" id="ptzPanIncrease" value=">"/></td>
+                    <td class="button"><input type="button" id="ptzPanIncrease" value=">" class="ptzButton"/></td>
                 </tr>
             </table>
         </div>

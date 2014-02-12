@@ -59,17 +59,22 @@ foreach ($GCP_query_param_list as $param_name) {
     $_value = isset($the_request[$param_name]) ? $the_request[$param_name] : '';
 
     if (is_array($_value)) {
-        $value = implode(',', array_map('rawurldecode', $_value));
+        $new_val = implode(',', array_map('rawurldecode', $_value));
     } else {
-        $value = trim(rawurldecode($_value));
+        $new_val = trim(rawurldecode($_value));
     }
-
+    if (!CheckParVal($param_name, $new_val)) {
+        continue;
+    }
     $par_defs = find_param_defs($param_name);
-    if ($GCP_cams_params[$cam_nr][$param_name] != $value &&
-        $par_defs['def_val'] != $value &&
-        CheckParVal($param_name, $value)) {
-        CorrectParVal($param_name, $value);
-        $param_value = ($value == '') ? null : html_entity_decode($value);
+    if (is_empty_var($GCP_cams_params[$cam_nr][$param_name])) {
+        $active_val = &$par_defs['def_val'];
+    } else {
+        $active_val = &$GCP_cams_params[$cam_nr][$param_name];
+    }
+    if ((string)($active_val) != (string)$new_val) {
+        CorrectParVal($param_name, $new_val);
+        $param_value = ($new_val == '') ? null : html_entity_decode($new_val);
         $adb->replaceCamera('local', $cam_nr, $param_name, $param_value, $remote_addr, $login_user);
 
         print_syslog(
@@ -90,3 +95,4 @@ $ret = array(
            'description' => 'success',
        );
 echo json_encode($ret);
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */
