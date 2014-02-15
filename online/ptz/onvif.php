@@ -1,5 +1,13 @@
 <div class="ptz_area_right">
     <div class="topContainer">
+        <div class="ptzPresetsHeader">
+            <div class="text">
+                <p>ПРЕСЕТЫ</p>
+            </div>
+            <div class="action">
+                <input type="button" class="ptzButton presetAdd" title="Добавить"/>
+            </div>
+        </div>
         <ul class="ptzPresets">
             <!-- template start -->
             <li class="preset" data-name="$name" title="$name">
@@ -7,14 +15,11 @@
                     <p class="name">$name</p>
                 </div>
                 <div class="presetAction">
-                    <input type="button" class="presetRemove" value="-" title="Удалить"/>
+                    <input type="button" class="presetRemove ptzButton" title="Удалить пресет"/>
                 </div>
             </li>
             <!-- template end -->
         </ul>
-        <div class="presetAdd">
-            <input type="button" class="ptzButton" value="Добавить"/>
-        </div>
     </div>
     <div class="bottomContainer">
         <input type="button" class="settingsShow ptzButton" value="Настройки"/>
@@ -68,28 +73,28 @@
 <div class="ptz_area_bottom">
     <div class="container">
         <div class="sliders">
-            <table class="bottomSliderContainer">
+            <table class="bottomSliderContainer ptzSliderTilt">
                 <tr>
                     <td class="label"><p>TILT</p></td>
-                    <td class="button"><input type="button" id="ptzTiltDecrease" value="<" class="ptzButton"/></td>
+                    <td class="button"><input type="button" class="ptzDecrease ptzButton"/></td>
                     <td class="control"><div id="ptzTiltSlider"></div></td>
-                    <td class="button"><input type="button" id="ptzTiltIncrease" value=">" class="ptzButton"/></td>
+                    <td class="button"><input type="button" class="ptzIncrease ptzButton"/></td>
                 </tr>
             </table>
-            <table class="bottomSliderContainer">
+            <table class="bottomSliderContainer ptzSliderZoom">
                 <tr>
                     <td class="label"><p>ZOOM</p></td>
-                    <td class="button"><input type="button" id="ptzZoomDecrease" value="<" class="ptzButton"/></td>
+                    <td class="button"><input type="button" class="ptzDecrease ptzButton"/></td>
                     <td class="control"><div id="ptzZoomSlider"></div></td>
-                    <td class="button"><input type="button" id="ptzZoomIncrease" value=">" class="ptzButton"/></td>
+                    <td class="button"><input type="button" class="ptzIncrease ptzButton"/></td>
                 </tr>
             </table>
-            <table class="bottomSliderContainer">
+            <table class="bottomSliderContainer ptzSliderPan">
                 <tr>
                     <td class="label"><p>PAN</p></td>
-                    <td class="button"><input type="button" id="ptzPanDecrease" value="<" class="ptzButton"/></td>
+                    <td class="button"><input type="button" class="ptzDecrease ptzButton"/></td>
                     <td class="control"><div id="ptzPanSlider"></div></td>
-                    <td class="button"><input type="button" id="ptzPanIncrease" value=">" class="ptzButton"/></td>
+                    <td class="button"><input type="button" class="ptzIncrease ptzButton"/></td>
                 </tr>
             </table>
         </div>

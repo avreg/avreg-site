@@ -184,12 +184,12 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
 
     // set up dec/inc buttons
 
-    var $tiltDec = $container.find('#ptzTiltDecrease').data('component', 'tilt').data('action', 'dec'),
-        $tiltInc = $container.find('#ptzTiltIncrease').data('component', 'tilt').data('action', 'inc'),
-        $panDec = $container.find('#ptzPanDecrease').data('component', 'pan').data('action', 'dec'),
-        $panInc = $container.find('#ptzPanIncrease').data('component', 'pan').data('action', 'inc'),
-        $zoomInc = $container.find('#ptzZoomIncrease').data('component', 'zoom').data('action', 'inc'),
-        $zoomDec = $container.find('#ptzZoomDecrease').data('component', 'zoom').data('action', 'dec');
+    var $tiltDec = $container.find('.ptzSliderTilt .ptzDecrease').data('component', 'tilt').data('action', 'dec'),
+        $tiltInc = $container.find('.ptzSliderTilt .ptzIncrease').data('component', 'tilt').data('action', 'inc'),
+        $panDec = $container.find('.ptzSliderPan .ptzDecrease').data('component', 'pan').data('action', 'dec'),
+        $panInc = $container.find('.ptzSliderPan .ptzIncrease').data('component', 'pan').data('action', 'inc'),
+        $zoomInc = $container.find('.ptzSliderZoom .ptzIncrease').data('component', 'zoom').data('action', 'inc'),
+        $zoomDec = $container.find('.ptzSliderZoom .ptzDecrease').data('component', 'zoom').data('action', 'dec');
 
     var incDecButtons = [$tiltInc, $tiltDec, $panDec, $panInc, $zoomDec, $zoomInc];
 
@@ -207,9 +207,26 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
         })
     });
 
-    // what goes in ptz area, stays in ptz area..
+    // set up layout and generics
+
+    var doLayout = function () {
+        var $ptzBottomContainer = $container.find('.ptz_area_bottom');
+
+        $ptzBottomContainer.css('top', 0);
+
+        if ($ptzBottomContainer.position().top + $ptzBottomContainer.outerHeight() > $container.outerHeight()) {
+            $ptzBottomContainer.css('top', $container.outerHeight() - $ptzBottomContainer.position().top - $ptzBottomContainer.outerHeight() + 'px')
+            $ptzBottomContainer.css('opacity', 0.9);
+        } else {
+            $ptzBottomContainer.css('opacity', 1);
+        }
+    };
+
+    $(window).on('resize geometrychange ', doLayout);
+    doLayout();
 
     $container.find('.ptz_area_right, .ptz_area_bottom').on('click', function (e) {
+        // what goes in ptz area, stays in ptz area..
         e.stopPropagation()
     });
 
@@ -243,7 +260,7 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
                 })
         }
     });
-    $container.find('.ptz_area_right').on('click', '.presetAdd input', function (e) {
+    $container.find('.ptz_area_right').on('click', '.presetAdd', function (e) {
         if (self.state === states.action) {
             return;
         }
@@ -513,7 +530,7 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
         });
 
         $container.find('.settingsShow').prop('disabled', !enabled);
-        $container.find('.presetAdd input').prop('disabled', !enabled);
+        $container.find('.presetAdd').prop('disabled', !enabled);
     }
 
     function getSlidersPosition() {

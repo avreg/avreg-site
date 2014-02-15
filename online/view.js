@@ -228,7 +228,6 @@ function img_click(clicked_div) {
         });
 
         FS_WIN_DIV = undefined;
-
     } else {
         //Если включен режим - просмотра камер в раскладке
         // current - NO fullscreen
@@ -304,6 +303,9 @@ function img_click(clicked_div) {
 
         FS_WIN_DIV = clicked_div;
     }
+
+    // оповещаем об изменении размеров окна
+    $(clicked_div).trigger('geometrychange');
 
     //Устанавливаем текущий масштаб
     var aplayer_id = $('.aplayer', pl_cont).attr('id');
