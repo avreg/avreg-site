@@ -2,6 +2,7 @@
 
 namespace Avreg;
 
+require '../head-xhr.inc.php';
 require './OnvifClient/OnvifAjaxController.php';
 
 class OnvifPtzController extends OnvifAjaxController
@@ -16,29 +17,11 @@ class OnvifPtzController extends OnvifAjaxController
      */
     protected function connectCamera($connectionData = array())
     {
+        global $adb;
+
         if (!isset($connectionData['cameraNumber'])) {
             throw new \Exception('cameraNumber not set');
         }
-
-        // start of mess
-        // todo - refactor, implement more efficient way to get camera params
-        require('utils.php');
-        require('/etc/avreg/site-defaults.php');
-
-        $res = confparse($conf, 'avreg-site');
-        if (!$res) {
-            die();
-        } else {
-            $conf = array_merge($conf, $res);
-        }
-
-        if (!empty($profile) && $res = confparse($conf, 'avreg-site', $conf['profiles-dir'] . '/' . $profile)) {
-            $conf = array_merge($conf, $res);
-        }
-
-        $link = null;
-        $non_config = true;
-        require_once($conf['site-dir'] . '/lib/adb.php');
 
         $camsData = $adb->getCamParams(
             $connectionData['cameraNumber'],
@@ -52,7 +35,6 @@ class OnvifPtzController extends OnvifAjaxController
                 $camData[$row['PARAM']] = $row['VALUE'];
             }
         }
-        // end of mess
 
         $connectionData = array(
             'origin' => 'http://' . $camData['InetCam_IP'] . ':' . '80',

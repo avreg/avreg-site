@@ -2,6 +2,7 @@
 
 namespace Avreg;
 
+require '../head-xhr.inc.php';
 require 'OnvifClient.php';
 
 class OnvifAjaxController
@@ -41,10 +42,9 @@ class OnvifAjaxController
             $credentials = true;
         }
 
-        // this is not working - find a way to get prefix
-        $site_prefix = substr($_SERVER['PHP_SELF'], 0, strpos($_SERVER['PHP_SELF'], '/lib/OnvifClientController.php'));
-        // debug
-        $site_prefix = '/avreg';
+        global $conf;
+
+        $site_prefix = $conf['prefix'];
         $this->onvifClient = new \OnvifClient(
             $data['origin'] . $data['path'],
             "http://127.0.0.1$site_prefix/lib/OnvifClient/wsdl",
