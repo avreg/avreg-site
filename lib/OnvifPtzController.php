@@ -172,6 +172,28 @@ class OnvifPtzController extends OnvifAjaxController
         }
     }
 
+    public function moveStop($data = array())
+    {
+        $cameraParams = $this->connectCamera($data);
+
+        if (!$this->checkAuthData()) {
+            $this->error('', 401);
+            return;
+        }
+
+        $stopResult = $this->onvifClient->doSoapRequest(
+            'ptz',
+            'Stop',
+            array('ProfileToken' => $cameraParams['profile_token'])
+        );
+
+        if ($stopResult['isOk']) {
+            $this->success();
+        } else {
+            $this->error();
+        }
+    }
+
     public function gotoPreset($data = array())
     {
         $cameraParams = $this->connectCamera($data);

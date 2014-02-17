@@ -348,6 +348,11 @@ ul.ptzPresets {
     padding: 2px;
 }
 
+.ptzButton:disabled {
+    background-color: #cccccc !important;
+    opacity: 0.75;
+}
+
 .ptzButton.ptzDecrease {
     background: url('../img/ico_ptz_slider_move_left.png') no-repeat;
     background-size: contain;

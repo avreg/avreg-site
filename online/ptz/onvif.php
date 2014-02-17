@@ -22,6 +22,8 @@
         </ul>
     </div>
     <div class="bottomContainer">
+        <input type="button" class="moveStop ptzButton" value="СТОП"/>
+        <br>
         <input type="button" class="settingsShow ptzButton" value="Настройки"/>
 
         <!-- modal will be moved to body eleement -->

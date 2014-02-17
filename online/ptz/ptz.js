@@ -207,6 +207,19 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
         })
     });
 
+    // set up stop button
+
+    var $moveStop = $container.find('.moveStop');
+
+    $moveStop.on('click', function() {
+        self.transitionTo(states.action);
+
+        moveStop()
+            .always(function() {
+                self.transitionTo(states.polling);
+            });
+    });
+
     // set up layout and generics
 
     var doLayout = function () {
@@ -432,6 +445,9 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
 
         transitionTo(states.action);
 
+        // enable stop button
+        $moveStop.prop('disabled', false);
+
         var settings = getSettings();
 
         var jqXhr = $.ajax({
@@ -464,6 +480,9 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
         }
 
         transitionTo(states.action);
+
+        // enable stop button
+        $moveStop.prop('disabled', false);
 
         var jqXhr = $.ajax({
             type: "POST",
@@ -518,6 +537,20 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
         });
     }
 
+    function moveStop() {
+        return $.ajax({
+            type: "POST",
+            url: WwwPrefix + '/lib/OnvifPtzController.php',
+            data: {
+                method: 'moveStop',
+                data: {
+                    cameraNumber: cameraNumber
+                }
+            },
+            dataType: 'json'
+        });
+    }
+
     // ui methods
 
     function setControlsEnableState(enabled) {
@@ -531,6 +564,12 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
 
         $container.find('.settingsShow').prop('disabled', !enabled);
         $container.find('.presetAdd').prop('disabled', !enabled);
+
+        $moveStop.prop('disabled', !enabled);
+
+        $presets.find('input[type=button]').each(function(index, input) {
+            $(input).prop('disabled', !enabled);
+        });
     }
 
     function getSlidersPosition() {
