@@ -1526,6 +1526,8 @@ function fill_canvas() {
         var $win = $("<div data-win-index="+ win_nr +"'></div>");
         if (PrintCamNames) {
              hdr.after($win);
+        } else {
+            $win.appendTo(win_div);
         }
         brout(win_nr, $win, win_geo);
         if (PrintCamNames) {
@@ -1954,3 +1956,4 @@ var timer = 0;
 setInterval(function () {
     timer++
 }, 500);
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */
