@@ -68,9 +68,12 @@ class OnvifPtzController extends OnvifAjaxController
 
         if ($ptzStatus['isOk']) {
             // convert from possible scientific notation to dot notation
-            $ptzStatus['result']->Position->PanTilt->x = sprintf('%f', $ptzStatus['result']->Position->PanTilt->x);
-            $ptzStatus['result']->Position->PanTilt->y = sprintf('%f', $ptzStatus['result']->Position->PanTilt->y);
-            $ptzStatus['result']->Position->Zoom->x = sprintf('%f', $ptzStatus['result']->Position->Zoom->x);
+            $ptzStatus['result']->PTZStatus->Position->PanTilt->x =
+                sprintf('%F', $ptzStatus['result']->PTZStatus->Position->PanTilt->x);
+            $ptzStatus['result']->PTZStatus->Position->PanTilt->y =
+                sprintf('%F', $ptzStatus['result']->PTZStatus->Position->PanTilt->y);
+            $ptzStatus['result']->PTZStatus->Position->Zoom->x =
+                sprintf('%F', $ptzStatus['result']->PTZStatus->Position->Zoom->x);
 
             $this->success(array(
                 'PTZStatus' => $ptzStatus['result']->PTZStatus
@@ -98,9 +101,9 @@ class OnvifPtzController extends OnvifAjaxController
         if ($ptzPresets['isOk']) {
             foreach ($ptzPresets['result']->Preset as $preset) {
                 // convert from possible scientific notation to dot notation
-                $preset->PTZPosition->PanTilt->x = sprintf('%f', $preset->PTZPosition->PanTilt->x);
-                $preset->PTZPosition->PanTilt->y = sprintf('%f', $preset->PTZPosition->PanTilt->y);
-                $preset->PTZPosition->Zoom->x = sprintf('%f', $preset->PTZPosition->Zoom->x);
+                $preset->PTZPosition->PanTilt->x = sprintf('%F', $preset->PTZPosition->PanTilt->x);
+                $preset->PTZPosition->PanTilt->y = sprintf('%F', $preset->PTZPosition->PanTilt->y);
+                $preset->PTZPosition->Zoom->x = sprintf('%F', $preset->PTZPosition->Zoom->x);
             }
 
             $this->success(array(

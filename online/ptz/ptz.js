@@ -3,7 +3,7 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
 
     // constants
     var incDecStep = 20,
-        pollingTimeout = 150,
+        pollingTimeout = 300,
         moveDebounceTimeout = 300,
         maxConnectionTries = 5,
         lsKeySettings = 'avreg-ptz-settings';
@@ -333,7 +333,7 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
         var settings;
 
         try {
-            settings = JSON.parse(localStorage.getItem(lsKeySettings));
+            settings = JSON.parse(localStorage.getItem(lsKeySettings)) || {};
         } catch (e) {
             settings = {};
         }
