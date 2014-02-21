@@ -51,6 +51,30 @@ class OnvifPtzController extends OnvifAjaxController
         return $cameraParams;
     }
 
+    /**
+     * Extract speed component from POST request to be used in SOAP.
+     * @param array $data
+     * @return array
+     */
+    protected function getSpeedVector($data = array())
+    {
+        // collect speed data
+        $speed = array();
+
+        if (isset($data['panSpeed']) || isset($data['tiltSpeed'])) {
+            $speed['PanTilt'] = array();
+
+            isset($data['panSpeed']) ? $speed['PanTilt']['x'] = $data['panSpeed'] : '';
+            isset($data['tiltSpeed']) ? $speed['PanTilt']['y'] = $data['tiltSpeed'] : '';
+        }
+
+        if (isset($data['zoomSpeed'])) {
+            $speed['Zoom'] = array('x' => $data['zoomSpeed']);
+        }
+
+        return $speed;
+    }
+
     public function getPtzStatus($data = array())
     {
         $cameraParams = $this->connectCamera($data);
@@ -127,7 +151,8 @@ class OnvifPtzController extends OnvifAjaxController
             return;
         }
 
-        // collect move coordinates
+        // collect move parameters
+
         $position = array(
             'PanTilt' => array(),
             'Zoom' => array()
@@ -137,19 +162,7 @@ class OnvifPtzController extends OnvifAjaxController
         isset($data['tilt']) ? $position['PanTilt']['y'] = $data['tilt'] : '';
         isset($data['zoom']) ? $position['Zoom']['x'] = $data['zoom'] : '';
 
-        // collect speed data
-        $speed = array();
-
-        if (isset($data['panSpeed']) || isset($data['tiltSpeed'])) {
-            $speed['PanTilt'] = array();
-
-            isset($data['panSpeed']) ? $speed['PanTilt']['x'] = $data['panSpeed'] : '';
-            isset($data['tiltSpeed']) ? $speed['PanTilt']['y'] = $data['tiltSpeed'] : '';
-        }
-
-        if (isset($data['zoomSpeed'])) {
-            $speed['Zoom'] = array('x' => $data['zoomSpeed']);
-        }
+        $speed = $this->getSpeedVector($data);
 
         // do the request
         $requestParams = array(
@@ -210,10 +223,21 @@ class OnvifPtzController extends OnvifAjaxController
             return;
         }
 
+        $speed = $this->getSpeedVector($data);
+
+        $requestParams = array(
+            'PresetToken' => $data['presetToken'],
+            'ProfileToken' => $cameraParams['profile_token']
+        );
+
+        if (!empty($speed)) {
+            $requestParams['Speed'] = $speed;
+        }
+
         $gotoResult = $this->onvifClient->doSoapRequest(
             'ptz',
             'GotoPreset',
-            array('PresetToken' => $data['presetToken'], 'ProfileToken' => $cameraParams['profile_token'])
+            $requestParams
         );
 
         if ($gotoResult['isOk']) {
@@ -222,6 +246,62 @@ class OnvifPtzController extends OnvifAjaxController
             $this->error();
         }
     }
+
+    public function gotoHomePosition($data = array())
+    {
+        $cameraParams = $this->connectCamera($data);
+
+        if (!$this->checkAuthData()) {
+            $this->error('', 401);
+            return;
+        }
+
+        $speed = $this->getSpeedVector($data);
+
+        $requestParams = array(
+            'Speed' => $speed,
+            'ProfileToken' => $cameraParams['profile_token']
+        );
+
+        if (!empty($speed)) {
+            $requestParams['Speed'] = $speed;
+        }
+
+        $gotoResult = $this->onvifClient->doSoapRequest(
+            'ptz',
+            'GotoHomePosition',
+            $requestParams
+        );
+
+        if ($gotoResult['isOk']) {
+            $this->success();
+        } else {
+            $this->error();
+        }
+    }
+
+    public function setHomePosition($data = array())
+    {
+        $cameraParams = $this->connectCamera($data);
+
+        if (!$this->checkAuthData()) {
+            $this->error('', 401);
+            return;
+        }
+
+        $result = $this->onvifClient->doSoapRequest(
+            'ptz',
+            'SetHomePosition',
+            array('ProfileToken' => $cameraParams['profile_token'])
+        );
+
+        if ($result['isOk']) {
+            $this->success();
+        } else {
+            $this->error();
+        }
+    }
+
 
     public function createPreset($data = array())
     {

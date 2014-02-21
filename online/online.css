@@ -369,6 +369,10 @@ ul.ptzPresets {
     background: url('../img/ico_ptz_plus.png') no-repeat;
     background-size: contain;
 }
+.ptzButton.presetSetHome {
+    background: url('../img/ico_ptz_plus.png') no-repeat;
+    background-size: contain;
+}
 
 /* ---------------------- .modal-onvif-ptz-settings ---------------------- */
 

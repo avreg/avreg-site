@@ -10,7 +10,17 @@
         </div>
         <ul class="ptzPresets">
             <!-- template start -->
-            <li class="preset" data-name="$name" title="$name">
+            <li class="preset homePreset" title="Home Position">
+                <div class="presetName">
+                    <p class="name">Home Position</p>
+                </div>
+                <div class="presetAction">
+                    <input type="button" class="presetSetHome ptzButton" title="Установить домашнюю позицию"/>
+                </div>
+            </li>
+            <!-- template end -->
+            <!-- template start -->
+            <li class="preset normalPreset" data-name="$name" title="$name">
                 <div class="presetName">
                     <p class="name">$name</p>
                 </div>
