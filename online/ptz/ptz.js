@@ -246,52 +246,83 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
     // set up presets
 
     var $presets = $container.find('.ptzPresets'),
-        presetTpl = $presets.html();
+        tplPresetHome = $presets.find('.homePreset')[0].outerHTML,
+        tplPresetNormal = $presets.find('.normalPreset')[0].outerHTML;
 
     $presets.empty();
 
-    $presets.on('click', '.presetName', function (e) {
-        var preset = $(e.currentTarget).parents('.preset');
-        gotoPreset(preset.data('token'), preset.data('position'));
-    });
-    $presets.on('click', '.presetRemove', function (e) {
-        var presetToken = $(e.currentTarget).parents('.preset').data('token');
+    $container.find('.ptz_area_right')
+        .on('click', '.normalPreset .presetName', function (e) {
+            var preset = $(e.currentTarget).parents('.preset');
+            gotoPreset(preset.data('token'), preset.data('position'));
+        })
+        .on('click', '.normalPreset .presetRemove', function (e) {
+            var presetToken = $(e.currentTarget).parents('.preset').data('token');
 
-        if (self.state === states.action) {
-            return;
-        }
+            if (self.state === states.action) {
+                return;
+            }
 
-        if (confirm("Действительно удалить пресет?")) {
+            if (confirm("Действительно удалить пресет?")) {
+                transitionTo(states.action);
+
+                removePreset(presetToken)
+                    .done(function () {
+                        updatePresets();
+                    })
+                    .always(function () {
+                        transitionTo(states.polling);
+                    })
+            }
+        })
+        .on('click', '.presetAdd', function (e) {
+            if (self.state === states.action) {
+                return;
+            }
+
+            var presetName = prompt("Имя нового пресета");
+
+            if (presetName) {
+                transitionTo(states.action);
+
+                createPreset(presetName)
+                    .done(function () {
+                        updatePresets();
+                    })
+                    .always(function () {
+                        transitionTo(states.polling);
+                    })
+            }
+        });
+
+    $container.find('.ptz_area_right')
+        .on('click', '.homePreset .presetSetHome', function (e) {
+            if (self.state === states.action) {
+                return;
+            }
+
             transitionTo(states.action);
 
-            removePreset(presetToken)
+            setHomePreset()
                 .done(function () {
                     updatePresets();
                 })
                 .always(function () {
                     transitionTo(states.polling);
-                })
-        }
-    });
-    $container.find('.ptz_area_right').on('click', '.presetAdd', function (e) {
-        if (self.state === states.action) {
-            return;
-        }
+                });
+        })
+        .on('click', '.homePreset .presetName', function (e) {
+            if (self.state === states.action) {
+                return;
+            }
 
-        var presetName = prompt("Имя нового пресета");
-
-        if (presetName) {
             transitionTo(states.action);
 
-            createPreset(presetName)
-                .done(function () {
-                    updatePresets();
-                })
+            gotoHomePreset()
                 .always(function () {
                     transitionTo(states.polling);
-                })
-        }
-    });
+                });
+        });
 
     // set up settings modal
 
@@ -390,9 +421,13 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
         return getPresets().done(function (response) {
             $presets.empty();
 
+            // home preset
+            $presets.append($(tplPresetHome));
+
+            // normal presets
             for (var i = 0, I = response['Presets'].length; i < I; i++) {
                 var presetData = response['Presets'][i],
-                    $preset = $(presetTpl
+                    $preset = $(tplPresetNormal
                         .replace(/\$name/g, presetData['Name'])
                     );
 
@@ -484,6 +519,8 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
         // enable stop button
         $moveStop.prop('disabled', false);
 
+        var settings = getSettings();
+
         var jqXhr = $.ajax({
             type: "POST",
             url: WwwPrefix + '/lib/OnvifPtzController.php',
@@ -491,7 +528,10 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
                 method: 'gotoPreset',
                 data: {
                     cameraNumber: cameraNumber,
-                    presetToken: presetToken
+                    presetToken: presetToken,
+                    panSpeed: settings['speedPan'],
+                    tiltSpeed: settings['speedTilt'],
+                    zoomSpeed: settings['speedZoom']
                 }
             },
             dataType: 'json'
@@ -505,6 +545,39 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
             .always(function () {
                 transitionTo(states.polling);
             })
+    }
+
+    function gotoHomePreset() {
+        var settings = getSettings();
+
+        return $.ajax({
+            type: "POST",
+            url: WwwPrefix + '/lib/OnvifPtzController.php',
+            data: {
+                method: 'gotoHomePosition',
+                data: {
+                    cameraNumber: cameraNumber,
+                    panSpeed: settings['speedPan'],
+                    tiltSpeed: settings['speedTilt'],
+                    zoomSpeed: settings['speedZoom']
+                }
+            },
+            dataType: 'json'
+        });
+    }
+
+    function setHomePreset() {
+        return $.ajax({
+            type: "POST",
+            url: WwwPrefix + '/lib/OnvifPtzController.php',
+            data: {
+                method: 'setHomePosition',
+                data: {
+                    cameraNumber: cameraNumber
+                }
+            },
+            dataType: 'json'
+        });
     }
 
     function createPreset(presetName) {
