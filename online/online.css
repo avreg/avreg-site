@@ -244,11 +244,33 @@ div.cell_header span a:hover {
     margin-left: -.5em;
 }
 
-/* ---------------------- .ptzPresets ---------------------- */
+/* ---------------------- .ptz_area_right ---------------------- */
 
 .ptz_area_right {
     position: relative;
 }
+
+.ptz_area_right .tooSmallIndicator {
+    display: none;
+}
+
+.ptz_area_right.tooSmall .tooSmallIndicator {
+    display: block;
+}
+
+.tooSmallIndicator {
+    height: 100%;
+}
+
+.tooSmallIndicator p {
+    margin-top: 40%;
+}
+
+.ptz_area_right.tooSmall .topContainer, .ptz_area_right.tooSmall .bottomContainer {
+    display: none;
+}
+
+/* ---------------------- .ptzPresets ---------------------- */
 
 .topContainer {
     overflow-y: auto;

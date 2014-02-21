@@ -155,6 +155,37 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
 
     var move = $.debounce(doMove, moveDebounceTimeout);
 
+    // set up layout and generics
+
+    var $ptzBottomArea = $container.find('.ptz_area_bottom'),
+        $ptzRightArea = $container.find('.ptz_area_right'),
+        rightAreaMinWidth = 100;
+
+    var doLayout = function () {
+        $ptzBottomArea.css('top', 0);
+
+        if ($ptzBottomArea.position().top + $ptzBottomArea.outerHeight() > $container.outerHeight()) {
+            $ptzBottomArea.css('top', $container.outerHeight() - $ptzBottomArea.position().top - $ptzBottomArea.outerHeight() + 'px')
+            $ptzBottomArea.css('opacity', 0.9);
+        } else {
+            $ptzBottomArea.css('opacity', 1);
+        }
+
+        if ($ptzRightArea.width() < rightAreaMinWidth) {
+            $ptzRightArea.addClass('tooSmall');
+        } else {
+            $ptzRightArea.removeClass('tooSmall');
+        }
+    };
+
+    $(window).on('resize geometrychange ', doLayout);
+    doLayout();
+
+    $container.find('.ptz_area_right, .ptz_area_bottom').on('click', function (e) {
+        // what goes in ptz area, stays in ptz area..
+        e.stopPropagation()
+    });
+
     // setup sliders
 
     var $zoomSlider = $container.find('#ptzZoomSlider').slider($.extend({}, defaultSliderOptions, {
@@ -220,29 +251,6 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
             });
     });
 
-    // set up layout and generics
-
-    var doLayout = function () {
-        var $ptzBottomContainer = $container.find('.ptz_area_bottom');
-
-        $ptzBottomContainer.css('top', 0);
-
-        if ($ptzBottomContainer.position().top + $ptzBottomContainer.outerHeight() > $container.outerHeight()) {
-            $ptzBottomContainer.css('top', $container.outerHeight() - $ptzBottomContainer.position().top - $ptzBottomContainer.outerHeight() + 'px')
-            $ptzBottomContainer.css('opacity', 0.9);
-        } else {
-            $ptzBottomContainer.css('opacity', 1);
-        }
-    };
-
-    $(window).on('resize geometrychange ', doLayout);
-    doLayout();
-
-    $container.find('.ptz_area_right, .ptz_area_bottom').on('click', function (e) {
-        // what goes in ptz area, stays in ptz area..
-        e.stopPropagation()
-    });
-
     // set up presets
 
     var $presets = $container.find('.ptzPresets'),
@@ -251,7 +259,7 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
 
     $presets.empty();
 
-    $container.find('.ptz_area_right')
+    $ptzRightArea
         .on('click', '.normalPreset .presetName', function (e) {
             var preset = $(e.currentTarget).parents('.preset');
             gotoPreset(preset.data('token'), preset.data('position'));
@@ -295,7 +303,7 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
             }
         });
 
-    $container.find('.ptz_area_right')
+    $ptzRightArea
         .on('click', '.homePreset .presetSetHome', function (e) {
             if (self.state === states.action) {
                 return;

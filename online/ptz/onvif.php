@@ -80,6 +80,11 @@
             </div>
         </div>
     </div>
+    <div class="tooSmallIndicator">
+        <p>
+            увеличьте размер плеера &gt;&gt;
+        </p>
+    </div>
 </div>
 
 <div class="ptz_area_bottom">
