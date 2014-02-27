@@ -769,21 +769,22 @@ var gallery = {
             var upTimeTree = gallery.cookie.get('upTimeTree');
             if (upTimeTree > 0) {
                 self.timeUpdateTree = setTimeout(function () {
-                    gallery.tree_event.init(self.holder, {'method': 'getTreeEvents', 'update': false, 'on_dbld_evt': 'inform_user'});
-                },  upTimeTree* 1000);
+                    gallery.tree_event.init(self.holder, {'method': 'getTreeEvents', 'on_dbld_evt': 'inform_user'});
+                },  upTimeTree * 1000);
             }
 
         },
         // инициалзация дерева
         init: function (holder, ajax_params) {
-            if (DEBUG == 1) {
-                console.log('tree_event.init()', holder, ajax_params);
-            }
             var self = this;
             self.holder = holder;
 
             if (ajax_params == null) {
-                ajax_params = {'method': 'getTreeEvents', 'on_dbld_evt': 'inform_user'};
+                ajax_params = {'method': 'getTreeEvents', 'initially': 'yes', 'on_dbld_evt': 'inform_user'};
+            }
+
+            if (DEBUG == 1) {
+                console.log('tree_event.init()', holder, ajax_params);
             }
 
             // получаем данные о постройке дерева события
@@ -799,11 +800,11 @@ var gallery = {
                     if (data.status == 'success') {
                         // если пришли обновления, то обновляем дерево и запускаем перестройку матрицы
                         if ("tree_events" in data) {
+                            // принудительно очищаем события
                             matrix.tree_events = data.tree_events;
                             matrix.cameras = data.cameras;
-                            // принудительно очищаем события
                             matrix.events = {};
-                            matrix.all_events = {};
+                            matrix.all_events = {}; // FIXME FIXME
                             gallery.tree_event.reload();
                         } else {
                             $('#matrix_load').hide();

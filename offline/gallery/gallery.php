@@ -125,20 +125,16 @@ class Gallery
     // Функция построения дерева события
     public function getTreeEvents($param)
     {
-
-        $update = !isset($param['update']) || $param['update'] === true ? true : false;
-        $update_last = isset($param['last']) && $param['last'] ? true : false;
-        $gallery_update = $this->cache->get('gallery_update');
+        $initially = isset($param['initially']);
+        // FIXME unused $update_last = isset($param['last']) && $param['last'] ? true : false;
         //если древо заблокировано, то возвращаем ошибку
-        if ($gallery_update) {
+        if ($this->cache->get('gallery_update')) {
             $this->result = array('status' => 'error', 'code' => '3', 'description' => 'Дерево заблокированно');
             return;
         }
 
-
         global $GCP_cams_params;
         $cameras = implode(',', array_keys($GCP_cams_params));
-
 
         $count_event = $this->db->galleryGetCountEvent(array('cameras' => array_keys($GCP_cams_params)));
         $count_tree_event = $this->db->galleryGetCountTreeEvent(array('cameras' => array_keys($GCP_cams_params)));
@@ -182,12 +178,25 @@ class Gallery
                     'access_update_tree' => $access_update_tree
                 );
                 return;
-
         } else {
             $last_tree_date = $this->db->galleryGetLastTreeEventDate(array('cameras' => array_keys($GCP_cams_params)));
         }
 
-
+        if (!$initially) {
+            // возвращаем без данных и не ошибку как признак того что данные не изменились
+            $this->result = array(
+                'status' => 'success',
+                'update_tree' => $update_tree,
+                'last_tree_date' => $last_tree_date,
+                'count_event' => $count_event,
+                'count_tree_event' => $count_tree_event,
+                'last_event_date' => $last_event_date,
+                'last_tree_date' => $last_tree_date,
+                'oldest_event_date' => $oldest_event_date,
+                'oldest_tree_date' => $oldest_tree_date
+            );
+            return;
+        }
         // получаем дерево из кеша, если его нет, то из базы, результат помещаем в кеш.
         $key = md5($cameras . '-' . $last_tree_date);
         $tree_events_result = $this->cache->get($key);
@@ -213,6 +222,7 @@ class Gallery
         }
 
         $this->result = array(
+            'status' => 'success',
             'tree_events' => $tree_events_result,
             'cameras' => $GCP_cams_params,
             'update_tree' => $update_tree,
@@ -222,11 +232,9 @@ class Gallery
             'last_event_date' => $last_event_date,
             'last_tree_date' => $last_tree_date,
             'oldest_event_date' => $oldest_event_date,
-            'oldest_tree_date' => $oldest_tree_date,
-            'status' => 'success'
+            'oldest_tree_date' => $oldest_tree_date
         );
-
-    }
+    } /* getTreeEvents() */
 
     // функция обновления дерева события
     public function updateTreeEvents($param)
