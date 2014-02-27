@@ -491,7 +491,7 @@ function checkParam($parname, $parval, $def_val = null)
             break;
 
         case 'ptz':
-            $all_ptz_handler_files = glob($GLOBALS['conf']['site-dir'] . '/online/ptz/*.php');
+            $all_ptz_handler_files = glob('../online/ptz/*.php');
             if (empty($all_ptz_handler_files)) {
                 $ret = '<p style="color:' . $GLOBALS['error_color'] . ';">no PTZ handlers installed</p>' . "\n";
                 break;
