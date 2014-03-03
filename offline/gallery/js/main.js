@@ -812,10 +812,17 @@ var gallery = {
                         self.first = false;
                         self.updateTree();
                         $('#update_tree').hide();
-
                     } else if (data.status == 'error' && data.code == '0') {
+                        // принудительно очищаем события
+                        matrix.tree_events = {};
+                        matrix.cameras = {};
+                        matrix.events = {};
+                        matrix.all_events = {};
+                        gallery.tree_event.reload();
+                        self.updateTree();
+                        self.first = true;
+                        $('#update_tree').show();
                         alert(lang.empty_tree);
-                        $('#matrix_load').hide();
                     } else if (data.status == 'error' && data.code == '1') {
                         //если вовремя заполнения EVENTS_TREE были обнаружены дублированные события
                         $('#matrix_load').hide();
@@ -912,8 +919,6 @@ var gallery = {
                             message_box.close();
                         }
                         $('#matrix_load').hide();
-
-
                         var message = "<h2 style='color: #000;'>Дерево событий заблокированно. Происходит обновление.</h2><br />"
                             + "Каждые 5 секунд будет происходить попытка обновить дерево событий.<br />"
                             + "<table>"
@@ -934,54 +939,57 @@ var gallery = {
                             gallery.tree_event.init(holder);
                         }, 5000);
 
-                    } else if (data.status == 'error' && data.code == '4') { //если дерево не актуально
+                    } else if (data.status == 'error' && data.code == '4') {
+                        /* рассинхронизация событий и дерева или если дерево не актуально */
                         $('#matrix_load').hide();
-                        $('#update_tree').show();
-                        if (gallery.cookie.get('isBlockUpTree') || self.first) {
+                        if (self.first) {
                             self.first = false;
                             $('#matrix_load').show();
                             gallery.tree_event.init(holder,
                                     {'method': 'reindexTreeEvents', 'on_dbld_evt': 'inform_user'});
                             return;
+                        } else if (gallery.cookie.get('dontBlockUpdTree')) {
+                            /* просто отображаем кнопку обновить */
+                            $('#update_tree').show();
+                            return;
                         }
                         self.first = false;
                         var header = "Ошибка.";
 
-                        var message = "<h2 style='color: #000;'>" + "Обнаружено изменение данных.</h2><br />"
-                            + "Необходимо обновление.<br/><br/>";
-
-                        message +='<span class="niceCheck"';
-                        message +='><input type="checkbox" id="is_update_settings" name="is_update_settings" value="t"';
-                        message +='/></span>';
-                        message +='<label form="is_update_settings">Больше не беспокоить</label>';
-
+                        var message = "<h2 style='color: #000;'>" + "Обнаружено изменение данных.</h2><br />\n";
+                        message += 'Обычно это бывает после записи новых медиафайлов на диск или,<br />';
+                        message += "наоборот, удаления старых (автоматическая очистка архива).<br /><br />\n";
+                        message += 'Вы можете продолжить работать или обновить интерфейс,<br />';
+                        message += "если вам необходимо увидеть самые последние изменения.<br /><br />\n";
+                        message += '<label>Больше не беспокоить: ';
+                        message += '<input type="checkbox" id="popup_desync_form" class="niceCheck" value="t"';
+                        message += "/></label>\n";
 
                         message_box.yes_delegate = function (event) {
-                            if ($('#is_update_settings').attr('checked')) {
-                                gallery.cookie.set('isBlockUpTree', 1);
+                            if ($('#popup_desync_form').attr('checked')) {
+                                gallery.cookie.set('dontBlockUpdTree', 1);
                             } else {
-                                gallery.cookie.set('isBlockUpTree', 0);
+                                gallery.cookie.set('dontBlockUpdTree', 0);
                             }
                             $('#matrix_load').show();
                             gallery.tree_event.init(holder, {'method': 'reindexTreeEvents', 'on_dbld_evt': 'inform_user'});
                         };
 
                         message_box.no_delegate = function (event) {
-                            if ($('#is_update_settings').attr('checked')) {
-                                gallery.cookie.set('isBlockUpTree', 1);
+                            if ($('#popup_desync_form').attr('checked')) {
+                                gallery.cookie.set('dontBlockUpdTree', 1);
                             } else {
-                                gallery.cookie.set('isBlockUpTree', 0);
+                                gallery.cookie.set('dontBlockUpdTree', 0);
                             }
+                            $('#update_tree').show();
                         };
                         message_box.buttons_name.No = "Выход";
                         message_box.buttons_name.Yes = "Обновить";
 
                         message_box.show(message, header, message_box.message_type.error,  message_box.button_type.YesNo);
-
                     }
                 }
             });
-
         }
     },
 
@@ -1401,7 +1409,8 @@ var gallery = {
             e.preventDefault();
             var header = "Настройки";
 
-            var message = '<label form="update_time_settings">Проверять необходимость обновления каждые:</label><select id="update_time_settings" name="update_time_settings">';
+            var message = '<label>Проверять необходимость обновления каждые: ' + "\n";
+            message += '<select id="update_time_settings">' + "\n";
 
             var times = {
                 60 :"1 мин.",
@@ -1416,41 +1425,40 @@ var gallery = {
             }
 
             for (var i in times) {
-                message +='<option  value="'+i+'"';
-                if (i ==  upTimeTree) {
+                message += '<option  value="' + i + '"';
+                if (i == upTimeTree) {
                     message += 'selected="selected"';
                 }
-                message +='>'+times[i]+'</option>';
+                message += '>' + times[i] + '</option>' + "\n";
             }
-            message +='</select><br>';
+            message += '</select>' + "\n";
+            message += '</label></br>' + "\n";
 
-            message +='<label form="is_update_settings">Не блокировать интерфейс при рассинхронизации:</label>';
+            message += '<label>Не блокировать интерфейс при рассинхронизации: ' + "\n";
 
-
-            message +='<span class="niceCheck"';
-            if (gallery.cookie.get('isBlockUpTree')) {
+            message += '<span class="niceCheck"';
+            if (gallery.cookie.get('dontBlockUpdTree')) {
                 message += ' style="background-position: 0px -14px"';
             }
-            message +='><input type="checkbox" id="is_update_settings" name="is_update_settings" value="t"';
-            if (gallery.cookie.get('isBlockUpTree')) {
+            message += '><input type="checkbox" id="popup_desync_form" value="t"' + "\n";
+            if (!gallery.cookie.get('dontBlockUpdTree')) {
                 message += ' checked="checked"';
             }
-            message +='/></span>';
+            message += '/></label></span>' + "\n";
 
             message_box.yes_delegate = function (event) {
             };
 
             message_box.no_delegate = function (event) {
-                if ($('#is_update_settings').attr('checked')) {
-                    gallery.cookie.set('isBlockUpTree', 1);
+                if ($('#popup_desync_form').attr('checked')) {
+                    gallery.cookie.set('dontBlockUpdTree', 1);
                 } else {
-                    gallery.cookie.set('isBlockUpTree', 0);
+                    gallery.cookie.set('dontBlockUpdTree', 0);
                 }
                 if (gallery.cookie.get('upTimeTree') != $('#update_time_settings').val()) {
                     gallery.cookie.set('upTimeTree', $('#update_time_settings').val());
                     gallery.tree_event.updateTree();
                 }
-
             };
 
             message_box.buttons_name.No = "Сохранить";
@@ -1458,12 +1466,7 @@ var gallery = {
 
             message_box.show(message, header, message_box.message_type.info,  message_box.button_type.YesNo);
             return false;
-
         });
-
-
-
-
     }
 };
 

@@ -53,7 +53,7 @@
             <div id="win_top">
 
                 <div class="rightBtn">
-                    <a id="update_tree" href="" title="Обновить дерево"><img src="gallery/img/up32.png"/></a>
+                    <a id="update_tree" href="" title="Обновить данные"><img src="gallery/img/up32.png"/></a>
                     <a href=""  id="settings" title="Настройка"><img src="gallery/img/settings32.png"/></a>
                     <a href="../index.php" title="На главную"><img src="gallery/img/home32.png"/></a>
                 </div>
