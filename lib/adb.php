@@ -191,8 +191,7 @@ class Adb
             }
 
             // формирование уникального индекса, для работы кэша в браузере пользователя
-            // $events[str_replace(array('/', '.'),'_',$line[5].'_'.$line[2].'_'.$line[0] )] = $line;
-            array_push($events, $line);
+            $events[str_replace(array('/', '.'), '_', $line[5] . '_' . $line[2] . '_' . $line[0])] = $line;
         }
 
         return $events;
