@@ -1,5 +1,3 @@
-var DEBUG = 0;
-
 function Enum() {
     this.allValues = [];
     this.currentValue = 0;
@@ -770,7 +768,7 @@ var gallery = {
             if (upTimeTree > 0) {
                 self.timeUpdateTree = setTimeout(function () {
                     gallery.tree_event.init(self.holder, {'method': 'getTreeEvents', 'on_dbld_evt': 'inform_user'});
-                },  upTimeTree * 1000);
+                },  DEBUG ? 10000 /* 10 sec. */ : (upTimeTree * 1000));
             }
 
         },

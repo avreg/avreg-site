@@ -58,7 +58,7 @@ class Cache
 
     public function check($key)
     {
-        //return true; // temporarily cache disabling
+        return true; // temporarily cache disabling FIXME FIXME
         return (bool)$this->memcache->get($this->prefix . $key . $this->sufix . $this->locked);
     }
 
