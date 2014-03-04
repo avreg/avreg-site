@@ -33,6 +33,7 @@
                 <label for="audio_type"><?php print $straudiotype; ?></label>
             </div>
             <div id="tree">
+
                 <div id="tree_new">
                 </div>
             </div>
@@ -50,8 +51,11 @@
     <div id="content">
         <div class="window">
             <div id="win_top">
-                <div class=backToMainDiv align=left>
-                    <a class=backToMainDivA href="../index.php">На главную </a>
+
+                <div class="rightBtn">
+                    <a id="update_tree" href="" title="Обновить данные"><img src="gallery/img/up32.png"/></a>
+                    <a href=""  id="settings" title="Настройка"><img src="gallery/img/settings32.png"/></a>
+                    <a href="../index.php" title="На главную"><img src="gallery/img/home32.png"/></a>
                 </div>
                 <div id="select_all_cam">
 						<span class="new_Check" style="white-space: nowrap; ">
@@ -285,7 +289,7 @@
                 min_cell_width: <?php print $conf['gallery-min_cell_width'];?>,
                 min_cell_height: <?php print $conf['gallery-min_cell_height'];?>
             },
-            show_timeout: <?php print isset($conf['gallery-show_timeout']) ? $conf['gallery-show_timeout'] : 1 ;?>
+            show_timeout: <?php print isset($conf['gallery-show_timeout']) ? $conf['gallery-show_timeod'] : 60 ;?>
         };
 
         $('body').css('overflow', 'hidden');
@@ -296,4 +300,3 @@
         }
     });
 </script>
-

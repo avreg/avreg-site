@@ -83,6 +83,10 @@ a, .href {
     cursor:pointer;
 }
 
+.href {
+    cursor:pointer;
+}
+
 a:hover, a:active {
     color: Red;
     text-decoration: underline;
@@ -388,6 +392,7 @@ th.layout {
     position: relative;
     height: 8%;
 }
+
 
 .pl_wrapper {
     position: relative;

@@ -78,7 +78,8 @@ if (isset($USE_JQUERY)) {
             }
         }
     }
-    <?php
+<?php
+    printf("var DEBUG = %s;\n", @empty($_REQUEST['debug']) && @empty($conf['debug']) ? 'false' : 'true');
     printf("var WwwPrefix  = '%s';\n", addcslashes($conf['prefix'], '\'"/\\'));
 ?>
 </script>
@@ -368,3 +369,4 @@ if (empty($NO_OB_END_FLUSH)) {
         // do nothing
     };
 }
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */
