@@ -53,7 +53,8 @@ if (!isset($_POST['method']) && !isset($_GET['method'])) {
         'offline/gallery/js/jquery.checkbox.js',
         'offline/gallery/js/jquery.tooltip.js',
         'offline/gallery/js/main.js',
-        'lib/js/third-party/json2.js'
+        'lib/js/third-party/json2.js',
+        'lib/js/third-party/base64utf.js'
     );
     require_once('../head.inc.php');
     $GCP_query_param_list = array('text_left', 'Hx2');
