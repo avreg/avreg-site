@@ -79,6 +79,7 @@ if (isset($USE_JQUERY)) {
         }
     }
 <?php
+    /* setup PHP and JS global DEBUG variable */
     printf("var DEBUG = %s;\n", @empty($_REQUEST['debug']) && @empty($conf['debug']) ? 'false' : 'true');
     printf("var WwwPrefix  = '%s';\n", addcslashes($conf['prefix'], '\'"/\\'));
 ?>

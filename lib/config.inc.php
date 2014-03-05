@@ -1793,4 +1793,8 @@ if (isset($_SERVER['PHP_AUTH_USER'])) {
 } else {
     DENY(null, 401);
 }
+
+if (!@empty($_REQUEST['debug'])) {
+    $conf['debug'] = true;
+}
 /* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */
