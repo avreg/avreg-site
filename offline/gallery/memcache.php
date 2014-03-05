@@ -12,17 +12,19 @@ class Cache
     private $server = 'localhost';
     private $port = 11211;
     private $prefix = 'gallery:';
-    private $sufix = '';
+    private $debug = false;
 
-    public function __construct($server = 'localhost', $port = 11211)
+    public function __construct($debug = false)
     {
-        $this->server = $server;
-        $this->port = $port;
+        $this->debug  = $debug;
         $this->memcache = new \Memcache;
         if ($this->pconnect) {
             $this->memcache->pconnect($this->server, $this->port);
         } else {
             $this->memcache->connect($this->server, $this->port);
+        }
+        if ($this->debug) {
+            error_log(sprintf('%s(%s)', __METHOD__, (string)$debug));
         }
     }
 
@@ -31,44 +33,76 @@ class Cache
         if ($this->pconnect) {
             $this->memcache->close();
         }
+        if ($this->debug) {
+            error_log(sprintf('%s()', __METHOD__));
+        }
     }
 
-    public function setSufix($sufix)
+    private function keyName($key, $suffix = '')
     {
-        $this->sufix = $sufix;
+        $_key = $this->prefix . $key;
+        if (!empty($suffix)) {
+            $_key .= (string)$suffix;
+        }
+        return $_key;
     }
 
     public function get($key)
     {
-        $data = $this->memcache->get($this->prefix . $key . $this->sufix);
+        $_key = $this->keyName($key);
+        $data = $this->memcache->get($_key);
+        if ($this->debug) {
+            error_log(sprintf('%s("%s") -> %s%s', __METHOD__, $_key, gettype($data), @empty($data) ? '(empty)' : ''));
+        }
         return $data;
     }
 
     public function lock($key, $time = 10)
     {
-        $this->memcache->set($this->prefix . $key . $this->sufix . $this->locked, 1, null, $time);
+        $_key = $this->keyName($key, $locked);
+        $this->memcache->set($_key, 1, null, $time);
     }
 
     public function set($key, $value, $compress = false, $time = 0)
     {
+        $_key = $this->keyName($key);
         $compress = $compress ? MEMCACHE_COMPRESSED : null;
-        $this->memcache->set($this->prefix . $key . $this->sufix, $value, $compress, $time);
-        $this->delete($key . $this->sufix . $this->locked);
+        $ret_set = $this->memcache->set($_key, $value, $compress, $time);
+        if ($this->debug) {
+            error_log(sprintf('%s("%s, $value, %s, %d") -> %s', __METHOD__, $_key, (string)$compress, $time, $ret_set));
+        }
+        $_key = $this->keyName($key, $locked);
+        $ret_del_lock = $this->delete($_key);
+        if ($this->debug) {
+            error_log(sprintf('%s() delete("%s") -> %s', __METHOD__, $_key, $ret_del_lock));
+        }
+        return $ret_set;
     }
 
     public function check($key)
     {
-        return true; // temporarily cache disabling FIXME FIXME
-        return (bool)$this->memcache->get($this->prefix . $key . $this->sufix . $this->locked);
+        $_key = $this->keyName($key, $locked);
+        // return true; // temporarily cache disabling FIXME FIXME
+        return (bool)$this->memcache->get($_key);
     }
 
     public function delete($key, $time = 0)
     {
-        $this->memcache->delete($this->prefix . $key . $this->sufix, $time);
+        $_key = $this->keyName($key);
+        $ret = $this->memcache->delete($_key, $time);
+        if ($this->debug) {
+            error_log(sprintf('%s("%s, %d") -> %s', __METHOD__, $_key, $time, $ret));
+        }
+        return $ret;
     }
 
     public function flush()
     {
-        return $this->memcache->flush();
+        $ret = $this->memcache->flush();
+        if ($this->debug) {
+            error_log(sprintf('%s("") -> %s', __METHOD__, $ret));
+        }
+        return $ret;
     }
 }
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */

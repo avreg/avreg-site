@@ -57,12 +57,14 @@ if (!isset($_POST['method']) && !isset($_GET['method'])) {
         'lib/js/third-party/base64utf.js'
     );
     require_once('../head.inc.php');
+
     $GCP_query_param_list = array('text_left', 'Hx2');
     require('../lib/get_cams_params.inc.php');
     if ($GCP_cams_nr == 0) {
         die('There are no available cameras!');
     }
     $cookies = isset($_COOKIE['gallery']) ? (array)json_decode(base64_decode($_COOKIE['gallery'])) : array();
+
     /// Подключение самой страницы галереи
     require_once('gallery/index.php');
     require_once('../foot.inc.php');
