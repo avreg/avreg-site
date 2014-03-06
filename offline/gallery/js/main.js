@@ -94,13 +94,13 @@ var gallery = {
                 hc -= 23;
             }
             /*
-             alert('Вызвано в инициализации:\n' +
-             'winbot height = ' + $('#win_bot').height() +
-             '\nheight new = ' + hc +
-             '\ntoolbar height = ' + $('#toolbar').height() +
-             '\nwintop height = ' + $("#win_top").height() +
-             '\ncontent height = ' + $("#content").height());
-             //*/
+               alert('Вызвано в инициализации:\n' +
+               'winbot height = ' + $('#win_bot').height() +
+               '\nheight new = ' + hc +
+               '\ntoolbar height = ' + $('#toolbar').height() +
+               '\nwintop height = ' + $("#win_top").height() +
+               '\ncontent height = ' + $("#content").height());
+            //*/
             $('#win_bot').height(hc);
 
             if (MSIE) {
@@ -109,6 +109,7 @@ var gallery = {
                 $('#page').width($('#sidebar').width() + $('#content').width());
             }
         },
+
         // функция инициализации
         init: function () {
 
@@ -169,7 +170,7 @@ var gallery = {
 
             }
         }
-    },
+    }, /* gallery.resize_column object */
 
     reload_events: function () {
         var count = 0;
@@ -205,7 +206,8 @@ var gallery = {
             return false;
         }
         return true;
-    },
+    }, /* gallery.reload_events() */
+
     reload_cams: function () {
         var count = 0;
         var cam_cnt = 0;
@@ -249,7 +251,8 @@ var gallery = {
             $('#select_all_cam>.new_Check').css('opacity', '1');
         }
         return true;
-    },
+    }, /* gallery.reload_cams() */
+
     cookie: {
         config: {
             "days": "30",
@@ -334,12 +337,14 @@ var gallery = {
                 $.extend(self.config, config);
             }
         }
-    },
+    }, /* gallery.cookie */
+
     // объект построения дерева событий
     tree_event: {
         holder: null,
         timeUpdateTree: false, // таймер, который показывает кнопку обновить дерево
         first : true, // первая ли загрузка
+
         // функция обновления дерева
         reload: function () {
             if (DEBUG == 1) {
@@ -634,10 +639,11 @@ var gallery = {
                 }).show();
             gallery.treeObject = $(self.holder);
             matrix.build();
-        },
-        updateTree: function() {
+        }, /* tree_event.reload() */
+
+        startUpdateTreeTimer: function() {
             if (DEBUG == 1) {
-                console.log('tree_event.updateTree()');
+                console.log('tree_event.startUpdateTreeTimer()');
             }
             var self = this;
             //запускаем таймер проверки рассинхронизации дерева
@@ -651,7 +657,8 @@ var gallery = {
                 },  DEBUG ? 10000 /* 10 sec. */ : (upTimeTree * 1000));
             }
 
-        },
+        }, /* tree_event.startUpdateTreeTimer() */
+
         // инициалзация дерева
         init: function (holder, ajax_params) {
             var self = this;
@@ -688,7 +695,7 @@ var gallery = {
                             $('#matrix_load').hide();
                         }
                         self.first = false;
-                        self.updateTree();
+                        self.startUpdateTreeTimer();
                         $('#update_tree').hide();
                     } else if (data.status == 'error' && data.code == '0') {
                         // принудительно очищаем события
@@ -697,7 +704,7 @@ var gallery = {
                         matrix.events = {};
                         matrix.all_events = {};
                         gallery.tree_event.reload();
-                        self.updateTree();
+                        self.startUpdateTreeTimer();
                         self.first = true;
                         $('#update_tree').show();
                         alert(lang.empty_tree);
@@ -867,7 +874,7 @@ var gallery = {
                         message_box.show(message, header, message_box.message_type.error,  message_box.button_type.YesNo);
                     }
                 }
-            });
+            }); /* tree_event.init() */
         }
     },
 
@@ -1335,7 +1342,7 @@ var gallery = {
                 }
                 if (gallery.cookie.get('upTimeTree') != $('#update_time_settings').val()) {
                     gallery.cookie.set('upTimeTree', $('#update_time_settings').val());
-                    gallery.tree_event.updateTree();
+                    gallery.tree_event.startUpdateTreeTimer();
                 }
             };
 
