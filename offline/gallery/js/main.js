@@ -2297,7 +2297,7 @@ var matrix = {
     // обновление матрицы
     update: function (sp) {
         if (DEBUG == 1) {
-            console.log('matrix.update()', sp);
+            console.log('matrix.update(sp=' + sp + ')');
         }
         $('#matrix_load').show();
         var hide_over = true;
@@ -2328,9 +2328,7 @@ var matrix = {
                 }
             });
         }
-
         // происходит проверка, есть ли необходимые элементы в кеше
-
         var count_events = matrix.cell_count;
 
         if (matrix.cell_count > matrix.curent_tree_events[matrix.tree].count) {
@@ -2673,7 +2671,7 @@ var matrix = {
     // выполнения запроса новых событий
     get_events: function (sp) {
         if (DEBUG == 1) {
-            console.log('matrix.get_events()', sp);
+            console.log('matrix.get_events(sp=' + sp + ')');
         }
         // определяем тип событий и список камер
         var type = '', cameras = '';
@@ -2854,11 +2852,9 @@ var matrix = {
             //отменяем показ последних - переходим в начало диапазона
             sp = 0;
             matrix.num = 0;
-            matrix.get_events(sp);
 //			sp = scroll.position;
         } else {
             sp = 0;
-            matrix.get_events(sp);
         }
 
         if (count_events < matrix.cell_count && count_events < matrix.curent_tree_events[matrix.tree].count) {
