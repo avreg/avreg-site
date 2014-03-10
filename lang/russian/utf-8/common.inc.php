@@ -86,6 +86,7 @@ $strData = 'Данные';
 $strDefault = 'по умолчанию';
 $strDelete = 'удалить';
 $strDisabled = 'недоступно';
+$strDisclose = 'Раскрыть';
 $strDisplay = 'показать';
 $strDisplayed = 'показывать';
 $strDocu = 'документация';

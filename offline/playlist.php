@@ -328,12 +328,33 @@ if (isset($_SESSION) && isset($_SESSION['error']) /* ошибка */) {
     </fieldset>
 </form>
 <div class="help">
-    <legend><?php echo $strAdvices; ?>.</legend>
-    <ul>
-        <li><?php echo $strBrowserHandlers; ?></li>
-        <li><?php echo $strViewFrame2; ?></li>
+    <legend class='tip-spoiler-title' title="<?php echo $strDisclose; ?>">
+    <?php echo $strAdvices; ?> +
+    </legend>
+    <div class='tip-spoiler-body'>
+        <ul>
+            <li><?php echo $strBrowserHandlers; ?></li>
+            <li><?php echo $strViewFrame2; ?></li>
+            <li><?php echo $strMassCopy; ?></li>
+       </ul>
+    </div>
 </div>
 
+<script type='text/javascript'>
+    $(document).ready(function() {
+        $('.tip-spoiler-body').hide();
+        $('.tip-spoiler-title').click(function() {
+            $(this).toggleClass('opened').toggleClass('closed').next().slideToggle();
+            if ($(this).hasClass('opened')) {
+                $(this).html("<?php echo $strAdvices; ?> -");
+                $(this).attr('title', "<?php $strClose; ?>");
+            } else {
+                $(this).html("<?php echo $strAdvices; ?> +");
+                $(this).attr('title', "<?php $strDisclose; ?>");
+            }
+        });
+    });
+</script>
 <?php
 require('../foot.inc.php');
 /* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */

@@ -5,6 +5,7 @@
  */
 /// Языковый файл
 $lang_file = '_admin_cams.php';
+$USE_JQUERY = true;
 require('../head.inc.php');
 require('../lib/cams_main_detail.inc.php');
 
@@ -44,12 +45,16 @@ if (isset($cmd)) {
 }
 
 if (!isset($cam_nr)) {
-    if ($install_user) {
-        echo '<div class="warn">' . $r_cam_tips_installers . '</div>' . "\n";
-    } else {
-        if ($admin_user) {
-            echo '<div class="warn">' . $r_cam_tips_admins . '</div>' . "\n";
+    if ($admin_user) {
+        echo "<div class='warn'>\n";
+        echo "<legend class='tip-spoiler-title' title='$strDisclose'>$strAdvices +</legend>\n";
+        echo "<div class='tip-spoiler-body'>\n";
+        if ($install_user) {
+            echo $r_cam_tips_installers;
+        } else {
+            echo $r_cam_tips_admins;
         }
+        echo "\n</div>\n</div>\n";
     }
 
     $GCP_query_param_list = array(
@@ -163,6 +168,24 @@ if (!isset($cam_nr)) {
     }
     /* choice number cam */
 }
+?>
 
+<script type='text/javascript'>
+    $(document).ready(function() {
+        $('.tip-spoiler-body').hide();
+        $('.tip-spoiler-title').click(function() {
+            $(this).toggleClass('opened').toggleClass('closed').next().slideToggle();
+            if ($(this).hasClass('opened')) {
+                $(this).html("<?php echo $strAdvices; ?> -");
+                $(this).attr('title', "<?php $strClose; ?>");
+            } else {
+                $(this).html("<?php echo $strAdvices; ?> +");
+                $(this).attr('title', "<?php $strDisclose; ?>");
+            }
+        });
+    });
+</script>
+
+<?php
 // phpinfo ();
 require('../foot.inc.php');

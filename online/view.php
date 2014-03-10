@@ -38,7 +38,7 @@ $lang_file = '_online.php';
 require('../head.inc.php');
 
 //получение пользовательских раскладок
-$clients_layouts = array();
+$user_layouts = array();
 $cnt_client_lay = 0;
 if (isset($_COOKIE['layouts'])) {
     $layouts_cookie = $_COOKIE['layouts'];
@@ -56,7 +56,7 @@ if (isset($layouts_cookie)) {
 
 if (isset($tmp)) {
     $cnt_client_lay = count($tmp);
-    foreach ($tmp as $client_mon_nr => $l_val) {
+    foreach ($tmp as $user_layout_nr => $l_val) {
         $_data = array();
         foreach ($l_val as $par_name => $par_data) {
             $_data[$par_name] = $par_data;
@@ -67,12 +67,12 @@ if (isset($tmp)) {
             $_data['wins'][$cell_nr] = $cell_data;
         }
 
-        $clients_layouts[(int)$client_mon_nr] = array(
+        $user_layouts[(int)$user_layout_nr] = array(
             // 			"BIND_MAC"=> "local",
             // 			"CHANGE_HOST"=> "anyhost",
             "CHANGE_USER" => $_data['u'],
             "CHANGE_TIME" => $_data['dd'],
-            "MON_NR" => $client_mon_nr,
+            "MON_NR" => $user_layout_nr,
             'MON_TYPE' => $_data['t'],
             'SHORT_NAME' => $_data['n'],
             'PRINT_CAM_NAME' => $_data['cn'],
@@ -83,89 +83,77 @@ if (isset($tmp)) {
         );
     }
 }
-//Загрузка установленных раскладок
-$result = $adb->webGetLayouts($login_user);
 
-//$result_ = $clients_layouts + $result;
-$result_tmp = array_merge($clients_layouts, $result);
-$result = $result_tmp;
+//Загрузка установленных раскладок
+$sys_layouts = $adb->webGetLayouts($login_user);
+$layouts = array_merge($user_layouts, $sys_layouts);
 
 //Если нет установленных раскладок
-if (!count($result)) {
+if (!count($layouts)) {
     echo "<script type=text/javascript>
         user_layouts.redirect('../admin/web_mon_addnew.php?storage=client&mon_nr=0&counter=1');</script>";
     exit();
 }
 
-//$curr_mon_nr = 0;
-//foreach ($result as $key=>$value)
-//{
-//    $result[$key]['MON_NR_ACTUALLY'] = $curr_mon_nr;
-//    $curr_mon_nr += 1;
-//}
-//print_r($result);
-
-//Номер камеры по умолчанию
-$def_cam = null;
-$cur_layout = 0;
+// Текущий выбранный layout
+$cur_layout = null;
+$cur_layout_nr = 0;
 $is_clients_layout_default = false;
+
 if (isset($_GET['layout_id'])) {
     //устанавливаем запрошенную раскладку
-    foreach ($result as $key => &$value) {
+    foreach ($layouts as $key => &$value) {
         if ($value["MON_NR"] == $_GET['layout_id']) {
-            $def_cam = $value;
-            $cur_layout = $value["MON_NR"];
-        }
-        if (!isset($value['RECONNECT_TOUT'])) {
-            $value['RECONNECT_TOUT'] = isset($conf['reconnect-timeout']) ? $conf['reconnect-timeout'] : 0;
+            $cur_layout = $value;
+            $cur_layout_nr = $value["MON_NR"];
+            break;
         }
     }
 } else {
-    //Поиск раскладки по умолчанию и определение реконнект таймаута
+    //Поиск раскладки по умолчанию
     if (isset($l_cook)) {
         foreach ($l_cook as $key => $value) {
             if ($l_cook[$key]['d'] == 'true') {
                 $is_clients_layout_default = true;
-                $cur_layout = $key;
-                $def_cam = $value;
-            }
-            if (!isset($value['RECONNECT_TOUT'])) {
-                $value['RECONNECT_TOUT'] = isset($conf['reconnect-timeout']) ? $conf['reconnect-timeout'] : 0;
+                $cur_layout_nr = $key;
+                $cur_layout = $value;
+                break;
             }
         }
     }
     if (!$is_clients_layout_default) {
-        foreach ($result as $key => &$value) {
-            if ($value['IS_DEFAULT'] != '0') {
-                $def_cam = $value;
-                $cur_layout = intval($value['MON_NR']);
-            }
-            if (!isset($value['RECONNECT_TOUT'])) {
-                $value['RECONNECT_TOUT'] = isset($conf['reconnect-timeout']) ? $conf['reconnect-timeout'] : 5;
+        foreach ($sys_layouts as $key => &$value) {
+            if (!empty($value['IS_DEFAULT'])) {
+                $cur_layout = $value;
+                $cur_layout_nr = intval($value['MON_NR']);
+                break;
             }
         }
     }
 }
 
 //Если раскладка не определена - используем первую
-if ($def_cam == null) {
-    $cur_layout = -1;
-    $def_cam = $result[0];
+if ($cur_layout == null) {
+    $cur_layout = $layouts[0];
+    $cur_layout_nr = isset($cur_layout['MON_NR']) ? $cur_layout['MON_NR'] : -1;
 }
+if (!isset($cur_layout['RECONNECT_TOUT'])) {
+    $cur_layout['RECONNECT_TOUT'] = isset($conf['reconnect-timeout']) ? $conf['reconnect-timeout'] : 0;
+}
+// error_log(print_r($cur_layout_nr, true));
 
 //Определяем соответствующие параметры
 // Если не установлена клиентская раскладка по умолчанию
 if (!$is_clients_layout_default) {
-    $PrintCamNames = $def_cam['PRINT_CAM_NAME'];
-    $AspectRatio = $def_cam['PROPORTION'];
-    $mon_type = $def_cam['MON_TYPE'];
-
-    $win_cams = json_decode($def_cam['WINS'], true);
+    $PrintCamNames = $cur_layout['PRINT_CAM_NAME'];
+    $AspectRatio = $cur_layout['PROPORTION'];
+    $mon_type = $cur_layout['MON_TYPE'];
+    $win_cams = json_decode($cur_layout['WINS'], true);
 } else { // Устанавливаем по умолчанию клиентскую раскладку
-    $PrintCamNames = $def_cam['n'];
-    $AspectRatio = $def_cam['p'];
-    $mon_type = $def_cam['t'];
-    $win_cams = json_decode($def_cam['w'], true);
+    $PrintCamNames = $cur_layout['cn'];
+    $AspectRatio = $cur_layout['p'];
+    $mon_type = $cur_layout['t'];
+    $win_cams = json_decode($cur_layout['w'], true);
 }
 if (!isset($win_cams) || empty($win_cams)) {
     die('should use "$win_cams" cgi param');
@@ -178,16 +166,16 @@ if (!isset($mon_type) || empty($mon_type) || !array_key_exists($mon_type, $layou
 $l_defs = & $layouts_defs[$mon_type];
 $wins_nr = count($l_defs[3]); //определяет количество камер в раскладке
 
-$def_cam_wins = '';
-if (isset($def_cam['WINS'])) {
-    $def_cam_wins = $def_cam['WINS'];
+$cur_layout_wins = '';
+if (isset($cur_layout['WINS'])) {
+    $cur_layout_wins = $cur_layout['WINS'];
 } else {
-    $def_cam_wins = $def_cam['w'];
+    $cur_layout_wins = $cur_layout['w'];
 }
 
 $_cookie_value = sprintf(
     '%s-%u-%u-%u-%s',
-    $def_cam_wins, // implode('.', $cams_in_wins),
+    $cur_layout_wins, // implode('.', $cams_in_wins),
     isset($OpenInBlankPage),
     isset($PrintCamNames),
     isset($EnableReconnect),
@@ -197,7 +185,6 @@ $_cookie_value = sprintf(
 while (@ob_end_flush()) {
     ;
 }
-
 ?>
 
 <div id="canvas"
@@ -219,10 +206,10 @@ if (isset($conf['aplayerConfig']) && !empty($conf['aplayerConfig']) && is_array(
 print "var online_check_period = {$conf['online-check-period']};\n";
 
 //устанавливаем номер текущей раскладки
-print "var cur_layout = '$cur_layout';\n";
+print "var cur_layout = '$cur_layout_nr';\n";
 
 //Передаем в JS список существующих раскладок
-print "var layouts_list = " . json_encode($result) . ";\n";
+print "var layouts_list = " . json_encode($layouts) . ";\n";
 //Передаем в JS возможные варианты раскладок
 print "var layouts_defs = " . json_encode($layouts_defs) . ";\n";
 //Передаем в JS возможные аспекты раскладок

@@ -253,11 +253,11 @@ div.error {
 }
 
 .cmd {
-    margin: 1px;
+    margin: 2px;
     padding-top: 1px;
     padding-bottom: 1px;
-    padding-left: 5px;
-    padding-right: 5px;
+    padding-left: 3px;
+    padding-right: 3px;
     /*background-color: #FFDCA8;*/
     border: 1px solid black;
     font-weight: bold;
@@ -426,3 +426,7 @@ a:hover {
     height: 250px;
 }
 
+.tip-spoiler-title {
+    cursor: pointer;
+    text-decoration: underline;
+}
