@@ -2,7 +2,8 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
     var self = this;
 
     // constants
-    var incDecStep = 20,
+    var incDecMoreStep = 10,
+        incDecStep = 40,
         pollingTimeout = 300,
         moveDebounceTimeout = 300,
         maxConnectionTries = 5,
@@ -129,7 +130,7 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
             name: 'action',
             enter: function () {
                 setControlsEnableState(false);
-                // cache current position to be able to revert position on action fail
+                // save current position to be able to revert position if action fails
                 __lastPosition = getSlidersPosition();
             },
             exit: function () {}.bind(this)
@@ -215,14 +216,33 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
 
     // set up dec/inc buttons
 
-    var $tiltDec = $container.find('.ptzSliderTilt .ptzDecrease').data('component', 'tilt').data('action', 'dec'),
-        $tiltInc = $container.find('.ptzSliderTilt .ptzIncrease').data('component', 'tilt').data('action', 'inc'),
-        $panDec = $container.find('.ptzSliderPan .ptzDecrease').data('component', 'pan').data('action', 'dec'),
-        $panInc = $container.find('.ptzSliderPan .ptzIncrease').data('component', 'pan').data('action', 'inc'),
-        $zoomInc = $container.find('.ptzSliderZoom .ptzIncrease').data('component', 'zoom').data('action', 'inc'),
-        $zoomDec = $container.find('.ptzSliderZoom .ptzDecrease').data('component', 'zoom').data('action', 'dec');
+    var $tiltDec = $container.find('.ptzSliderTilt .ptzDecrease')
+            .data('component', 'tilt').data('action', 'dec'),
+        $tiltDecMore = $container.find('.ptzSliderTilt .ptzDecreaseMore')
+            .data('component', 'tilt').data('action', 'dec').data('mult', 'more'),
+        $tiltInc = $container.find('.ptzSliderTilt .ptzIncrease')
+            .data('component', 'tilt').data('action', 'inc'),
+        $tiltIncMore = $container.find('.ptzSliderTilt .ptzIncreaseMore')
+            .data('component', 'tilt').data('action', 'inc').data('mult', 'more'),
+        $panDec = $container.find('.ptzSliderPan .ptzDecrease')
+            .data('component', 'pan').data('action', 'dec'),
+        $panDecMore = $container.find('.ptzSliderPan .ptzDecreaseMore')
+            .data('component', 'pan').data('action', 'dec').data('mult', 'more'),
+        $panInc = $container.find('.ptzSliderPan .ptzIncrease')
+            .data('component', 'pan').data('action', 'inc'),
+        $panIncMore = $container.find('.ptzSliderPan .ptzIncreaseMore')
+            .data('component', 'pan').data('action', 'inc').data('mult', 'more'),
+        $zoomInc = $container.find('.ptzSliderZoom .ptzIncrease')
+            .data('component', 'zoom').data('action', 'inc'),
+        $zoomIncMore = $container.find('.ptzSliderZoom .ptzIncreaseMore')
+            .data('component', 'zoom').data('action', 'inc').data('mult', 'more'),
+        $zoomDec = $container.find('.ptzSliderZoom .ptzDecrease')
+            .data('component', 'zoom').data('action', 'dec'),
+        $zoomDecMore = $container.find('.ptzSliderZoom .ptzDecreaseMore')
+            .data('component', 'zoom').data('action', 'dec').data('mult', 'more');
 
-    var incDecButtons = [$tiltInc, $tiltDec, $panDec, $panInc, $zoomDec, $zoomInc];
+    var incDecButtons = [$tiltInc, $tiltDec, $panDec, $panInc, $zoomDec, $zoomInc, $tiltDecMore, $tiltIncMore,
+        $panDecMore, $panIncMore, $zoomIncMore, $zoomDecMore];
 
     $.each(incDecButtons, function (i, $button) {
         $button.on('click', function (e) {
@@ -233,7 +253,7 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
                         cmp === 'zoom' ? $zoomSlider : null;
 
             $slider.slider(
-                'value', $slider.slider('value') + mult * (coordSpaces[cmp].max - coordSpaces[cmp].min) / incDecStep
+                'value', $slider.slider('value') + mult * (coordSpaces[cmp].max - coordSpaces[cmp].min) / ($button.data('mult') === 'more' ? incDecMoreStep : incDecStep)
             );
         })
     });

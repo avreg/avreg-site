@@ -383,6 +383,14 @@ ul.ptzPresets {
     background: url('../img/ico_ptz_slider_move_right.png') no-repeat;
     background-size: contain;
 }
+.ptzButton.ptzDecreaseMore {
+    background: url('../img/ico_ptz_slider_move_left_more.png') no-repeat;
+    background-size: contain;
+}
+.ptzButton.ptzIncreaseMore {
+    background: url('../img/ico_ptz_slider_move_right_more.png') no-repeat;
+    background-size: contain;
+}
 .ptzButton.presetRemove {
     background: url('../img/ico_ptz_x.png') no-repeat;
     background-size: contain;

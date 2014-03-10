@@ -93,25 +93,31 @@
             <table class="bottomSliderContainer ptzSliderTilt">
                 <tr>
                     <td class="label"><p>TILT</p></td>
+                    <td class="button"><input type="button" class="ptzDecreaseMore ptzButton"/></td>
                     <td class="button"><input type="button" class="ptzDecrease ptzButton"/></td>
                     <td class="control"><div id="ptzTiltSlider"></div></td>
                     <td class="button"><input type="button" class="ptzIncrease ptzButton"/></td>
+                    <td class="button"><input type="button" class="ptzIncreaseMore ptzButton"/></td>
                 </tr>
             </table>
             <table class="bottomSliderContainer ptzSliderZoom">
                 <tr>
                     <td class="label"><p>ZOOM</p></td>
+                    <td class="button"><input type="button" class="ptzDecreaseMore ptzButton"/></td>
                     <td class="button"><input type="button" class="ptzDecrease ptzButton"/></td>
                     <td class="control"><div id="ptzZoomSlider"></div></td>
                     <td class="button"><input type="button" class="ptzIncrease ptzButton"/></td>
+                    <td class="button"><input type="button" class="ptzIncreaseMore ptzButton"/></td>
                 </tr>
             </table>
             <table class="bottomSliderContainer ptzSliderPan">
                 <tr>
                     <td class="label"><p>PAN</p></td>
+                    <td class="button"><input type="button" class="ptzDecreaseMore ptzButton"/></td>
                     <td class="button"><input type="button" class="ptzDecrease ptzButton"/></td>
                     <td class="control"><div id="ptzPanSlider"></div></td>
                     <td class="button"><input type="button" class="ptzIncrease ptzButton"/></td>
+                    <td class="button"><input type="button" class="ptzIncreaseMore ptzButton"/></td>
                 </tr>
             </table>
         </div>
