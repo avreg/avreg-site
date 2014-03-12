@@ -140,25 +140,19 @@ div.cell_header span a:hover {
 }
 
 /* player areas layout */
+
 .pl_wrapper {
     float: left;
     width: 100%;
-    height: 92%;
-}
-.with_ptz_right .pl_wrapper {
-    width: 80%;
-}
-.with_ptz_bottom .pl_wrapper {
-    height: 72%;
 }
 .with_ptz_right .ptz_area_right {
     display: block;
 }
 .ptz_area_right {
     display: none;
-    width: 20%;
-    height: 72%;
     float: right;
+    background-color: blue;
+    opacity: 0.5;
 }
 .with_ptz_bottom .ptz_area_bottom {
     display: block;
@@ -166,5 +160,82 @@ div.cell_header span a:hover {
 .ptz_area_bottom {
     display: none;
     clear: both;
+    background-color: red;
+    opacity: 0.5;
+}
+
+/* exceptions */
+.no_title.pl_wrapper {
+    height: 100% !important;
+}
+
+/*
+    Sizes
+    all visible areas dimensions should sum up to 100% both by width and height
+*/
+
+/* ---------------------------------- normal ---------*/
+
+.size_normal .pl_wrapper {
+    height: 94%;
+}
+.size_normal .cell_header {
+    height: 6%;
+}
+.size_normal.with_ptz_right .pl_wrapper {
+    width: 80%;
+}
+.size_normal .ptz_area_right {
+    width: 20%;
+    height: 74%;
+}
+.size_normal.with_ptz_bottom .pl_wrapper {
+    height: 74%;
+}
+.size_normal .ptz_area_bottom {
     height: 20%;
+}
+
+/* ---------------------------------- small ---------*/
+
+.size_small .pl_wrapper {
+    height: 92%;
+}
+.size_small .cell_header {
+    height: 8%;
+}
+.size_small.with_ptz_right .pl_wrapper {
+    width: 80%;
+}
+.size_small .ptz_area_right {
+    width: 20%;
+    height: 72%;
+}
+.size_small.with_ptz_bottom .pl_wrapper {
+    height: 72%;
+}
+.size_small .ptz_area_bottom {
+    height: 20%;
+}
+
+/* ---------------------------------- big ---------*/
+
+.size_big .pl_wrapper {
+    height: 96%;
+}
+.size_big .cell_header {
+    height: 4%;
+}
+.size_big.with_ptz_right .pl_wrapper {
+    width: 80%;
+}
+.size_big .ptz_area_right {
+    width: 20%;
+    height: 82%;
+}
+.size_big.with_ptz_bottom .pl_wrapper {
+    height: 82%;
+}
+.size_big .ptz_area_bottom {
+    height: 18%;
 }
