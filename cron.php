@@ -96,6 +96,6 @@ if (in_array('-m', $argv) && isset($argv[array_search('-m', $argv) + 1]) && in_a
     }
 
     $gallery = new \Avreg\Gallery($params);
-    $gallery->{$classMethodName}($params);
+    echo $gallery->{$classMethodName}($params);
     // Возврат ответа запроса
 }

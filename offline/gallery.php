@@ -53,15 +53,18 @@ if (!isset($_POST['method']) && !isset($_GET['method'])) {
         'offline/gallery/js/jquery.checkbox.js',
         'offline/gallery/js/jquery.tooltip.js',
         'offline/gallery/js/main.js',
-        'lib/js/third-party/json2.js'
+        'lib/js/third-party/json2.js',
+        'lib/js/third-party/base64utf.js'
     );
     require_once('../head.inc.php');
+
     $GCP_query_param_list = array('text_left', 'Hx2');
     require('../lib/get_cams_params.inc.php');
     if ($GCP_cams_nr == 0) {
         die('There are no available cameras!');
     }
     $cookies = isset($_COOKIE['gallery']) ? (array)json_decode(base64_decode($_COOKIE['gallery'])) : array();
+
     /// Подключение самой страницы галереи
     require_once('gallery/index.php');
     require_once('../foot.inc.php');
@@ -84,3 +87,4 @@ if (!isset($_POST['method']) && !isset($_GET['method'])) {
     // Возврат ответа запроса
     $gallery->printResult();
 }
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */
