@@ -344,14 +344,19 @@ th.layout {
 }
 
 .pl_controls {
-    overflow: hidden;
     width: 80%;
     height: 100%;
 }
+/* wrapper as a workaround for % margins, see http://mattsnider.com/css-using-percent-for-margin-and-padding/ */
+.pl_controls > .pl_controls_box {
+    overflow: hidden;
+    float: left;
+    height: 100%;
+}
 
-.pl_controls > * {
+.pl_controls_box > * {
+    height: 90%;
     margin: 1%;
-    height: 80%;
 }
 
 .tool_bar {

@@ -1414,8 +1414,10 @@ function fill_canvas() {
                  .appendTo(hdr);
 
             //свернуть/развернуть
-                 $('<img src='+imgs['fs'].src+' class="tool fs_tc" title="'+strToolbarControls['max']+'">')
-                 .appendTo(toolbar);
+            if (WINS_NR != 1) {
+                $('<img src='+imgs['fs'].src+' class="tool fs_tc" title="'+strToolbarControls['max']+'">')
+                .appendTo(toolbar);
+            }
 
             //Кнопка включить/выключить toolbar
                  $('<img src='+imgs['controlsOnOff_on'].src+' id="controlsOnOff_'+win_nr+'" class="tool controlsOnOff" title="'+strToolbarControls['on']+'" >')
@@ -1498,7 +1500,9 @@ function fill_canvas() {
                ptz = null;
             }
 
-            var plc = $('<div id="pl_controls_'+win_nr+'" class="pl_controls"></div>')
+            var plc = $('<div id="pl_controls_'+win_nr+'" class="pl_controls"><div class="pl_controls_box"></div></div>');
+
+            plc.find('.pl_controls_box')
                .append(start, stop, minus, plus, normal_size, original_size, ptz)
                .click(function(e){
                   e.preventDefault();
@@ -1514,7 +1518,9 @@ function fill_canvas() {
                   e.stopPropagation();
                   controls_handlers.controls_panel_mouseout(e);
                   return false;
-               }).hide().prependTo(hdr);
+               })
+
+             plc.hide().prependTo(hdr);
 
             if (MSIE) {
                $('#original_size_' + win_nr).remove(); //не работает установка оригинального размера для MSIE
