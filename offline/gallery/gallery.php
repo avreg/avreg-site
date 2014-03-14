@@ -60,7 +60,7 @@ class Gallery
         // Получение глобальных настроек сайта
         global $conf;
         $this->conf = $conf;
-        $this->cache = new Cache(!@empty($conf['debug']));
+        $this->cache = new Cache('gallery', !@empty($conf['debug']));
         if (!$this->limit) {
             $this->limit = $this->conf['gallery-limit'];
         }

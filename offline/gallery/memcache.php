@@ -5,18 +5,19 @@ namespace Avreg;
 class Cache
 {
     private $memcache;
-
+    private $cache_id = '';
     private $locked = ':lock';
 
     private $pconnect = true;
     private $server = 'localhost';
     private $port = 11211;
-    private $prefix = 'gallery:';
     private $debug = false;
 
-    public function __construct($debug = false)
+    public function __construct($cache_id = '', $debug = false)
     {
-        $this->debug  = $debug;
+        $this->cache_id = $cache_id;
+        $this->debug    = $debug;
+
         $this->memcache = new \Memcache;
         if ($this->pconnect) {
             $this->memcache->pconnect($this->server, $this->port);
@@ -24,7 +25,7 @@ class Cache
             $this->memcache->connect($this->server, $this->port);
         }
         if ($this->debug) {
-            error_log(sprintf('%s(%s)', __METHOD__, (string)$debug));
+            error_log(sprintf('%s(%s, %s)', __METHOD__, $this->cache_id, (string)$debug));
         }
     }
 
@@ -34,16 +35,27 @@ class Cache
             $this->memcache->close();
         }
         if ($this->debug) {
-            error_log(sprintf('%s()', __METHOD__));
+            error_log(sprintf('%s()', $this->cache_id, __METHOD__));
         }
     }
 
-    private function keyName($key, $suffix = '')
+    protected function keyName($key)
     {
-        $_key = $this->prefix . $key;
-        if (!empty($suffix)) {
-            $_key .= (string)$suffix;
+        if (empty($this->cache_id)) {
+            return $key;
+        } else {
+            return ($this->cache_id . ':' . $key);
         }
+    }
+
+    protected function lockName($key)
+    {
+        $_key = '';
+        if (!empty($this->cache_id)) {
+            $_key .= $this->cache_id . ':';
+        }
+        $_key .= $key . ':lock';
+
         return $_key;
     }
 
@@ -59,8 +71,8 @@ class Cache
 
     public function lock($key, $time = 10)
     {
-        $_key = $this->keyName($key, $locked);
-        $this->memcache->set($_key, 1, null, $time);
+        $key_lock = $this->lockName($key);
+        $this->memcache->set($key_lock, 1, null, $time);
     }
 
     public function set($key, $value, $compress = false, $time = 0)
@@ -71,19 +83,19 @@ class Cache
         if ($this->debug) {
             error_log(sprintf('%s("%s, $value, %s, %d") -> %s', __METHOD__, $_key, (string)$compress, $time, $ret_set));
         }
-        $_key = $this->keyName($key, $locked);
-        $ret_del_lock = $this->delete($_key);
+        $key_lock = $this->lockName($key);
+        $ret_del_lock = $this->delete($key_lock);
         if ($this->debug) {
-            error_log(sprintf('%s() delete("%s") -> %s', __METHOD__, $_key, $ret_del_lock));
+            error_log(sprintf('%s() delete("%s") -> %s', __METHOD__, $key_lock, $ret_del_lock));
         }
         return $ret_set;
     }
 
     public function check($key)
     {
-        $_key = $this->keyName($key, $locked);
+        $key_lock = $this->lockName($key);
         // return true; // temporarily cache disabling FIXME FIXME
-        return (bool)$this->memcache->get($_key);
+        return (bool)$this->memcache->get($key_lock);
     }
 
     public function delete($key, $time = 0)
