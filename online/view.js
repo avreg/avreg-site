@@ -180,9 +180,7 @@ function img_click(clicked_div) {
             }
         } else {
             //востанавливаем исходные размеры отображения камеры
-            var border_w = clicked_div.offsetWidth - clicked_div.clientWidth;
-            var border_h = clicked_div.offsetHeight - clicked_div.clientHeight;
-            $(clicked_div).width(WIN_DIV_W + border_w).height(WIN_DIV_H + border_h);
+            change_wins_geo();
 
             $('.pl_cont',clicked_div_jq)
             .aplayerResizeToParent();
@@ -228,7 +226,6 @@ function img_click(clicked_div) {
         });
 
         FS_WIN_DIV = undefined;
-
     } else {
         //Если включен режим - просмотра камер в раскладке
         // current - NO fullscreen
@@ -257,11 +254,12 @@ function img_click(clicked_div) {
         }
 
         win_geo = new calc_win_geo(CANVAS_W, CANVAS_H, CamsAspectRatio, 1, 1, 1);
-        //alert(win_geo.cam_h +'\n'+win_geo.cam_w);
-        clicked_div_jq.css('top', calc_win_top(win_geo, 0));
-        clicked_div_jq.css('left', calc_win_left(win_geo, 0));
+        clicked_div_jq
+            .css('top', calc_win_top(win_geo, 0))
+            .css('left', calc_win_left(win_geo, 0));
 
-        $('.pl_cont', clicked_div_jq)
+        set_win_size_class(clicked_div_jq, win_geo);
+
         //меняем на источник для ячейки
         if (active_cams_srcs[win_nr]['type'] != 'avregd') {
             if (active_cams_srcs[win_nr]['fs'] != null && active_cams_srcs[win_nr]['fs'] != ''
@@ -304,6 +302,9 @@ function img_click(clicked_div) {
 
         FS_WIN_DIV = clicked_div;
     }
+
+    // оповещаем об изменении размеров окна
+    $(clicked_div).trigger('geometrychange');
 
     //Устанавливаем текущий масштаб
     var aplayer_id = $('.aplayer', pl_cont).attr('id');
@@ -903,22 +904,58 @@ function calc_win_top(win_geo, row) {
     return parseInt(row * win_geo.win_h + win_geo.offsetY);
 }
 
+var WIN_SIZE_CLASS_PREFIX = 'size_';
+var WIN_SIZES = ['small', 'normal', 'big'];
+
+/**
+ * Get window size semantic name for given
+ * @param win_geo
+ * @returns {*}
+ */
+function get_win_size(win_geo) {
+    if (win_geo.win_w > 600) {
+        // big
+        return WIN_SIZES[2];
+    } else if (win_geo.win_w > 400) {
+        // normal
+        return WIN_SIZES[1];
+    } else {
+        // small
+        return WIN_SIZES[0];
+    }
+}
+
+/**
+ * Set/update size class for given window and expected geometry.
+ *
+ * @param $win
+ * @param win_geo
+ */
+function set_win_size_class($win, win_geo) {
+    for (var i = 0, I = WIN_SIZES.length; i < I; i++) {
+        $win.removeClass(WIN_SIZE_CLASS_PREFIX + WIN_SIZES[i]);
+    }
+
+    $win.addClass(WIN_SIZE_CLASS_PREFIX + get_win_size(win_geo))
+}
+
 /**
  * Вычисляет и устанавливает размеры отображаемого элемента в полноэкранном режиме при ресайзе окна
  * @param fs_win - отображаемый  в полноэкранном режиме элемент
  */
 function change_fs_win_geo(fs_win) {
     var win_geo = new calc_win_geo(CANVAS_W, CANVAS_H, CamsAspectRatio, 1, 1, 1);
-    var fs_win_div_jq = $(fs_win);
+    var $win = $(fs_win);
 
-    fs_win_div_jq.css('top', calc_win_top(win_geo, 0));
-    fs_win_div_jq.css('left', calc_win_left(win_geo, 0));
-
-    $(fs_win_div_jq)
+    $win
+        .css('top', calc_win_top(win_geo, 0))
+        .css('left', calc_win_left(win_geo, 0))
         .width(win_geo.win_w)
         .height(win_geo.win_h);
 
-    $('.pl_cont', fs_win_div_jq).aplayerResizeToParent();
+    set_win_size_class($win, win_geo);
+
+    $('.pl_cont', $win).aplayerResizeToParent();
     // .attr('alt',win_geo.cam_w + 'x' + win_geo.cam_h);
 } // change_fs_win_geo()
 
@@ -930,7 +967,7 @@ function change_wins_geo() {
     var base_win_geo = new calc_win_geo(CANVAS_W, CANVAS_H, CamsAspectRatio, ROWS_NR, COLS_NR, 1);
 
     var win_geo;
-    var i, tmp_div, win_def, win_nr, win_id;
+    var i, $win, win_def, win_nr, win_id;
 
     for (i = WIN_DIVS.length - 1; i >= 0; i--) {
         win_id = WIN_DIVS[i].id;
@@ -939,7 +976,7 @@ function change_wins_geo() {
             alert('Error: win.id="' + WIN_DIVS[i].id + '"');
             return;
         }
-        tmp_div = $(WIN_DIVS[i]);
+        $win = $(WIN_DIVS[i]);
 
         win_def = WINS_DEF[win_nr];
 
@@ -956,17 +993,21 @@ function change_wins_geo() {
                 CamsAspectRatio, 1, 1, win_def.rowspan);
         }
 
-        tmp_div.css('top', calc_win_top(base_win_geo, win_def.row));
-        tmp_div.css('left', calc_win_left(base_win_geo, win_def.col));
+        $win
+            .css('top', calc_win_top(base_win_geo, win_def.row))
+            .css('left', calc_win_left(base_win_geo, win_def.col));
 
         if (GECKO || WEBKIT || MSIE) {
-            $(tmp_div)
+            $win
                 .width(win_geo.win_w)
                 .height(win_geo.win_h);
-            $('.pl_cont', tmp_div)
+
+            set_win_size_class($win, win_geo);
+
+            $('.pl_cont', $win)
                 .aplayerResizeToParent();
         } else { // todo - выяснить для чего это условие
-            $('applet', tmp_div).width(win_geo.cam_w).height(win_geo.cam_h);
+            $('applet', $win).width(win_geo.cam_w).height(win_geo.cam_h);
         }
     } // for(allwin)
 } // change_wins_geo()
@@ -1004,7 +1045,10 @@ function canvas_growth() {
         change_fs_win_geo(FS_WIN_DIV);
     } else {
         change_wins_geo();
-    } // if ( FS_WIN_DIV )
+    }
+
+    // force recalculation of scaled fonts
+    $('.font-scaled').textfill(true);
 } // canvas_growth()
 
 /**
@@ -1340,6 +1384,8 @@ function fill_canvas() {
         win_div = $('<div id="win' + win_nr + '" name="win" class="win ' + (win_def['main'] == 1 ? 'main_cell' : '') + '" ' + ' style="position: absolute; ' + ' top:' + _top + 'px;' + ' left:' + _left + 'px; ' + ' width:' + win_geo.win_w + 'px;' + ' height:' + win_geo.win_h + 'px;' + ' z-index: 30;' + '"><\/div>');
         win_div.appendTo(CANVAS);
 
+        set_win_size_class(win_div, win_geo);
+
         if (PrintCamNames) {
             var ipcamhost_link_begin = '';
             var ipcamhost_link_end = '';
@@ -1370,8 +1416,10 @@ function fill_canvas() {
                  .appendTo(hdr);
 
             //свернуть/развернуть
-                 $('<img src='+imgs['fs'].src+' class="tool fs_tc" title="'+strToolbarControls['max']+'">')
-                 .appendTo(toolbar);
+            if (WINS_NR != 1) {
+                $('<img src='+imgs['fs'].src+' class="tool fs_tc" title="'+strToolbarControls['max']+'">')
+                .appendTo(toolbar);
+            }
 
             //Кнопка включить/выключить toolbar
                  $('<img src='+imgs['controlsOnOff_on'].src+' id="controlsOnOff_'+win_nr+'" class="tool controlsOnOff" title="'+strToolbarControls['on']+'" >')
@@ -1454,7 +1502,9 @@ function fill_canvas() {
                ptz = null;
             }
 
-            var plc = $('<div id="pl_controls_'+win_nr+'" class="pl_controls"></div>')
+            var plc = $('<div id="pl_controls_'+win_nr+'" class="pl_controls"><div class="pl_controls_box"></div></div>');
+
+            plc.find('.pl_controls_box')
                .append(start, stop, minus, plus, normal_size, original_size, ptz)
                .click(function(e){
                   e.preventDefault();
@@ -1470,18 +1520,21 @@ function fill_canvas() {
                   e.stopPropagation();
                   controls_handlers.controls_panel_mouseout(e);
                   return false;
-               }).hide().prependTo(hdr);
+               })
+
+             plc.hide().prependTo(hdr);
 
             if (MSIE) {
                $('#original_size_' + win_nr).remove(); //не работает установка оригинального размера для MSIE
             }
         }
+
         //Установка плеера
         var $win = $("<div data-win-index="+ win_nr +"'></div>");
         if (PrintCamNames) {
              hdr.after($win);
         } else {
-            $win.appendTo(win_div);
+            $win.appendTo(win_div).addClass('no_title');
         }
         brout(win_nr, $win, win_geo);
         if (PrintCamNames) {
@@ -1520,7 +1573,7 @@ function fill_canvas() {
         checking_connection.init_check();
     }
 
-//--> Cameras' statuses
+    //--> Cameras' statuses
 
     var cams_nrs = '';
 
@@ -1662,14 +1715,14 @@ var controls_handlers = {
 
     controls_panel_mouseover: function (e) {
         var cp = $(e.currentTarget);
-        var cell_nr = parseInt(($(cp).attr('id')).replace('pl_controls_', ''));
+        var cell_nr = parseInt((cp.parent(':first').attr('id')).replace('pl_controls_', ''));
         this.clear_timer(cell_nr);
     },
 
 
     controls_panel_mouseout: function (e) {
         var cp = $(e.currentTarget);
-        var cell_nr = parseInt(($(cp).attr('id')).replace('pl_controls_', ''));
+        var cell_nr = parseInt((cp.parent(':first').attr('id')).replace('pl_controls_', ''));
         if ($("#cell_header_" + cell_nr).hasClass('control')) {
         } else {
             this.timers[cell_nr] = window.setTimeout(function () {
@@ -1832,7 +1885,7 @@ var controls_handlers = {
             // flag that async operation is in progress
             $button.data('async-in-progress', true);
 
-            loadPtzAreasContent($win, cam_nr, ptz_handler, function (success) {
+            loadPtzAreasContent($win, cam_nr, win_nr, ptz_handler, function (success) {
                 if (success) {
                     $button.prop('src', imgs['pl_ptz_active'].src);
                     // button style
@@ -1845,7 +1898,8 @@ var controls_handlers = {
             // скрываем PTZ области
             $win
                 .removeClass('with_ptz_right')
-                .removeClass('with_ptz_bottom');
+                .removeClass('with_ptz_bottom')
+                .trigger('ptzHide');
 
             $player.parent().aplayerResizeToParent();
             $button.prop('src', imgs['pl_ptz'].src);
@@ -1855,14 +1909,22 @@ var controls_handlers = {
     }
 };
 
+// debug
+//setTimeout(function(){
+//    loadPtzAreasContent($('#win0'), 5, 0, 'onvif');
+//}, 100);
+// eof debug
+
 /**
  * Загружает HTML содержимое областей PTZ и вставляет в соответствующие контейнеры.
  * @param $win                 окно камеры
- * @param ptz_hadnler          строка - идентификатор ptz, online/ptz/{ptz_handler}.php
+ * @param ptz_handler          строка - идентификатор ptz, online/ptz/{ptz_handler}.php
  * @param {Function} callback  callback асинхронной операции, передается boolean флаг (успех/неудача)
  *                             в качестве первого агрумента
+ * @param cam_nr
+ * @param win_nr
  */
-function loadPtzAreasContent($win, cam_nr, ptz_handler, callback) {
+function loadPtzAreasContent($win, cam_nr, win_nr, ptz_handler, callback) {
     var $player = $win.find('.aplayer');
 
     var dfdPtzGet = $.get('./ptz/' + ptz_handler + '.php', { 'cam_nr': cam_nr });
@@ -1894,6 +1956,13 @@ function loadPtzAreasContent($win, cam_nr, ptz_handler, callback) {
                     .removeClass('with_ptz_bottom')
                     .find('.ptz_area_bottom');
             }
+
+            var ptzContols = new OnvifPTZControls($win, cam_nr, WINS_DEF[win_nr].cam);
+
+            $win.one('ptzHide', function() {
+                ptzContols.destruct();
+                ptzContols = null;
+            });
 
             callback && callback(true);
         })

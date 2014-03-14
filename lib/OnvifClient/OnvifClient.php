@@ -10,6 +10,7 @@ class OnvifServices
 {
     const DEVICEMANAGEMENT = 'devicemgmt';
     const MEDIA = 'media';
+    const PTZ = 'ptz';
 }
 
 class OnvifClient

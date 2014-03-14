@@ -878,6 +878,17 @@ function sql_format_float_val($val)
 
 /**
  *
+ * Пустая переменная или нет? (int)0 - не пустая.
+ * @param  $var
+ * @return boolean
+ */
+function is_empty_var($var)
+{
+    return ($var === null || (string)$var === '');
+}
+
+/**
+ *
  * Функция получения камер
  * @param unknown_type $_sip
  * @param bool $first_defs

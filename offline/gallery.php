@@ -37,7 +37,7 @@ if (!isset($_POST['method']) && !isset($_GET['method'])) {
     $css_links = array(
         'offline/gallery/css/html5reset-1.6.1.css',
         $main_css,
-        'offline/gallery/css/jquery-ui-1.8.17.custom.css',
+        'lib/js/third-party/jquery-ui-1.8.17.custom.css',
         'offline/gallery/css/tooltip.css'
     );
     $USE_JQUERY = true;

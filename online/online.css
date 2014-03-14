@@ -43,11 +43,6 @@
     margin: 1% 0 1% 0;
 }
 
-.pl_stop, .pl_start, .pl_plus, .pl_minus, .original_size, .normal_size, .pl_ptz{
-    cursor: pointer;
-    float: left;
-}
-
 .cell_header {
     background: #303030;
 }
@@ -140,24 +135,16 @@ div.cell_header span a:hover {
 }
 
 /* player areas layout */
+
 .pl_wrapper {
     float: left;
     width: 100%;
-    height: 92%;
-}
-.with_ptz_right .pl_wrapper {
-    width: 80%;
-}
-.with_ptz_bottom .pl_wrapper {
-    height: 72%;
 }
 .with_ptz_right .ptz_area_right {
     display: block;
 }
 .ptz_area_right {
     display: none;
-    width: 20%;
-    height: 72%;
     float: right;
 }
 .with_ptz_bottom .ptz_area_bottom {
@@ -165,6 +152,334 @@ div.cell_header span a:hover {
 }
 .ptz_area_bottom {
     display: none;
-    clear: both;
+    float: left;
+}
+
+/* exceptions */
+.no_title.pl_wrapper {
+    height: 100% !important;
+}
+
+/*
+    Sizes
+    all visible areas dimensions should sum up to 100% both by width and height
+*/
+
+/* ---------------------------------- normal ---------*/
+
+.size_normal .pl_wrapper {
+    height: 94%;
+}
+.size_normal .cell_header {
+    height: 6%;
+}
+.size_normal.with_ptz_right .pl_wrapper {
+    width: 70%;
+}
+.size_normal .ptz_area_right {
+    width: 30%;
+    height: 94%;
+}
+.size_normal.with_ptz_bottom .pl_wrapper {
+    height: 74%;
+}
+.size_normal .ptz_area_bottom {
+    width: 70%;
     height: 20%;
+}
+
+/* ---------------------------------- small ---------*/
+
+.size_small .pl_wrapper {
+    height: 92%;
+}
+.size_small .cell_header {
+    height: 8%;
+}
+.size_small.with_ptz_right .pl_wrapper {
+    width: 80%;
+}
+.size_small .ptz_area_right {
+    width: 20%;
+    height: 92%;
+}
+.size_small.with_ptz_bottom .pl_wrapper {
+    height: 62%;
+}
+.size_small .ptz_area_bottom {
+    width: 80%;
+    height: 30%;
+}
+
+/* ---------------------------------- big ---------*/
+
+.size_big .pl_wrapper {
+    height: 96%;
+}
+.size_big .cell_header {
+    height: 4%;
+}
+.size_big.with_ptz_right .pl_wrapper {
+    width: 80%;
+}
+.size_big .ptz_area_right {
+    width: 20%;
+    height: 96%;
+}
+.size_big.with_ptz_bottom .pl_wrapper {
+    height: 82%;
+}
+.size_big .ptz_area_bottom {
+    width: 80%;
+    height: 14%;
+}
+
+/* ptz areas */
+
+.ptz_area_right, .ptz_area_bottom {
+    background:     #303030;
+}
+
+.ptz_area_right p, .ptz_area_bottom p {
+    color: #e5e5e5;
+}
+
+.ptz_area_right .topContainer {
+    height: 80%;
+}
+
+.size_big .ptz_area_right .topContainer {
+    height: 86%;
+}
+
+.ptz_area_right .bottomContainer {
+    border-top: 1px solid grey;
+}
+
+/* ---------------------- .ptz_area_bottom ---------------------- */
+
+.ptz_area_bottom .container {
+    padding: 0 5px;
+    height: 100%;
+}
+
+.ptz_area_bottom .sliders {
+    height: 100%;
+}
+
+.bottomSliderContainer {
+    height: 33.3%;
+}
+
+.bottomSliderContainer td {
+    padding-top: 0;
+}
+
+.bottomSliderContainer .label p {
+    width: 50px;
+    margin: 2px 0 2px 0;
+    color: #e5e5e5;
+}
+
+.bottomSliderContainer .button input {
+    padding: 0;
+    margin: 0;
+    width: 15px;
+    height: 15px;
+}
+
+.bottomSliderContainer .control {
+    width: 100%;
+    padding: 0 10px;
+}
+
+.bottomSliderContainer .ui-slider {
+    background: none;
+}
+
+
+.bottomSliderContainer .ui-slider .ui-slider-handle {
+    cursor: pointer;
+    width: 1em;
+    height: 1em;
+}
+
+.bottomSliderContainer .ui-slider-horizontal .ui-slider-handle {
+    top: -.2em;
+    margin-left: -.5em;
+}
+
+/* ---------------------- .ptz_area_right ---------------------- */
+
+.ptz_area_right {
+    position: relative;
+}
+
+.ptz_area_right .tooSmallIndicator {
+    display: none;
+}
+
+.ptz_area_right.tooSmall .tooSmallIndicator {
+    display: block;
+}
+
+.tooSmallIndicator {
+    height: 100%;
+}
+
+.tooSmallIndicator p {
+    margin-top: 40%;
+}
+
+.ptz_area_right.tooSmall .topContainer, .ptz_area_right.tooSmall .bottomContainer {
+    display: none;
+}
+
+/* ---------------------- .ptzPresets ---------------------- */
+
+.topContainer {
+    overflow-y: auto;
+}
+
+.bottomContainer {
+}
+
+.ptzPresetsHeader {
+    border-bottom: 1px solid grey;
+    border-top: 1px solid grey;
+    height: 24px;
+    overflow: hidden;
+    padding: 0 0 0 5px;
+}
+
+.ptzPresetsHeader .text {
+    float: left;
+    width: 80%;
+}
+
+.ptzPresetsHeader .text p {
+    padding: 4px 0 2px;
+    margin: 0;
+}
+
+.ptzPresetsHeader .action {
+    float: right;
+    width: 20%;
+    text-align: center;
+}
+
+.ptzPresetsHeader .action .presetAdd {
+    padding: 2px;
+    cursor: pointer;
+    height: 15px;
+    margin: 5px 0 0 0;
+    width: 100%;
+    max-width: 15px;
+    text-align: center;
+}
+
+ul.ptzPresets {
+    list-style-type: none;
+    padding: 0 0 0 5px;
+    margin: 0 0 10px;
+}
+
+.ptzPresets .preset {
+    width: 100%;
+    overflow: hidden;
+}
+
+.ptzPresets .presetName  {
+    float: left;
+    width: 80%;
+    cursor: pointer;
+}
+
+.ptzPresets .presetName p:hover  {
+    color: red;
+}
+
+.ptzPresets .presetName p {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    padding: 0;
+    margin: 5px 0 0 0;
+}
+
+.ptzPresets .presetAction  {
+    float: right;
+    width: 20%;
+    overflow: hidden;
+    text-align: center;
+}
+
+.ptzPresets .presetAction  input {
+    padding: 2px;
+    cursor: pointer;
+    height: 15px;
+    margin: 5px 0 0 0;
+    width: 100%;
+    max-width: 15px;
+    text-align: center;
+}
+
+/* buttons */
+
+.ptzButton {
+    cursor: pointer;
+    font-size: 1em;
+    border: 1px solid grey;
+    background: none;
+    color: #e5e5e5;
+    padding: 2px;
+}
+
+.ptzButton:disabled {
+    background-color: #cccccc !important;
+    opacity: 0.75;
+}
+
+.ptzButton.ptzDecrease {
+    background: url('../img/ico_ptz_slider_move_left.png') no-repeat;
+    background-size: contain;
+}
+.ptzButton.ptzIncrease {
+    background: url('../img/ico_ptz_slider_move_right.png') no-repeat;
+    background-size: contain;
+}
+.ptzButton.ptzDecreaseMore {
+    background: url('../img/ico_ptz_slider_move_left_more.png') no-repeat;
+    background-size: contain;
+}
+.ptzButton.ptzIncreaseMore {
+    background: url('../img/ico_ptz_slider_move_right_more.png') no-repeat;
+    background-size: contain;
+}
+.ptzButton.presetRemove {
+    background: url('../img/ico_ptz_x.png') no-repeat;
+    background-size: contain;
+}
+.ptzButton.presetAdd {
+    background: url('../img/ico_ptz_plus.png') no-repeat;
+    background-size: contain;
+}
+.ptzButton.presetSetHome {
+    background: url('../img/ico_ptz_plus.png') no-repeat;
+    background-size: contain;
+}
+
+/* ---------------------- .modal-onvif-ptz-settings ---------------------- */
+
+.settingsShow {
+    padding: 4px;
+}
+
+.modal-onvif-ptz-settings {
+    width: 320px;
+    margin-left: -160px;
+}
+
+.modal-onvif-ptz-settings .modal-head .jqmClose {
+    float: right;
 }
