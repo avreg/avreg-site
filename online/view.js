@@ -164,7 +164,7 @@ function img_click(clicked_div) {
 //          }
             //Переустанвливаем плеер для алтернативного источника
             if (current_src != null) {
-                $('.pl_cont', clicked_div_jq).addPlayer({
+                $('.pl_wrapper', clicked_div_jq).aplayerClose().addPlayer({
                     hasExtraWrapper: true,
                     'src': current_src,
                     'controls': false,
@@ -188,7 +188,7 @@ function img_click(clicked_div) {
 
             //Переустанвливаем плеер для алтернативного источника
             if (current_src != null) {
-                $('.pl_cont', clicked_div_jq).addPlayer({
+                $('.pl_wrapper', clicked_div_jq).aplayerClose().addPlayer({
                     hasExtraWrapper: true,
                     'src': current_src,
                     'controls': false,
@@ -278,7 +278,7 @@ function img_click(clicked_div) {
 
         //Переустанвливаем плеер для алтернативного источника
         if (current_src != null) {
-            $('.pl_cont', clicked_div_jq).addPlayer({
+            $('.pl_wrapper', clicked_div_jq).aplayerClose().addPlayer({
                 hasExtraWrapper: true,
                 'src': current_src,
                 'controls': false,
@@ -488,6 +488,11 @@ var checking_connection = {
 
         if (self.me_list == undefined) {
             self.me_list = [];
+        }
+
+        if (!me_src) {
+            // нет источника - проверка невозможна
+            return
         }
 
         var checkUrl = me_src.search(window.location.hostname) < 0;
