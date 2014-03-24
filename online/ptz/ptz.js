@@ -18,7 +18,7 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
         axis: {
             preset: false,
             home: true,
-            speedControl: true
+            speedControl: false
         }
     }
 
@@ -348,16 +348,21 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
     var $settingsModal = $container.find('.modal-onvif-ptz-settings').detach().appendTo('body').jqm(),
         $stPanSpeedSlider, $stTiltSpeedSlider, $stZoomSpeedSlider;
 
+    if (!isSupported('speedControl')) {
+        // little trick, just hide button because speed control is the only available setting now
+        $container.find('.settingsShow').hide();
+    }
+
     $container.find('.settingsShow').on('click', function() {
         if (!$settingsModal.data('initialized')) {
             // lazy init
             $stPanSpeedSlider = $settingsModal.find('.modal-ptz-speed-pan').slider($.extend({}, defaultSliderOptions, {
-                min: speedSpaces.position.min,
-                max: speedSpaces.position.max
+                min: speedSpaces.pan.min,
+                max: speedSpaces.pan.max
             }));
             $stTiltSpeedSlider = $settingsModal.find('.modal-ptz-speed-tilt').slider($.extend({}, defaultSliderOptions, {
-                min: speedSpaces.position.min,
-                max: speedSpaces.position.max
+                min: speedSpaces.tilt.min,
+                max: speedSpaces.tilt.max
             }));
             $stZoomSpeedSlider = $settingsModal.find('.modal-ptz-speed-zoom').slider($.extend({}, defaultSliderOptions, {
                 min: speedSpaces.zoom.min,
@@ -370,11 +375,11 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
         var settings = getSettings();
 
         $stPanSpeedSlider.slider('value',
-            typeof settings.speedPan !== 'undefined' ? settings.speedPan : speedSpaces.position.max);
+            typeof settings.speedPan !== 'undefined' ? settings.speedPan : speedSpaces.pan.max);
         $stTiltSpeedSlider.slider('value',
-            typeof settings.speedTilt !== 'undefined' ? settings.speedTilt : speedSpaces.position.max);
+            typeof settings.speedTilt !== 'undefined' ? settings.speedTilt : speedSpaces.tilt.max);
         $stZoomSpeedSlider.slider('value',
-            typeof settings.speedZoom !== 'undefined' ? settings.speedZoom : speedSpaces.position.max);
+            typeof settings.speedZoom !== 'undefined' ? settings.speedZoom : speedSpaces.zoom.max);
 
         $settingsModal.jqmShow();
     });
@@ -399,6 +404,8 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
         } catch (e) {
             settings = {};
         }
+
+        settings = settings || {};
 
         if (localStorage) {
             settings[MD5(JSON.stringify(cameraData))] = {

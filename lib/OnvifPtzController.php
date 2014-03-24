@@ -92,6 +92,20 @@ class OnvifPtzController extends OnvifAjaxController implements PtzInterface
                     'min' => -1,
                     'max' => 1
                 )
+            ),
+            'speedSpaces' => array(
+                'zoom' => array(
+                    'min' => 0,
+                    'max' => 1
+                ),
+                'pan' => array(
+                    'min' => 0,
+                    'max' => 1
+                ),
+                'tilt' => array(
+                    'min' => 0,
+                    'max' => 1
+                )
             )
         ));
     }
@@ -148,7 +162,7 @@ class OnvifPtzController extends OnvifAjaxController implements PtzInterface
             foreach ($ptzPresets['result']->Preset as $preset) {
                 $result[] = array(
                     'name' => $preset->Name,
-                    'token' => $preset->Token,
+                    'token' => $preset->token,
                     'position' => array(
                         // convert from possible scientific notation to dot notation
                         'pan' => sprintf('%F', $preset->PTZPosition->PanTilt->x),

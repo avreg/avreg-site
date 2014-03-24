@@ -1942,7 +1942,7 @@ function loadPtzAreasContent($win, cam_nr, win_nr, ptz_handler, callback) {
             filename = ptz_handler;
     }
 
-    var dfdPtzGet = $.get('./ptz/'+ptz_handler+'.php', { 'cam_nr': cam_nr });
+    var dfdPtzGet = $.get('./ptz/'+filename+'.php', { 'cam_nr': cam_nr });
 
     dfdPtzGet
         .done(function (response) {

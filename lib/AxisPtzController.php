@@ -50,7 +50,7 @@ class AxisPtzController extends AjaxController implements PtzInterface
         preg_match_all('/([^=\s]+)=([^=\s]+)/', $re, $r);
         $r = array_combine($r[1], array_map('floatval', $r[2]));
 
-        if ($re) {
+        if ($re !== false) {
             $this->success(array(
                 'coordSpaces' => array(
                     'zoom' => array(
@@ -79,7 +79,7 @@ class AxisPtzController extends AjaxController implements PtzInterface
         $r = array_combine($r[1], array_map('floatval', $r[2]));
 
 
-        if ($re) {
+        if ($re !== false) {
             $this->success(array(
                 'position' => array(
                     'pan' => $r['pan'],
@@ -99,7 +99,7 @@ class AxisPtzController extends AjaxController implements PtzInterface
             . $data['zoom'] . "&pan=" . $data['pan'] . "&tilt=" . $data['tilt']
         );
 
-        if ($re) {
+        if ($re !== false) {
             $this->success();
         } else {
             $this->error();
@@ -110,7 +110,7 @@ class AxisPtzController extends AjaxController implements PtzInterface
     {
         $re = file_get_contents("$this->camurl/axis-cgi/com/ptz.cgi?move=stop");
 
-        if ($re) {
+        if ($re !== false) {
             $this->success();
         } else {
             $this->error();
@@ -141,7 +141,7 @@ class AxisPtzController extends AjaxController implements PtzInterface
     {
         $re = file_get_contents("$this->camurl/axis-cgi/com/ptz.cgi?move=home");
 
-        if ($re) {
+        if ($re !== false) {
             $this->success();
         } else {
             $this->error();
@@ -152,7 +152,7 @@ class AxisPtzController extends AjaxController implements PtzInterface
     {
         $re = file_get_contents("$this->camurl/axis-cgi/com/ptzconfig.cgi?setserverpresetname=home&home=yes");
 
-        if ($re) {
+        if ($re !== false) {
             $this->success();
         } else {
             $this->error();
