@@ -1932,7 +1932,7 @@ var controls_handlers = {
 function loadPtzAreasContent($win, cam_nr, win_nr, ptz_handler, callback) {
     var $player = $win.find('.aplayer');
 
-    var dfdPtzGet = $.get('./ptz/' + ptz_handler + '.php', { 'cam_nr': cam_nr });
+    var dfdPtzGet = $.get('./ptz/'+ptz_handler+'.php', { 'cam_nr': cam_nr });
 
     dfdPtzGet
         .done(function (response) {
@@ -1960,7 +1960,11 @@ function loadPtzAreasContent($win, cam_nr, win_nr, ptz_handler, callback) {
                 $win
                     .removeClass('with_ptz_bottom')
                     .find('.ptz_area_bottom');
-            }
+            };
+            $win.append('<div class="zzzzz">asdadfasdfa</div>');
+            ptztemp_win=$win;
+            $('.zzzzz',$win).html($ptzContent);
+            $('.zzzzz',$win).remove();
 
             var ptzContols = new OnvifPTZControls($win, cam_nr, WINS_DEF[win_nr].cam);
 
