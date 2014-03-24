@@ -1930,7 +1930,17 @@ var controls_handlers = {
  * @param win_nr
  */
 function loadPtzAreasContent($win, cam_nr, win_nr, ptz_handler, callback) {
-    var $player = $win.find('.aplayer');
+    var $player = $win.find('.aplayer'),
+        filename;
+
+    switch (ptz_handler) {
+        case 'onvif':
+        case 'axis':
+            filename = 'default';
+            break;
+        default:
+            filename = ptz_handler;
+    }
 
     var dfdPtzGet = $.get('./ptz/'+ptz_handler+'.php', { 'cam_nr': cam_nr });
 
@@ -1960,18 +1970,19 @@ function loadPtzAreasContent($win, cam_nr, win_nr, ptz_handler, callback) {
                 $win
                     .removeClass('with_ptz_bottom')
                     .find('.ptz_area_bottom');
-            };
-            $win.append('<div class="zzzzz">asdadfasdfa</div>');
-            ptztemp_win=$win;
-            $('.zzzzz',$win).html($ptzContent);
-            $('.zzzzz',$win).remove();
+            }
 
-            var ptzContols = new OnvifPTZControls($win, cam_nr, WINS_DEF[win_nr].cam);
+            switch (ptz_handler) {
+                case 'onvif':
+                case 'axis':
+                    var ptzControls = new OnvifPTZControls($win, cam_nr, WINS_DEF[win_nr].cam);
 
-            $win.one('ptzHide', function() {
-                ptzContols.destruct();
-                ptzContols = null;
-            });
+                    $win.one('ptzHide', function() {
+                        ptzControls.destruct();
+                        ptzControls = null;
+                    });
+                    break;
+            }
 
             callback && callback(true);
         })

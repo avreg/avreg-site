@@ -9,36 +9,28 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
         maxConnectionTries = 5,
         lsKeySettings = 'avreg-ptz-settings';
 
+    var featureSupport = {
+        onvif: {
+            preset: true,
+            home: true,
+            speedControl: true
+        },
+        axis: {
+            preset: false,
+            home: true,
+            speedControl: true
+        }
+    }
+
     // defaults
-    var coordSpaces = {
-            pan: {
-                min: -1,
-                max: 1
-            },
-            tilt: {
-                min: -1,
-                max: 1
-            },
-            zoom: {
-                min: 0,
-                max: 1
-            }
-        },
-        speedSpaces = {
-            position: {
-                min: 0,
-                max: 1
-            },
-            zoom: {
-                min: 0,
-                max: 1
-            }
-        },
-        defaultSliderOptions = {
-            min: -1,
-            max: 1,
-            step: 0.000001
-        };
+    var defaultSliderOptions = {
+        min: -1,
+        max: 1,
+        step: 0.000001
+    };
+
+    // globals
+    var coordSpaces, speedSpaces;
 
     // status variables
     var __lastPosition = {},
@@ -54,26 +46,33 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
         'initial': {
             name: 'initial',
             connectionTries: 0,
+            reconnect: function() {
+                if (states.initial.connectionTries++ < maxConnectionTries) {
+                    transitionTo(states.initial);
+                } else {
+                    alert(
+                        'Не удается подключиться к камере. Проверьте правильность настроек ONVIF: \n'
+                        + '- Имя пользователя и пароль \n'
+                        + '- Выбранный медиа-профиль \n'
+                    )
+                }
+            },
             enter: function () {
                 setControlsEnableState(false);
 
-                $.when(updatePresets(), updatePosition())
+                setupCoordSpaces()
                     .done(function () {
-                        states.initial.connectionTries = 0;
-                        transitionTo(states.polling);
+                        $.when(updatePresets(), updatePosition())
+                            .done(function () {
+                                states.initial.connectionTries = 0;
+                                transitionTo(states.polling);
+                            })
+                            .fail(function () {
+                                states.initial.reconnect();
+                            });
                     })
-                    .fail(function() {
-                        transitionTo(states.locked);
-
-                        if (states.initial.connectionTries++ < maxConnectionTries) {
-                            transitionTo(states.initial);
-                        } else {
-                            alert(
-                                'Не удается подключиться к камере. Проверьте правильность настроек ONVIF: \n'
-                                + '- Имя пользователя и пароль \n'
-                                + '- Выбранный медиа-профиль \n'
-                            )
-                        }
+                    .fail(function () {
+                        states.initial.reconnect();
                     });
             },
             exit: function () {}
@@ -189,18 +188,9 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
 
     // setup sliders
 
-    var $zoomSlider = $container.find('#ptzZoomSlider').slider($.extend({}, defaultSliderOptions, {
-            min: coordSpaces.zoom.min,
-            max: coordSpaces.zoom.max
-        })),
-        $panSlider = $container.find('#ptzPanSlider').slider($.extend({}, defaultSliderOptions, {
-            min: coordSpaces.pan.min,
-            max: coordSpaces.pan.max
-        })),
-        $tiltSlider = $container.find('#ptzTiltSlider').slider($.extend({}, defaultSliderOptions, {
-            min: coordSpaces.tilt.min,
-            max: coordSpaces.tilt.max
-        }));
+    var $zoomSlider = $container.find('#ptzZoomSlider').slider($.extend({}, defaultSliderOptions)),
+        $panSlider = $container.find('#ptzPanSlider').slider($.extend({}, defaultSliderOptions)),
+        $tiltSlider = $container.find('#ptzTiltSlider').slider($.extend({}, defaultSliderOptions));
 
     var onSliderChange = function (e) {
         var $slider = $(e.currentTarget);
@@ -210,6 +200,7 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
             move();
         }
     };
+
     $zoomSlider.on('slidechange', onSliderChange);
     $panSlider.on('slidechange', onSliderChange);
     $tiltSlider.on('slidechange', onSliderChange);
@@ -428,55 +419,111 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
 
     transitionTo(states.initial);
 
+    // utility methods
+
+    function isSupported(feature) {
+        return !!featureSupport[cameraData['ptz']][feature];
+    }
+
+    function getAjaxEndpoint() {
+        switch (cameraData['ptz']) {
+            case 'onvif':
+                return WwwPrefix + '/lib/OnvifPtzController.php';
+            case 'axis':
+                return WwwPrefix + '/lib/AxisPtzController.php'
+        }
+    }
+
     // action methods
+
+    function setupCoordSpaces() {
+        return getCoordSpaces().done(function (response) {
+
+            coordSpaces = response['coordSpaces'];
+            speedSpaces = response['speedSpaces'];
+
+            $zoomSlider.slider('option', {
+                min: coordSpaces.zoom.min,
+                max: coordSpaces.zoom.max
+            });
+            $panSlider.slider('option', {
+                min: coordSpaces.pan.min,
+                max: coordSpaces.pan.max
+            });
+            $tiltSlider.slider('option', {
+                min: coordSpaces.tilt.min,
+                max: coordSpaces.tilt.max
+            });
+        });
+    }
 
     function updatePosition() {
         return getStatus().done(function (response) {
             if ( self.state === states.input || self.state === states.action) {
-                // do nothing if we're in the middle of the actions; need to deal with polling & debounce combination
+                // do nothing if we're in the middle of the actions
                 return;
             }
 
             setSlidersPosition({
-                zoom: response['PTZStatus']['Position']['Zoom']['x'],
-                pan: response['PTZStatus']['Position']['PanTilt']['x'],
-                tilt: response['PTZStatus']['Position']['PanTilt']['y']
+                zoom: response['position']['zoom'],
+                pan: response['position']['pan'],
+                tilt: response['position']['tilt']
             });
         });
     }
 
     function updatePresets() {
-        return getPresets().done(function (response) {
-            $presets.empty();
+        $presets.empty();
 
+        if (isSupported('home')) {
             // home preset
             $presets.append($(tplPresetHome));
+        }
 
-            // normal presets
-            for (var i = 0, I = response['Presets'].length; i < I; i++) {
-                var presetData = response['Presets'][i],
-                    $preset = $(tplPresetNormal
-                        .replace(/\$name/g, presetData['Name'])
-                    );
+        if (isSupported('preset')) {
+            return getPresets().done(function (response) {
+                for (var i = 0, I = response.length; i < I; i++) {
+                    var presetData = response[i],
+                        $preset = $(tplPresetNormal
+                            .replace(/\$name/g, presetData['name'])
+                        );
 
-                $preset
-                    .data('position', {
-                        zoom: presetData['PTZPosition']['Zoom']['x'],
-                        pan: presetData['PTZPosition']['PanTilt']['x'],
-                        tilt: presetData['PTZPosition']['PanTilt']['y']
-                    })
-                    .data('token', presetData['token'])
-                    .appendTo($presets);
-            }
-        });
+                    $preset
+                        .data('position', {
+                            zoom: presetData['position']['zoom'],
+                            pan: presetData['position']['pan'],
+                            tilt: presetData['position']['tilt']
+                        })
+                        .data('token', presetData['token'])
+                        .appendTo($presets);
+                }
+            });
+        } else {
+            return (new $.Deferred()).resolve()
+        }
+
     }
 
     // ajax methods
 
+    function getCoordSpaces() {
+        return $.ajax({
+            type: "POST",
+            url: getAjaxEndpoint(),
+            data: {
+                method: 'getPtzSpaces',
+                data: {
+                    cameraNumber: cameraNumber
+                }
+            },
+            dataType: 'json'
+        });
+    }
+
     function getStatus() {
         return $.ajax({
             type: "POST",
-            url: WwwPrefix + '/lib/OnvifPtzController.php',
+            url: getAjaxEndpoint(),
             data: {
                 method: 'getPtzStatus',
                 data: {
@@ -490,7 +537,7 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
     function getPresets() {
         return $.ajax({
             type: "POST",
-            url: WwwPrefix + '/lib/OnvifPtzController.php',
+            url: getAjaxEndpoint(),
             data: {
                 method: 'getPtzPresets',
                 data: {
@@ -515,7 +562,7 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
 
         var jqXhr = $.ajax({
             type: "POST",
-            url: WwwPrefix + '/lib/OnvifPtzController.php',
+            url: getAjaxEndpoint(),
             data: {
                 method: 'moveAbsolute',
                 data: $.extend({
@@ -551,7 +598,7 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
 
         var jqXhr = $.ajax({
             type: "POST",
-            url: WwwPrefix + '/lib/OnvifPtzController.php',
+            url: getAjaxEndpoint(),
             data: {
                 method: 'gotoPreset',
                 data: {
@@ -580,7 +627,7 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
 
         return $.ajax({
             type: "POST",
-            url: WwwPrefix + '/lib/OnvifPtzController.php',
+            url: getAjaxEndpoint(),
             data: {
                 method: 'gotoHomePosition',
                 data: {
@@ -597,7 +644,7 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
     function setHomePreset() {
         return $.ajax({
             type: "POST",
-            url: WwwPrefix + '/lib/OnvifPtzController.php',
+            url: getAjaxEndpoint(),
             data: {
                 method: 'setHomePosition',
                 data: {
@@ -611,7 +658,7 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
     function createPreset(presetName) {
         return $.ajax({
             type: "POST",
-            url: WwwPrefix + '/lib/OnvifPtzController.php',
+            url: getAjaxEndpoint(),
             data: {
                 method: 'createPreset',
                 data: {
@@ -626,7 +673,7 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
     function removePreset(presetToken) {
         return $.ajax({
             type: "POST",
-            url: WwwPrefix + '/lib/OnvifPtzController.php',
+            url: getAjaxEndpoint(),
             data: {
                 method: 'removePreset',
                 data: {
@@ -641,7 +688,7 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
     function moveStop() {
         return $.ajax({
             type: "POST",
-            url: WwwPrefix + '/lib/OnvifPtzController.php',
+            url: getAjaxEndpoint(),
             data: {
                 method: 'moveStop',
                 data: {
