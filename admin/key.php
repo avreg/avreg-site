@@ -71,7 +71,7 @@ if (!isset($conf['key']) || empty($conf['key'])) {
                     );
                     system(
                         sprintf(
-                            '%s link show primary label eth* | %s -iFq \'%s\'',
+                            '%s link show | %s -iFq \'%s\'',
                             $conf['ip'],
                             $conf['grep'],
                             $bind_mac
