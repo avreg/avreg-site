@@ -2,33 +2,15 @@
 
 namespace Avreg;
 
-require '../head-xhr.inc.php';
-require 'OnvifClient.php';
+require (__DIR__ . '/OnvifClient.php');
+require (__DIR__ . '/../AjaxController.php');
 
-class OnvifAjaxController
+class OnvifAjaxController extends AjaxController
 {
     /**
      * @type \OnvifClient
      */
     protected $onvifClient;
-
-    public function __construct()
-    {
-        $method = $_POST['method'] ? : $_GET['method'] ? : null;
-        $data = $_POST['data'] ? : $_GET['data'] ? : null;
-
-        if (empty($method)) {
-            $this->error('Method not found');
-            return;
-        }
-
-        try {
-            // todo harden security - allow to call only white-listed methods
-            $this->{$method}($data);
-        } catch (\Exception $e) {
-            $this->error($e->getMessage());
-        }
-    }
 
     public function connect($data = array())
     {
@@ -79,38 +61,5 @@ class OnvifAjaxController
     public function doRequest($data = array())
     {
         // todo
-    }
-
-    protected function success($data = array())
-    {
-        header('Content-Type: application/json');
-        header('HTTP/1.1 200 OK', true, 200);
-        echo json_encode(array_merge(
-            $data,
-            array(
-                '__loggedRequests' => isset($this->onvifClient) ? $this->onvifClient->getLoggedSoapRequests() : array()
-            )
-        ));
-    }
-
-    protected function error($message = '', $code = 400)
-    {
-        header('Content-Type: application/json');
-
-        switch ($code) {
-            case 401:
-                header('HTTP/1.1 401 Unauthorized', true, 401);
-                break;
-            default:
-            case 400:
-                header('HTTP/1.1 400 Bad Request', true, 400);
-                break;
-        }
-
-        echo json_encode(array(
-            'message' => $message,
-            'code' => $code,
-            '__loggedRequests' => isset($this->onvifClient) ? $this->onvifClient->getLoggedSoapRequests() : array()
-        ));
     }
 }

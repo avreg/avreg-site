@@ -2,10 +2,11 @@
 
 namespace Avreg;
 
-require '../head-xhr.inc.php';
-require './OnvifClient/OnvifAjaxController.php';
+require_once (__DIR__ . '/../head-xhr.inc.php');
+require_once (__DIR__ . '/OnvifClient/OnvifAjaxController.php');
+require_once (__DIR__ . '/PtzInterface.php');
 
-class OnvifPtzController extends OnvifAjaxController
+class OnvifPtzController extends OnvifAjaxController implements PtzInterface
 {
     /**
      * Connect to ONVIF-enabled camera by camera number.
@@ -75,6 +76,40 @@ class OnvifPtzController extends OnvifAjaxController
         return $speed;
     }
 
+    public function getPtzSpaces($data = array())
+    {
+        $this->success(array(
+            'coordSpaces' => array(
+                'zoom' => array(
+                    'min' => 0,
+                    'max' => 1
+                ),
+                'pan' => array(
+                    'min' => -1,
+                    'max' => 1
+                ),
+                'tilt' => array(
+                    'min' => -1,
+                    'max' => 1
+                )
+            ),
+            'speedSpaces' => array(
+                'zoom' => array(
+                    'min' => 0,
+                    'max' => 1
+                ),
+                'pan' => array(
+                    'min' => 0,
+                    'max' => 1
+                ),
+                'tilt' => array(
+                    'min' => 0,
+                    'max' => 1
+                )
+            )
+        ));
+    }
+
     public function getPtzStatus($data = array())
     {
         $cameraParams = $this->connectCamera($data);
@@ -91,17 +126,16 @@ class OnvifPtzController extends OnvifAjaxController
         );
 
         if ($ptzStatus['isOk']) {
-            // convert from possible scientific notation to dot notation
-            $ptzStatus['result']->PTZStatus->Position->PanTilt->x =
-                sprintf('%F', $ptzStatus['result']->PTZStatus->Position->PanTilt->x);
-            $ptzStatus['result']->PTZStatus->Position->PanTilt->y =
-                sprintf('%F', $ptzStatus['result']->PTZStatus->Position->PanTilt->y);
-            $ptzStatus['result']->PTZStatus->Position->Zoom->x =
-                sprintf('%F', $ptzStatus['result']->PTZStatus->Position->Zoom->x);
-
-            $this->success(array(
-                'PTZStatus' => $ptzStatus['result']->PTZStatus
-            ));
+            $this->success(
+                array(
+                    'position' => array(
+                        // convert from possible scientific notation to dot notation
+                        'pan' => sprintf('%F', $ptzStatus['result']->PTZStatus->Position->PanTilt->x),
+                        'tilt' => sprintf('%F', $ptzStatus['result']->PTZStatus->Position->PanTilt->y),
+                        'zoom' => sprintf('%F', $ptzStatus['result']->PTZStatus->Position->Zoom->x)
+                    )
+                )
+            );
         } else {
             $this->error('Could not get PTZ status.');
         }
@@ -123,16 +157,22 @@ class OnvifPtzController extends OnvifAjaxController
         );
 
         if ($ptzPresets['isOk']) {
+            $result = array();
+
             foreach ($ptzPresets['result']->Preset as $preset) {
-                // convert from possible scientific notation to dot notation
-                $preset->PTZPosition->PanTilt->x = sprintf('%F', $preset->PTZPosition->PanTilt->x);
-                $preset->PTZPosition->PanTilt->y = sprintf('%F', $preset->PTZPosition->PanTilt->y);
-                $preset->PTZPosition->Zoom->x = sprintf('%F', $preset->PTZPosition->Zoom->x);
+                $result[] = array(
+                    'name' => $preset->Name,
+                    'token' => $preset->token,
+                    'position' => array(
+                        // convert from possible scientific notation to dot notation
+                        'pan' => sprintf('%F', $preset->PTZPosition->PanTilt->x),
+                        'tilt' => sprintf('%F', $preset->PTZPosition->PanTilt->y),
+                        'zoom' => sprintf('%F', $preset->PTZPosition->Zoom->x)
+                    )
+                );
             }
 
-            $this->success(array(
-                'Presets' => $ptzPresets['result']->Preset
-            ));
+            $this->success($result);
         } else {
             $this->error();
         }
