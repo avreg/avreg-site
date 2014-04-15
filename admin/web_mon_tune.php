@@ -254,13 +254,13 @@ if (isset($cmd)) {
 
         //Выводить имена камер
         $PrintCamNames = ($row[8] == 1) ? 'checked' : 'unchecked';
-        print '<br /><div><div style="float:left;" >' . $strPrintCamNames . ":&nbsp;&nbsp;</div>\n";
-        print '<div><input type="checkbox" name="PrintCamNames" ' . $PrintCamNames . ' />' . "</div></div>\n";
+        print '<br /><div><span>' . $strPrintCamNames . ":&nbsp;&nbsp;</span>\n";
+        print '<span><input type="checkbox" name="PrintCamNames" ' . $PrintCamNames . ' />' . "</span></div>\n";
 
         //Установить интервал попыток переподключения к камере при отсутствии соединения
         $ReconnectTimeout = trim($row[10]);
-        print '<br /><div><div style="float:left;" >' . $strReconnectTimeout . ":&nbsp;&nbsp;</div> \n";
-        print '<div >' . getSelectByAssocAr(
+        print '<br /><div><span>' . $strReconnectTimeout . ":&nbsp;&nbsp;</span> \n";
+        print '<span>' . getSelectByAssocAr(
             'ReconnectTimeout',
             $ReconnectTimeoutArray,
             false,
@@ -268,7 +268,7 @@ if (isset($cmd)) {
             1,
             $ReconnectTimeout,
             false
-        ) . "</div></div>\n";
+        ) . "</span> $strReconnectBrowserInfo</div>\n";
 
         //Кнопки формы
         print '<br><input type="submit" name="btn" value="' . $strSave . '">' . "\n";

@@ -123,12 +123,44 @@ function img_mouseover(cell, win_nr) {
 }
 
 /**
+ * Создаёт объект aPlayer для проигрывания Motion JPEG видео.
+ *
+ * @this {win_div} Ссылка на jQuery объект - div окна камеры.
+ * @param {number} win_nr Номер окна в раскладке.
+ * @param {string} mjpeg_src Motion JPEG URL.
+ */
+$.fn.mjpeg_player_create = function(win_nr, mjpeg_src) {
+    if (typeof(window.mjpeg_must_use_CORS) == 'undefined') {
+        window.mjpeg_must_use_CORS = false;
+        if ($.browser.webkit) {
+             /* XXX BLINK bug for "multipart/x-mixed-replace" crossorigin response */
+            if ($.browser.chrome && Number($.browser.version) < 34) {
+                window.mjpeg_must_use_CORS = true;
+            }
+        }
+    }
+    this.addPlayer({
+        hasExtraWrapper: true,
+        'src': mjpeg_src,
+        'controls': false,
+        'scale': 'on',
+        'mediaType': 'mjpeg',
+        'autostart': 'on',
+        'aplayer_rtsp_php': '../lib/js/aplayer_rtsp.php',
+        'crossorigin': window.mjpeg_must_use_CORS,
+        'amc_onclick': function() {
+            img_click(document.getElementById('win' + win_nr));
+        }
+    });
+} /* mjpeg_player_create() */
+
+
+/**
  * Обработчик события click по элементу раскладки камер.
  * Если включен режим раскладки разворачивает контекстный елемент в полноэкранный режим.
  * Если включен полноэкранном режим - востанавливает режим раскладки.
  * @param clicked_div - элемент раскладки камер, по кот. осуществлен клик
  */
-
 function img_click(clicked_div) {
     var pl_cont = $('.pl_cont', clicked_div);
 
@@ -164,19 +196,9 @@ function img_click(clicked_div) {
 //          }
             //Переустанвливаем плеер для алтернативного источника
             if (current_src != null) {
-                $('.pl_wrapper', clicked_div_jq).aplayerClose().addPlayer({
-                    hasExtraWrapper: true,
-                    'src': current_src,
-                    'controls': false,
-                    'scale': 'on',
-                    'mediaType': 'mjpeg',
-                    'autostart': 'on',
-                    'aplayer_rtsp_php': '../lib/js/aplayer_rtsp.php',
-                    'crossorigin': (WEBKIT) ? true : false,
-                    'amc_onclick': function (player_nr) {
-                        img_click(document.getElementById('win' + win_nr));
-                    }
-                });
+                $('.pl_wrapper', clicked_div_jq).
+                    aplayerClose().
+                    mjpeg_player_create(win_nr, current_src);
             }
         } else {
             //востанавливаем исходные размеры отображения камеры
@@ -188,19 +210,9 @@ function img_click(clicked_div) {
 
             //Переустанвливаем плеер для алтернативного источника
             if (current_src != null) {
-                $('.pl_wrapper', clicked_div_jq).aplayerClose().addPlayer({
-                    hasExtraWrapper: true,
-                    'src': current_src,
-                    'controls': false,
-                    'scale': 'on',
-                    'mediaType': 'mjpeg',
-                    'autostart': 'on',
-                    'aplayer_rtsp_php': '../lib/js/aplayer_rtsp.php',
-                    'crossorigin': (WEBKIT) ? true : false,
-                    'amc_onclick': function (player_nr) {
-                        img_click(document.getElementById('win' + win_nr));
-                    }
-                });
+                $('.pl_wrapper', clicked_div_jq).
+                    aplayerClose().
+                    mjpeg_player_create(win_nr, current_src);
             }
 
             $(clicked_div).css({'left': WIN_DIV_LEFT + 'px', 'top': WIN_DIV_TOP + 'px' });
@@ -278,19 +290,9 @@ function img_click(clicked_div) {
 
         //Переустанвливаем плеер для алтернативного источника
         if (current_src != null) {
-            $('.pl_wrapper', clicked_div_jq).aplayerClose().addPlayer({
-                hasExtraWrapper: true,
-                'src': current_src,
-                'controls': false,
-                'scale': 'on',
-                'mediaType': 'mjpeg',
-                'autostart': 'on',
-                'aplayer_rtsp_php': '../lib/js/aplayer_rtsp.php',
-                'crossorigin': (WEBKIT) ? true : false,
-                'amc_onclick': function (player_nr) {
-                    img_click(document.getElementById('win' + win_nr));
-                }
-            });
+            $('.pl_wrapper', clicked_div_jq).
+                aplayerClose().
+                mjpeg_player_create(win_nr, current_src);
         }
 
         //меняем кнопку на Свернуть
@@ -356,20 +358,7 @@ function brout(win_nr, win_div, win_geo) {
     //Установка плеера в элемент  // win_geo.cam_h
     var $cont = $(win_div);
 
-    $cont.addPlayer({
-        hasExtraWrapper: true,
-        'src': url,
-        'controls': false,
-        'scale': 'on',
-        'mediaType': 'mjpeg',
-        'autostart': 'on',
-        'aplayer_rtsp_php': '../lib/js/aplayer_rtsp.php',
-        'crossorigin': (WEBKIT) ? true : false,
-        'amc_onclick': function (player_nr) {
-            img_click(document.getElementById('win' + win_nr));
-        }
-    });
-
+    $cont.mjpeg_player_create(win_nr, url);
     $cont.aplayerResizeToParent();
 
     //установка обработчика клика по изображению камеры

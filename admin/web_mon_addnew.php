@@ -142,8 +142,8 @@ if (isset($cmd)) {
                 require_once('../lang/russian/utf-8/_online.php');
                 //Селектор сохранять пропорции/ на весь экран
                 $AspectRatio = 'calc';
-                print '<br /><div><div style="float:left;" >' . $strAspectRatio . ":&nbsp;&nbsp;</div> \n";
-                print '<div >' . getSelectByAssocAr(
+                print '<br /><div><span>' . $strAspectRatio . ":&nbsp;&nbsp;</span> \n";
+                print '<span>' . getSelectByAssocAr(
                     'AspectRatio',
                     $AspectRatioArray,
                     false,
@@ -151,16 +151,16 @@ if (isset($cmd)) {
                     1,
                     $AspectRatio,
                     false
-                ) . "</div></div>\n";
+                ) . "</span></div>\n";
                 //Выводить имена камер
                 $PrintCamNames = "checked";
-                print '<br /><div><div style="float:left;" >' . $strPrintCamNames . ":&nbsp;&nbsp;</div>\n";
-                print '<div><input type="checkbox" name="PrintCamNames" ' . $PrintCamNames . ' />' . "</div></div>\n";
+                print '<br /><div><span>' . $strPrintCamNames . ":&nbsp;&nbsp;</span>\n";
+                print '<span><input type="checkbox" name="PrintCamNames" ' . $PrintCamNames . ' />' . "</span></div>\n";
 
                 //Установить интервал попыток переподключения к камере при отсутствии соединения
                 $ReconnectTimeout = 5; //по умолчанию
-                print '<br /><div><div style="float:left;" >' . $strReconnectTimeout . ":&nbsp;&nbsp;</div> \n";
-                print '<div >' . getSelectByAssocAr(
+                print '<br /><div><span>' . $strReconnectTimeout . ":&nbsp;&nbsp;</span> \n";
+                print '<span>' . getSelectByAssocAr(
                     'ReconnectTimeout',
                     $ReconnectTimeoutArray,
                     false,
@@ -168,7 +168,7 @@ if (isset($cmd)) {
                     1,
                     $ReconnectTimeout,
                     false
-                ) . "</div></div>\n";
+                ) . "</span> $strReconnectBrowserInfo</div>\n";
 
                 //Кнопки сохранить раскладку и отменить
                 print '<br><input type="submit" name="btn" value="' . $strSave . '">' . "\n";
