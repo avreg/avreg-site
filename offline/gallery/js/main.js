@@ -809,7 +809,7 @@ var gallery = {
                             + "<table>"
                             + "<tr >"
                             + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Выход'- </td>"
-                            + "<td style='color:black;'>выход на главную страницу<br /></td>"
+                            + "<td style='color:black;'>возврат на главную страницу<br /></td>"
                             + "</tr>";
                         +"</table>";
 
