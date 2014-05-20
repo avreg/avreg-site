@@ -220,77 +220,46 @@ function CheckParVal($_param, $_value)
     return $ret;
 }
 
+/***
+ * Возвращаем отсортированный массив номеров v4l устройств
+ * подходящий по шаблону $glob_patter
+ * @param $glob_patter string шаблон имени: /dev/video* или
+ *                            /sys/devices/virtual/video4linux/video*
+ */
+function getV4lDevNbrs($glob_pattern)
+{
+    $a = array();
+
+    foreach (glob($glob_pattern) as &$v4ldev_name) {
+        if (preg_match('/\/video(\d+)$/', $v4ldev_name, $matches)) {
+            $a[] = (int)$matches[1];
+        }
+    }
+    sort($a, SORT_NUMERIC);
+    return $a;
+}
+
 function checkParam($parname, $parval, $def_val = null)
 {
     switch ($parname) {
         case 'v4l_dev':
-        case 'v4l_pipe':
-            if ($parname == 'v4l_dev') {
-                $dev_code = 1;
-            } else {
-                $dev_code = 2;
+            $v4l_nbrs_all = getV4lDevNbrs('/dev/video[0-9]*');
+            if (empty($v4l_nbrs_all)) {
+                $ret = '<p style="color:' . $GLOBALS['error_color'] . ';">' . $GLOBALS['notVidDevs'] . '</p>'
+                    . "\n";
+                break;
             }
-            $viddev_nums = array();
-            if (is_dir('/proc/video/dev')) {
-                /* 2.4 kernel = LinuxDVRv4.x */
-                if ($dh = opendir('/proc/video/dev')) {
-                    while (($file = readdir($dh)) !== false) {
-                        if (preg_match('/^video(\d{1,2})$/', $file, $matches)) {
-                            // print "A match was found.";
-                            if ($dev_code == WhatViddev('/proc/video/dev/' . $file)) {
-                                $viddev_nums[] = $matches[1];
-                            }
-                        }
-                    }
-                    closedir($dh);
-                }
-                sort($viddev_nums, SORT_NUMERIC);
+            $v4l_nbrs_virtual = getV4lDevNbrs('/sys/devices/virtual/video4linux/video[0-9]*');
+            if (empty($v4l_nbrs_virtual)) {
+                $v4l_nbrs_real = &$v4l_nbrs_all;
             } else {
-                /* 2.6 kernel */
-                $all_v4l_devs = glob('/dev/video[0-9]*');
-                if (false === $all_v4l_devs) {
-                    $ret = '<p style="color:' . $GLOBALS['error_color'] . ';">' . $GLOBALS['notVidDevs'] . '</p>'
-                        . "\n";
-                    break;
-                }
+                $v4l_nbrs_real = array_diff($v4l_nbrs_all, $v4l_nbrs_virtual);
+            }
 
-                $all_v4l_devs_nrs = array();
-                foreach ($all_v4l_devs as $file) {
-                    if (preg_match('/^\/dev\/video(\d+)$/', $file, $matches)) {
-                        $all_v4l_devs_nrs[] = (int)$matches[1];
-                    }
-                }
-                sort($all_v4l_devs_nrs, SORT_NUMERIC);
-
-                if (isset($GLOBALS['conf']['v4loop-dev-offset'])) {
-                    $_v4loop_dev_offset = (int)$GLOBALS['conf']['v4loop-dev-offset'];
-                } else {
-                    $ret = '<p style="color:' . $GLOBALS['error_color'] . ';">not defined "v4loop-dev-offset"</p>'
-                        . "\n";
-                    break;
-                }
-                $c = 0;
-                foreach ($all_v4l_devs_nrs as $_dev_nr) {
-                    if ($dev_code === 1 /* v4l capturing dev */) {
-                        if ($_dev_nr < $_v4loop_dev_offset) {
-                            $viddev_nums[] = $_dev_nr;
-                        }
-                    } else /* v4l pipes */ {
-                        if ($_dev_nr >= $_v4loop_dev_offset) {
-                            $c++;
-                            if ($c % 2 /*через одного */) {
-                                $viddev_nums[] = $_dev_nr;
-                            }
-                        }
-                    }
-                }
-
-            } /* 2.6 kernel */
-
-            if (count($viddev_nums) > 0) {
+            if (!empty($v4l_nbrs_real)) {
                 $ret = getSelectHtmlByName(
                     'fields[' . $parname . ']',
-                    $viddev_nums,
+                    $v4l_nbrs_real,
                     false,
                     1,
                     0,
@@ -303,6 +272,45 @@ function checkParam($parname, $parval, $def_val = null)
                 $ret = '<p style="color:"' . $GLOBALS['error_color'] . ';">' . $GLOBALS['notVidDevs'] . '</p>' . "\n";
             }
             break;
+
+        case 'v4l_pipe':
+            $v4l_nbrs_virtual = getV4lDevNbrs('/sys/devices/virtual/video4linux/video[0-9]*');
+            if (empty($v4l_nbrs_virtual)) {
+                $ret = '<p style="color:' . $GLOBALS['error_color'] . ';">' . $GLOBALS['notV4loop'] . '</p>'
+                    . "\n";
+                break;
+            }
+
+            $first_nb = $v4l_nbrs_virtual[0];
+            if (strstr(file_get_contents("/sys/devices/virtual/video4linux/video$first_nb"), 'input')) {
+                /* old v4loop < 2.0; video4linux v1; one pipe = 2 devices, input and output */
+                $c = count($v4l_nbrs_virtual);
+                $tmp = array();
+                for ($i = 0; $i < $c; $i++) {
+                    if (!($i % 2)) {
+                        $tmp[] = $v4l_nbrs_virtual[$i];
+                    }
+                }
+                $v4l_nbrs_virtual = &$tmp;
+            }
+
+            if (count($v4l_nbrs_virtual) > 0) {
+                $ret = getSelectHtmlByName(
+                    'fields[' . $parname . ']',
+                    $v4l_nbrs_virtual,
+                    false,
+                    1,
+                    0,
+                    $parval,
+                    true,
+                    false,
+                    '/dev/video'
+                );
+            } else {
+                $ret = '<p style="color:"' . $GLOBALS['error_color'] . ';">' . $GLOBALS['notVidDevs'] . '</p>' . "\n";
+            }
+            break;
+
         case 'norm':
             if ($parval == '' || is_null($parval)) {
                 $sel = '';
