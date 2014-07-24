@@ -64,7 +64,7 @@ if (isset($_SESSION[$recsess_sess_var_name])) {
     $rec_sessions = $adb->getPdaEvents($cams_csv, $timebegin, $timeend, $use_desc_order);
 
     if (!$rec_sessions) {
-        print "<div style='padding: 10px;'>Ничего не найдено за этот период.<br>\n";
+        print "<div style='padding: 10px;'>Нет сохранённых картинок (снапшотов) за этот период.<br>\n";
         print "<a href='javascript:window.history.back();' title='$strBack'>$strBack</a></div>\n";
         exit;
     }
