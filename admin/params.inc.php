@@ -284,7 +284,7 @@ function checkParam($parname, $parval, $def_val = null)
             }
 
             $first_nb = $v4l_nbrs_virtual[0];
-            if (strstr(file_get_contents("/sys/devices/virtual/video4linux/video$first_nb"), 'input')) {
+            if (strstr(file_get_contents("/sys/devices/virtual/video4linux/video$first_nb/name"), 'input')) {
                 /* old v4loop < 2.0; video4linux v1; one pipe = 2 devices, input and output */
                 $c = count($v4l_nbrs_virtual);
                 $tmp = array();
