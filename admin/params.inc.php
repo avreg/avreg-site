@@ -230,12 +230,14 @@ function getV4lDevNbrs($glob_pattern)
 {
     $a = array();
 
-    foreach (glob($glob_pattern) as &$v4ldev_name) {
+    foreach (glob($glob_pattern) as $v4ldev_name) {
         if (preg_match('/\/video(\d+)$/', $v4ldev_name, $matches)) {
             $a[] = (int)$matches[1];
         }
     }
     sort($a, SORT_NUMERIC);
+    unset($v4ldev_name);
+    unset($matches);
     return $a;
 }
 
