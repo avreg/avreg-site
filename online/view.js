@@ -1922,16 +1922,7 @@ function loadPtzAreasContent($win, cam_nr, win_nr, ptz_handler, callback) {
     var $player = $win.find('.aplayer'),
         filename;
 
-    switch (ptz_handler) {
-        case 'onvif':
-        case 'axis':
-            filename = 'default';
-            break;
-        default:
-            filename = ptz_handler;
-    }
-
-    var dfdPtzGet = $.get('./ptz/'+filename+'.php', { 'cam_nr': cam_nr });
+    var dfdPtzGet = $.get('./ptz/html/' + ptz_handler + '.php', { 'cam_nr': cam_nr });
 
     dfdPtzGet
         .done(function (response) {

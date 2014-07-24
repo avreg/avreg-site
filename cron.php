@@ -62,7 +62,7 @@ if (in_array('-m', $argv) && isset($argv[array_search('-m', $argv) + 1]) && in_a
         $profile = $argv[array_search('-p', $argv) + 1];
     }
 
-    require('./lib/utils.php');
+    require(__DIR__ . '/lib/utils.php');
     require('/etc/avreg/site-defaults.php');
     $res = confparse($conf, 'avreg-site');
     if (!$res) {

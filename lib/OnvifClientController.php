@@ -2,7 +2,7 @@
 
 namespace Avreg;
 
-require './OnvifClient/OnvifAjaxController.php';
+require(__DIR__ . '/OnvifClient/OnvifAjaxController.php');
 
 class OnvifClientController extends OnvifAjaxController
 {

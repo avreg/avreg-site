@@ -433,12 +433,7 @@ OnvifPTZControls = function ($container, cameraNumber, cameraData) {
     }
 
     function getAjaxEndpoint() {
-        switch (cameraData['ptz']) {
-            case 'onvif':
-                return WwwPrefix + '/lib/OnvifPtzController.php';
-            case 'axis':
-                return WwwPrefix + '/lib/AxisPtzController.php'
-        }
+       return WwwPrefix + '/lib/PtzControllers/' + cameraData['ptz'] + '.php';
     }
 
     // action methods

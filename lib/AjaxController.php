@@ -2,7 +2,7 @@
 
 namespace Avreg;
 
-require_once '../head-xhr.inc.php';
+require_once(__DIR__ . '/../head-xhr.inc.php');
 
 class AjaxController
 {

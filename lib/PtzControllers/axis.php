@@ -2,9 +2,9 @@
 
 namespace Avreg;
 
-require_once(__DIR__ . '/../head-xhr.inc.php');
-require_once(__DIR__ . '/AjaxController.php');
-require_once(__DIR__ . '/PtzInterface.php');
+require_once(__DIR__ . '/../../head-xhr.inc.php');
+require_once(__DIR__ . '/../AjaxController.php');
+require_once(__DIR__ . '/PtzInterface.inc.php');
 
 class AxisPtzController extends AjaxController implements PtzInterface
 {
@@ -161,3 +161,5 @@ class AxisPtzController extends AjaxController implements PtzInterface
 }
 
 $controller = new AxisPtzController();
+
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */

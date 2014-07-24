@@ -2,9 +2,10 @@
 
 namespace Avreg;
 
-require_once (__DIR__ . '/../head-xhr.inc.php');
-require_once (__DIR__ . '/OnvifClient/OnvifAjaxController.php');
-require_once (__DIR__ . '/PtzInterface.php');
+require_once(__DIR__ . '/../../head-xhr.inc.php');
+require_once(__DIR__ . '/../OnvifClient/OnvifAjaxController.php');
+require_once(__DIR__ . '/../AjaxController.php');
+require_once(__DIR__ . '/PtzInterface.inc.php');
 
 class OnvifPtzController extends OnvifAjaxController implements PtzInterface
 {
@@ -38,7 +39,7 @@ class OnvifPtzController extends OnvifAjaxController implements PtzInterface
         }
 
         $connectionData = array(
-            'origin' => 'http://' . $camData['InetCam_IP'] . ':' . '80',
+            'origin' => 'http://' . $camData['InetCam_IP'] . ':' . '80' /* FIXME why hardly tcp/80 ? */,
             'username' => $camData['InetCam_USER'],
             'password' => $camData['InetCam_PASSWD'],
         );
