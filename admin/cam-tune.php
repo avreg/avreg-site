@@ -265,16 +265,10 @@ if (isset($categories)) {
         } else {
             if ($cam_nr === 0) {
                 print '<font color="' . $ParDefColor . '">' . $parname1 . '<sup>**</sup></font>';
-                $val = $VALUE;
             } else {
-                if ($VALUE != $DEF_VALUE) {
-                    print '<font color="' . $ParSetColor . '">' . $parname1 . '<sup>***</sup></font>';
-                    $val = $VALUE;
-                } else {
-                    print '<font color="' . $ParDefColor . '">' . $parname1 . '<sup>**</sup></font>';
-                    $val = $def_val;
-                }
+                print '<font color="' . $ParSetColor . '">' . $parname1 . '<sup>***</sup></font>';
             }
+            $val = $VALUE;
         }
         print '</span><br /><br /><div>' . "\n";
         $max_len = (isset($PARAMS[$i]['max_len'])) ? $PARAMS[$i]['max_len'] : 0;
