@@ -16,6 +16,9 @@ if (isset ($pipes_show)) {
         $pipes_show = 1;
     }
 }
+
+$lang_file = '_online.php';
+
 require('../head.inc.php');
 
 DENY($admin_status);

@@ -475,7 +475,7 @@ $cfg['LeftWidth'] = '170';
 ///  цвет фона левой колонки
 $left_bgcolor = '#D0DCE0';
 ///  тег таблиц
-$tabletag = '<table cellspacing="0" border="1" cellpadding="2" align="center">';
+$tabletag = '<table cellspacing="0" border="1" cellpadding="2" align="center" style="border-collapse:collapse;>';
 
 $patternIP = '[1-9]\d{1,2}\.\d{1,3}\.\d{1,3}\.\d{1,3}';
 $patternAllowedIP = '/^(' . $patternIP . '|any|localhost|*)$/';

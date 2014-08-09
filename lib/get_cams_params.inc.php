@@ -9,7 +9,7 @@
  *
  */
 
-if (isset($GCP_cams_list) && empty($GCP_cams_list)) {
+if (isset($GCP_cams_list) && (string)$GCP_cams_list === '') {
     die('not set cam list');
 }
 if (!isset($GCP_query_param_list) || !is_array($GCP_query_param_list)) {
@@ -21,7 +21,7 @@ $GCP_def_pars = array();
 $GCP_def_pars_nr = 0;
 /// Параметры камер
 $GCP_cams_params = array();
-/// Номер камеры
+/// Количество камер в списке
 $GCP_cams_nr = 0;
 
 /// Список параметров
@@ -48,21 +48,25 @@ for ($GCP_i = 0; $GCP_i < $PARAMS_NR; $GCP_i++) {
 $result = $adb->getCamParams($GCP_cams_list, $GCP_sql_in_par);
 foreach ($result as $row) {
     $__cam_nr = intval($row['CAM_NR']);
-    if ($__cam_nr === 0) {
-        $GCP_def_pars[$row['PARAM']] = $row['VALUE'];
-    } else {
+    if ($__cam_nr > 0) {
         $GCP_cams_params[$__cam_nr][$row['PARAM']] = $row['VALUE'];
+    } else {
+        if (!is_empty_var($row['VALUE'])) {
+            $GCP_def_pars[$row['PARAM']] = $row['VALUE'];
+        }
     }
 }
 
 $result = null;
 
-// echo "</script> <pre style='text-align: left;'>\n";
-// var_dump($GCP_sql_in_par);
-//var_dump($GCP_def_pars);
-//var_dump($GCP_cams_params);
-//echo "</pre>\n";
-// exit();
+/*
+echo "</script> <pre style='text-align: left;'>\n";
+var_dump($GCP_sql_in_par);
+var_dump($GCP_def_pars);
+var_dump($GCP_cams_params);
+echo "</pre>\n";
+exit();
+*/
 
 /// Список камер с параметрами
 $GCP_cams_list = array_keys($GCP_cams_params);
@@ -72,16 +76,17 @@ if ($GCP_cams_nr) {
     foreach ($GCP_cams_list as $__cam_nr) {
         reset($GCP_def_pars);
         while (list($GCP_parname, $GCP_defval) = each($GCP_def_pars)) {
-            if (!array_key_exists($GCP_parname, $GCP_cams_params[$__cam_nr])) {
+            if (!array_key_exists($GCP_parname, $GCP_cams_params[$__cam_nr]) ||
+                is_empty_var($GCP_cams_params[$__cam_nr][$GCP_parname])) {
                 $GCP_cams_params[$__cam_nr][$GCP_parname] = $GCP_defval;
             }
         }
     }
 }
-
 /*
 echo "<pre style='text-align: left;'>\n";
 var_dump($GCP_def_pars);
 var_dump($GCP_cams_params);
 echo "</pre>\n";
-*/
+ */
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */

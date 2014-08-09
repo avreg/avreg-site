@@ -61,6 +61,8 @@ if (!isset($cam_nr)) {
         'work',
         'video_src',
         'audio_src',
+        'decode_video',
+        'decode_audio',
         'geometry',
         'v4l_dev',
         'input',
@@ -71,7 +73,10 @@ if (!isset($cam_nr)) {
         'A.http_get',
         'rtsp_play',
         'alsa_dev_name',
-        'text_left'
+        'text_left',
+        'rec_mode',
+        'allow_local',
+        'allow_networks'
     );
     require('../lib/get_cams_params.inc.php');
     if ($install_user) {
@@ -80,6 +85,15 @@ if (!isset($cam_nr)) {
     }
     if ($GCP_cams_nr > 0) {
         /* Printing results in HTML */
+        $show_colums = array(
+            'ICONS' => false,
+            'CAM_NR' => true,
+            'NAME' => true,
+            'SRC' => 'tune_link',
+            'RESOLUTION' => $install_user ? 'tune_link' : true,
+            'RECORDING' => $install_user ? 'tune_link' : true,
+        );
+
         print $tabletag . "\n";
         print '<tr bgcolor="' . $header_color . '">' . "\n";
         if ($admin_user) {
@@ -88,11 +102,10 @@ if (!isset($cam_nr)) {
             }
             print '<th>&nbsp;</th>' . "\n";
         }
-        print '<th>&nbsp;</th>' . "\n";
-        print '<th nowrap>' . $strCam . '</th>' . "\n";
-        print '<th>' . $strName . '</th>' . "\n";
-        print '<th>' . $strType . '</th>' . "\n";
+        print '<th nowrap colspan=2>' . $strCam . '</th>' . "\n";
+        print '<th>' . $strSources . '</th>' . "\n";
         print '<th>' . $strGeo . '</th>' . "\n";
+        print '<th>' . $strRecording . '</th>' . "\n";
         print '</tr>' . "\n";
 
         print '<tr>' . "\n";
@@ -100,11 +113,15 @@ if (!isset($cam_nr)) {
             if ($install_user) {
                 print '<td>&nbsp;</td>' . "\n";
             }
-            print '<td><a href="./cam-tune.php?cam_nr=0">' . $strTune . '</td>' . "\n";
+
+            print '<td align="center" valign="center"><a href="./cam-tune.php?cam_nr=0">' .
+                '<img width="24" height="24" src="' . $conf['prefix'] . '/img/gearwheel.png" '.
+                'title="' . $strTune . '" alt="' . $strTune . '" />' .
+                '</a></td>' . "\n";
         }
         $__cam_nr = 0;
         $cam_detail = & $GCP_def_pars;
-        print_cam_detail_row($conf, $__cam_nr, $cam_detail);
+        print_cam_detail_row($conf, $__cam_nr, $cam_detail, $show_colums);
         print "</tr>\n";
 
         $r_count = 0;
@@ -117,7 +134,6 @@ if (!isset($cam_nr)) {
         print '</pre>';
         */
         //-->
-
         while (list($__cam_nr, $cam_detail) = each($GCP_cams_params)) {
             $cam_name = getCamName($cam_detail['text_left']);
             $r_count++;
@@ -128,32 +144,31 @@ if (!isset($cam_nr)) {
             }
             if ($install_user) {
                 if ($r_count == $GCP_cams_nr) {
-                    //удалить камеру
-                    $ggg = sprintf(
-                        '<a href="%s/%s?cmd=DEL&cam_nr=%d&cam_name=%s">%s</a>',
+                    // удалить последнюю камеру
+                    $del_href = sprintf(
+                        '%s?cmd=DEL&cam_nr=%d&cam_name=%s',
                         $_SERVER['PHP_SELF'],
-                        $conf['prefix'],
                         $__cam_nr,
-                        $cam_name,
-                        $strDelete
+                        $cam_name
                     );
-                    print '<td>' . $ggg . '</td>' . "\n";
+                    print '<td align="center" valign="center"><a href="' . $del_href . '" title="' . $strDelete . '">' .
+                        '<img src="' . $conf['prefix'] . '/img/trash_24x24.png" '.
+                        'title="' . $strDelete . '" alt="' . $strDelete . '" />' .
+                        '</a></td>' . "\n";
                 } else {
                     print '<td>&nbsp;</td>' . "\n";
                 }
             }
             if ($admin_user) {
                 //настроить камеру
-                $ggg = sprintf(
-                    '<a href="./cam-tune.php?cam_nr=%d&cam_name=%s">%s</a>',
-                    $__cam_nr,
-                    $cam_name,
-                    $strTune
-                );
-                print '<td>' . $ggg . '</td>' . "\n";
+                $tune_href = sprintf('./cam-tune.php?cam_nr=%d&cam_name=%s', $__cam_nr, $cam_name);
+                print '<td><a href="' . $tune_href . '" title="' . $strTune . '">' .
+                      '<img width="24" height="24" src="' . $conf['prefix'] . '/img/gearwheel.png" '.
+                      'title="' . $strTune . '" alt="' . $strTune . '" />' .
+                      '</a></td>' . "\n";
             }
             //вывести инфу о камере
-            print_cam_detail_row($conf, $__cam_nr, $cam_detail);
+            print_cam_detail_row($conf, $__cam_nr, $cam_detail, $show_colums);
 
             print "</tr>\n";
         }
@@ -189,3 +204,4 @@ if (!isset($cam_nr)) {
 <?php
 // phpinfo ();
 require('../foot.inc.php');
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */

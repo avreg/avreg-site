@@ -5,23 +5,22 @@ $__DEF_CAM_DETAIL_COLUMNS = array(
     'CAM_NR' => true,
     'NAME' => true,
     'SRC' => true,
-    'CAPS' => true,
+    'RESOLUTION' => true,
 );
 
-define('COMPACT_URL_LEN', 30);
-function print_compact_url(&$url)
+function print_compact_url(&$url, $max_len = 10)
 {
-    if (strlen($url) < COMPACT_URL_LEN) {
+    if (strlen($url) < $max_len) {
         return $url;
     }
-    return sprintf('<span title="%s">%s...&rarr;</span>', $url, substr($url, 0, COMPACT_URL_LEN - 1));
+    return sprintf('<span title="%s">%s...&rarr;</span>', $url, substr($url, 0, $max_len - 1));
 }
 
 function _warn_emptied_param($param, $print_warn)
 {
     if ($print_warn) {
-        return '&nbsp;<span style="font-weight: bold;"> [«' . $param . '» ' .
-        $GLOBALS['strEmptied'] . '] </span>&nbsp;';
+        return '<span style="font-weight: bold;"> [«' . $param . '» ' .
+        $GLOBALS['strEmptied'] . '] </span>';
     } else {
         return '${' . $param . '}';
     }
@@ -32,57 +31,112 @@ function _warn_emptied_param($param, $print_warn)
  *        TRUE  if has video and complete url
  *        FALSE if has video but not complete url
  */
-function cam_has_video($cam_detail, $print_warn, &$url)
+function has_cam_video($cam_nr, $cam_detail, $print_warn, &$url, $do_link = false)
 {
     $ret = true;
     $url = '';
 
-    $vproto = & $cam_detail['video_src'];
+    $vproto =& $cam_detail['video_src'];
 
     switch ($vproto) {
         case 'video4linux':
-            $url = "v4l://";
-            if (!isset($cam_detail['v4l_dev'])) {
+            if ($do_link) {
+                $url .= '<a href="./cam-tune.php?&cam_nr=' . $cam_nr . '&categories=3#video_src"'
+                   . 'class="normal_link" >';
+            }
+            $url .= 'v4l://';
+            if ($do_link) {
+                $url .= '</a>';
+                $url .= '<a href="./cam-tune.php?&cam_nr=' . $cam_nr . '&categories=3.2#v4l_dev" ' .
+                    'class="normal_link" >';
+            }
+            if (!isset($cam_detail['v4l_dev']) || is_empty_var($cam_detail['v4l_dev'])) {
                 $url .= _warn_emptied_param('v4l_dev', $print_warn);
                 $ret = false;
             } else {
                 $url .= '/dev/video' . $cam_detail['v4l_dev'];
             }
-            $input = isset($cam_detail['input']) ? $cam_detail['input'] : 0;
+            $input = isset($cam_detail['input']) && ! is_empty_var($cam_detail['input']) ? $cam_detail['input'] : 0;
             $url .= ":$input";
+            if ($do_link) {
+                $url .= '</a>';
+            }
             break;
         case 'http':
-            $url = 'http://';
+            if ($do_link) {
+                $url .= '<a href="./cam-tune.php?&cam_nr=' . $cam_nr . '&categories=3#video_src" ' .
+                    'class="normal_link" >';
+            }
+            $url .= 'http://';
+            if ($do_link) {
+                $url .= '</a>';
+                $url .= '<a href="./cam-tune.php?&cam_nr=' . $cam_nr . '&categories=3.1#InetCam_IP"'
+                    . 'class="normal_link" >';
+            }
             if (empty($cam_detail['InetCam_IP'])) {
                 $url .= _warn_emptied_param('InetCam_IP', $print_warn);
                 $ret = false;
             } else {
                 $url .= $cam_detail['InetCam_IP'];
             }
+            if ($do_link) {
+                $url .= '</a>';
+            }
             if (!empty($cam_detail['InetCam_http_port']) && $cam_detail['InetCam_http_port'] != 80) {
+                if ($do_link) {
+                    $url .= '<a href="./cam-tune.php?&cam_nr=' . $cam_nr . '&categories=3.1.1#InetCam_http_port" '
+                        . 'class="normal_link" >';
+                }
                 $url .= ':' . $cam_detail['InetCam_http_port'];
+                if ($do_link) {
+                    $url .= '</a>';
+                }
             }
 
+            if ($do_link) {
+                $url .= '<a href="./cam-tune.php?&cam_nr=' . $cam_nr . '&categories=3.1.1.1#V.http_get" '
+                    . 'class="normal_link" >';
+            }
             if (empty($cam_detail['V.http_get'])) {
                 $url .= _warn_emptied_param('V.http_get', $print_warn);
                 $ret = false;
             } else {
-                $url .= $cam_detail['V.http_get'];
+                $url .= print_compact_url($cam_detail['V.http_get']);
+            }
+            if ($do_link) {
+                $url .= '</a>';
             }
             break;
         case 'rtsp':
-            $url = 'rtsp://';
+            if ($do_link) {
+                $url .= '<a href="./cam-tune.php?&cam_nr=' . $cam_nr . '&categories=3#video_src" ' .
+                    'class="normal_link" >';
+            }
+            $url .= 'rtsp://';
+            if ($do_link) {
+                $url .= '</a>';
+                $url .= '<a href="./cam-tune.php?&cam_nr=' . $cam_nr . '&categories=3.1#InetCam_IP" ' .
+                    'class="normal_link" >';
+            }
             if (empty($cam_detail['InetCam_IP'])) {
                 $url .= _warn_emptied_param('InetCam_IP', $print_warn);
                 $ret = false;
             } else {
                 $url .= $cam_detail['InetCam_IP'];
+            }
+            if ($do_link) {
+                $url .= '</a>';
+                $url .= '<a href="./cam-tune.php?&cam_nr=' . $cam_nr . '&categories=3.1.2#rtsp_play" '
+                         . 'class="normal_link" >';
             }
             if (!empty($cam_detail['InetCam_rtsp_port']) && $cam_detail['InetCam_rtsp_port'] != 554) {
                 $url .= ':' . $cam_detail['InetCam_rtsp_port'];
             }
             if (!empty($cam_detail['rtsp_play'])) {
-                $url .= $cam_detail['rtsp_play'];
+                $url .=  print_compact_url($cam_detail['rtsp_play']);
+            }
+            if ($do_link) {
+                $url .= '</a>';
             }
             break;
         default:
@@ -96,7 +150,7 @@ function cam_has_video($cam_detail, $print_warn, &$url)
  *        TRUE  if has audio and complete url
  *        FALSE if has audio but not complete url
  */
-function cam_has_audio($cam_detail, $print_warn, &$url)
+function has_cam_audio($cam_nr, $cam_detail, $print_warn, &$url, $do_link = false)
 {
     $ret = true;
     $url = '';
@@ -105,46 +159,101 @@ function cam_has_audio($cam_detail, $print_warn, &$url)
 
     switch ($aproto) {
         case 'alsa':
-            $url = "ALSA://";
+            if ($do_link) {
+                $url .= '<a href="./cam-tune.php?&cam_nr=' . $cam_nr . '&categories=3#audio_src"'
+                   . 'class="normal_link" >';
+            }
+            $url .= "ALSA://";
+            if ($do_link) {
+                $url .= '</a>';
+                $url .= '<a href="./cam-tune.php?&cam_nr=' . $cam_nr . '&categories=3.3#alsa_dev_name" ' .
+                    'class="normal_link" >';
+            }
             if (empty($cam_detail['alsa_dev_name'])) {
                 $url .= _warn_emptied_param('alsa_dev_name', $print_warn);
                 $ret = false;
             } else {
                 $url .= $cam_detail['alsa_dev_name'];
             }
+            if ($do_link) {
+                $url .= '</a>';
+            }
             break;
         case 'http':
-            $url = 'http://';
+            if ($do_link) {
+                $url .= '<a href="./cam-tune.php?&cam_nr=' . $cam_nr . '&categories=3#audio_src"'
+                    . 'class="normal_link" >';
+            }
+            $url .= 'http://';
+            if ($do_link) {
+                $url .= '</a>';
+                $url .= '<a href="./cam-tune.php?&cam_nr=' . $cam_nr . '&categories=3.1#InetCam_IP"'
+                    . 'class="normal_link" >';
+            }
             if (empty($cam_detail['InetCam_IP'])) {
                 $url .= _warn_emptied_param('InetCam_IP', $print_warn);
                 $ret = false;
             } else {
                 $url .= $cam_detail['InetCam_IP'];
             }
+            if ($do_link) {
+                $url .= '</a>';
+            }
             if (!empty($cam_detail['InetCam_http_port']) && $cam_detail['InetCam_http_port'] != 80) {
+                if ($do_link) {
+                    $url .= '<a href="./cam-tune.php?&cam_nr=' . $cam_nr . '&categories=3.1.1#InetCam_http_port" '
+                        . 'class="normal_link" >';
+                }
                 $url .= ':' . $cam_detail['InetCam_http_port'];
+                if ($do_link) {
+                    $url .= '</a>';
+                }
             }
 
+            if ($do_link) {
+                $url .= '<a href="./cam-tune.php?&cam_nr=' . $cam_nr . '&categories=3.1.1.2#A.http_get" '
+                    . 'class="normal_link" >';
+            }
             if (empty($cam_detail['A.http_get'])) {
                 $url .= _warn_emptied_param('A.http_get');
                 $ret = false;
             } else {
-                $url .= $cam_detail['A.http_get'];
+                $url .=  print_compact_url($cam_detail['A.http_get']);
+            }
+            if ($do_link) {
+                $url .= '</a>';
             }
             break;
         case 'rtsp':
-            $url = 'rtsp://';
+            if ($do_link) {
+                $url .= '<a href="./cam-tune.php?&cam_nr=' . $cam_nr . '&categories=3#video_src" ' .
+                    'class="normal_link" >';
+            }
+            $url .= 'rtsp://';
+            if ($do_link) {
+                $url .= '</a>';
+                $url .= '<a href="./cam-tune.php?&cam_nr=' . $cam_nr . '&categories=3.1#InetCam_IP" ' .
+                    'class="normal_link" >';
+            }
             if (empty($cam_detail['InetCam_IP'])) {
                 $url .= _warn_emptied_param('InetCam_IP', $print_warn);
                 $ret = false;
             } else {
                 $url .= $cam_detail['InetCam_IP'];
+            }
+            if ($do_link) {
+                $url .= '</a>';
+                $url .= '<a href="./cam-tune.php?&cam_nr=' . $cam_nr . '&categories=3.1.2#rtsp_play" '
+                    . 'class="normal_link" >';
             }
             if (!empty($cam_detail['InetCam_rtsp_port']) && $cam_detail['InetCam_rtsp_port'] != 554) {
                 $url .= ':' . $cam_detail['InetCam_rtsp_port'];
             }
             if (!empty($cam_detail['rtsp_play'])) {
-                $url .= $cam_detail['rtsp_play'];
+                $url .= print_compact_url($cam_detail['rtsp_play']);
+            }
+            if ($do_link) {
+                $url .= '</a>';
             }
             break;
         default:
@@ -167,8 +276,9 @@ function print_cam_detail_row($conf, $cam_nr, $cam_detail, $columns = null)
         $cam_name = $GLOBALS['r_cam_defs2'];
     }
 
-    $cam_has_video = cam_has_video($cam_detail, ($cam_nr !== 0), $video_url);
-    $cam_has_audio = cam_has_audio($cam_detail, ($cam_nr !== 0), $audio_url);
+    $do_link = (isset($_cols['SRC']) && $_cols['SRC'] === 'tune_link');
+    $cam_has_video = has_cam_video($cam_nr, $cam_detail, ($cam_nr > 0), $video_url, $do_link);
+    $cam_has_audio = has_cam_audio($cam_nr, $cam_detail, ($cam_nr > 0), $audio_url, $do_link);
 
     /* print icons <td> */
     if (isset($_cols['ICONS']) && $_cols['ICONS']) {
@@ -191,16 +301,15 @@ function print_cam_detail_row($conf, $cam_nr, $cam_detail, $columns = null)
             );
         }
         print '</td>';
-
     }
 
     /* print cameras number <td> */
     if (isset($_cols['CAM_NR']) && $_cols['CAM_NR']) {
-        if ($cam_active) {
-            print '<td align="center" valign="center" nowrap><div style="font-weight: bold;">' . $cam_nr .
-                '</div></td>' . "\n";
+        if ($cam_active || $cam_nr <= 0) {
+            print '<td align="center" valign="center" nowrap><div style="font-weight: bold;">&nbsp;' .
+                $cam_nr . '&nbsp;</div></td>' . "\n";
         } else {
-            print '<td align="center" valign="center" nowrap><div>' . $cam_nr . '</div></td>' . "\n";
+            print '<td align="center" valign="center" nowrap><div>&nbsp;' .  $cam_nr . '&nbsp;</div></td>' . "\n";
         }
     }
 
@@ -214,16 +323,16 @@ function print_cam_detail_row($conf, $cam_nr, $cam_detail, $columns = null)
                 $cam_nr,
                 $_cols['NAME']['title']
             );
-            if ($cam_active) {
+            if ($cam_active || $cam_nr <= 0) {
                 print '<a ' . $tag_a_cont . ' style="font-weight: bold;">' . $cam_name . '</a>' . "\n";
             } else {
-                print '<a ' . $tag_a_cont . '>' . $cam_name . '</a>' . "\n";
+                print '<a ' . $tag_a_cont . ' style="text-decoration: line-through;">' . $cam_name . '</a>' . "\n";
             }
         } else {
-            if ($cam_active) {
+            if ($cam_active || $cam_nr <= 0) {
                 print '<div style="font-weight: bold;">' . $cam_name . '</div>' . "\n";
             } else {
-                print '<div>' . $cam_name . '</div>' . "\n";
+                print '<div style="text-decoration: line-through;">' . $cam_name . '</div>' . "\n";
             }
         }
         print "</div></td>\n";
@@ -232,17 +341,18 @@ function print_cam_detail_row($conf, $cam_nr, $cam_detail, $columns = null)
     /* print cameras source/type <td> */
     if (isset($_cols['SRC']) && $_cols['SRC']) {
         print('<td>');
-        if (!is_null($cam_has_video) && !is_null($cam_has_video) && $video_url == $audio_url) {
-            printf('AV: %s', $cam_has_video ? print_compact_url($video_url) : $video_url);
+        if (!is_null($cam_has_video) && !is_null($cam_has_video) &&
+            $cam_detail['video_src'] == $cam_detail['audio_src'] && $cam_detail['video_src'] === 'rtsp') {
+            printf('AV: %s', $video_url);
         } else {
             if (!is_null($cam_has_video)) {
-                printf('V: %s', $cam_has_video ? print_compact_url($video_url) : $video_url);
+                printf('V: %s', $video_url);
             }
             if (!is_null($cam_has_audio)) {
                 if (!is_null($cam_has_video)) {
                     print("<br />\n");
                 }
-                printf('A: %s', $cam_has_audio ? print_compact_url($audio_url) : $audio_url);
+                printf('A: %s', $audio_url);
             }
             if (!is_null($cam_has_video) && !is_null($cam_has_audio)) {
                 print('&nbsp;');
@@ -252,11 +362,39 @@ function print_cam_detail_row($conf, $cam_nr, $cam_detail, $columns = null)
     }
 
     /* print cameras short capabilities <td> */
-    if (isset($_cols['CAPS']) && $_cols['CAPS']) {
-        if (!is_null($cam_has_video) || $cam_nr == 0) {
-            print '<td align="center" valign="center">' . $cam_detail['geometry'] . "</td>\n";
+    if (isset($_cols['RESOLUTION']) && $_cols['RESOLUTION']) {
+        if (!is_null($cam_has_video) || $cam_nr <= 0) {
+            print '<td align="center" valign="center">';
+            if ($_cols['RESOLUTION'] === 'tune_link') {
+                print '<a href="./cam-tune.php?&cam_nr=' . $cam_nr . '&categories=3#geometry" ' .
+                    'class="normal_link">';
+            }
+            print $cam_detail['geometry'];
+            if ($_cols['RESOLUTION'] === 'tune_link') {
+                print '</a>';
+            }
+            print "</td>\n";
+        } else {
+            print '<td>&nbsp;</td>' . "\n";
+        }
+    }
+    /* print cameras short capabilities <td> */
+    if (isset($_cols['RECORDING']) && $_cols['RECORDING']) {
+        $rec_mode_int = (int)$cam_detail['rec_mode'];
+        if ($rec_mode_int  > 0 || $cam_nr <= 0) {
+            print '<td align="center" valign="center">';
+            if ($_cols['RECORDING'] === 'tune_link') {
+                print '<a href="./cam-tune.php?&cam_nr=' . $cam_nr . '&categories=11" ' .
+                    'class="normal_link">';
+            }
+            print $GLOBALS['recording_mode'][$rec_mode_int];
+            if ($_cols['RECORDING'] === 'tune_link') {
+                print '</a>';
+            }
+            print "</td>\n";
         } else {
             print '<td>&nbsp;</td>' . "\n";
         }
     }
 }
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */

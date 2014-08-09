@@ -442,3 +442,10 @@ a:hover {
     cursor: pointer;
     text-decoration: underline;
 }
+
+.normal_link {
+   cursor: pointer;
+   text-decoration: underline;
+   color: inherit;
+   font: inherit;
+}

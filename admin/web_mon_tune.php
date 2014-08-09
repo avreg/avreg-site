@@ -32,6 +32,8 @@ if ($storage == 'client') {
         'lib/js/third-party/json2.js'
     );
 }
+
+$lang_file = '_online.php';
 require('../head.inc.php');
 
 //DENY($admin_status);
@@ -124,7 +126,6 @@ if (isset($cmd)) {
     require('web_active_pipe.inc.php');
     $wins_array = & $active_pipes;
     if (count($wins_array) == 0) {
-        print '<p class="HiLiteBigErr">' . $strNotViewCams . '</p>' . "\n";
         print_go_back();
         require('../foot.inc.php');
         exit;

@@ -16,13 +16,17 @@ $link_javascripts = array(
     'lib/js/misc_utils.js',
     'lib/js/checkbox.js',
     'lib/js/third-party/URI.js',
-    'lib/js/onvif-helpers.js',
     'lib/js/third-party/jqModal.js'
  );
 $css_links = array(
     'lib/js/third-party/jqModal.css',
-    'admin/admin.css',
+    'admin/admin.css'
 );
+
+$include_javascripts = array(
+    'lib/js/onvif-helpers.js',
+    'admin/cam-tune.js'
+ );
 require('../head.inc.php');
 DENY($admin_status);
 require_once($params_module_name);
@@ -44,7 +48,7 @@ if (isset ($par_filter)) {
 if (isset($cmd)) {
     if ($cmd == 'UPDATE_PARAM') {
         require('./upload.inc.php');
-        if (is_array($types) && (count($types) > 0)) {
+        if (isset($types) && is_array($types) && (count($types) > 0)) {
             $cmd = 'SHOW_PARAM';
             while (list($parname, $partype) = each($types)) {
                 if (!isset($olds[$parname])) {
@@ -117,10 +121,6 @@ if (isset($categories)) {
     $CAM_PARAMS = array();
     $DEF_CAM_PARAMS = array();
     foreach ($result as $row) {
-        if (is_null($row['VALUE']) ||
-            $row['VALUE'] == '' /* trim() в $adb->getDefCamParams() делается */ ) {
-            continue;
-        }
         if ($cam_nr === 0) {
             // if user choose "group" camera - use $CAM_PARAMS instead $DEF_CAM_PARAMS
             $CAM_PARAMS[$row['PARAM']] = array(
@@ -251,22 +251,28 @@ if (isset($categories)) {
         }
 
         print '<span>' . "\n";
+        print "<a href='#' name='$parname1'></a>\n";
         $def_val = ($DEF_VALUE === '' || is_null($DEF_VALUE)) ? null : $DEF_VALUE;
         $val = null;
+        $val_owner = null; // avregd
         if ($VALUE === '' || is_null($VALUE)) {
             // не установленное поле
             if ($VALUE != $def_val) {
-                print '<font color="' . $ParDefColor . '">' . $parname1 . '<sup>**</sup></font>';
+                print '<span style="color: ' . $ParDefColor . ';">' . $parname1 . '<sup>**</sup></span>';
                 $val = $def_val;
+                $val_owner = 0;
             } else {
-                print '<font color="' . $NotSetParColor . '">' . $parname1 . '<sup>*</sup></font>';
+                print '<span style="color: ' . $NotSetParColor . ';">' . $parname1 . '<sup>*</sup></span>';
                 $val = null;
+                $val_owner = null; // avregd
             }
         } else {
             if ($cam_nr === 0) {
-                print '<font color="' . $ParDefColor . '">' . $parname1 . '<sup>**</sup></font>';
+                print '<span style="color: ' . $ParDefColor . ';">' . $parname1 . '<sup>**</sup></span>';
+                $val_owner = 0;
             } else {
-                print '<font color="' . $ParSetColor . '">' . $parname1 . '<sup>***</sup></font>';
+                print '<span style="color: ' . $ParSetColor . ';">' . $parname1 . '<sup>***</sup></span>';
+                $val_owner = $cam_nr;
             }
             $val = $VALUE;
         }
@@ -329,6 +335,26 @@ if (isset($categories)) {
                     );
                 }
         }
+
+        if ($VALUE !== '' && !is_null($VALUE)) {
+            /* reset action */
+            if ($cam_nr <= 0 || $val_owner === $cam_nr) {
+                print '<a href="#" class="update_param" id="a~' .
+                    $cam_nr . '~' . $parname1 . '~' . '~' . $def_val . '~' . $categories . '">' .
+                    /*                          ^^^^^^^^^
+                     *                          XXX - empty value */
+                    '<img src="' . $conf['prefix'] . '/img/trash_24x24.png" title="' . $strReset . '" ' .
+                    'alt="reset" width="24" height="24" style="vertical-align: bottom;" />' .
+                    "</a>\n";
+            }
+        } elseif ($cam_nr > 0) {
+            print '<a href="#" class="update_param" id="a~' .
+                $cam_nr . '~' . $parname1 . '~' . $def_val . '~' . $def_val . '~' . $categories . '">' .
+                                               /* ^^^^^^^^^ */
+                '<img src="' . $conf['prefix'] . '/img/pin_black_24x24.png" title="' . $strSetToCam . '" ' .
+                'alt="set" width="24" height="24" style="vertical-align: bottom;" />' .
+                "</a>\n";
+        }
         print '</div></div></td>' . "\n";
         print '<td>' . $COMMENT . '</td>' . "\n";
         if (empty($CHANGED_TIME)) {
@@ -358,6 +384,7 @@ if (isset($categories)) {
     $all = array_merge($DEF_CAM_PARAMS, $CAM_PARAMS);
     $cam_main_info = array(
         'cam_nr' => (int)$cam_nr,
+        'categories' => $categories,
         'cam_name' => empty($all['text_left']['value']) ? '' : $all['text_left']['value'],
         'video_src' => empty($all['video_src']['value']) ? '' : $all['video_src']['value'],
         'audio_src' => empty($all['audio_src']['value']) ? '' : $all['video_src']['value'],

@@ -34,6 +34,7 @@ if ($storage == 'client') {
     );
 }
 
+$lang_file = '_online.php';
 require('../head.inc.php');
 
 //DENY($admin_status);

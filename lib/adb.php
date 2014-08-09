@@ -901,6 +901,7 @@ class Adb
         $query .= " PARVAL = $parval";
         $query .= ", CHANGE_HOST = '$host'";
         $query .= ", CHANGE_USER = '$user'";
+        $query .= ", CHANGE_TIME = NOW()";
         $query .= " WHERE BIND_MAC = '$bind_mac'";
         $query .= " AND CAM_NR = $cam_nr";
         $query .= " AND PARNAME = '$parname'";
@@ -958,7 +959,6 @@ class Adb
                 'CHANGE_HOST' => trim($line[$this->key('CHANGE_HOST')]),
                 'CHANGE_USER' => trim($line[$this->key('CHANGE_USER')]),
                 'CHANGE_TIME' => trim($line[$this->key('CHANGE_TIME')]),
-
             );
         }
         return $cams;
@@ -980,7 +980,7 @@ class Adb
         if (!empty($cams_list)) {
             $query .= ' AND (CAM_NR=0  OR CAM_NR in(' . $cams_list . '))';
         }
-        $query .= ' AND PARNAME IN (' . $param_list . ') AND  PARVAL<>\'\' AND PARVAL IS NOT NULL ';
+        $query .= ' AND PARNAME IN (' . $param_list . ')'; // AND  PARVAL<>\'\' AND PARVAL IS NOT NULL ';
         $query .= ' ORDER BY CAM_NR';
         $res = $this->db->query($query);
         $this->error($res);
@@ -1173,15 +1173,13 @@ class Adb
     /**
      *
      * Метод позволяет удалить раскладку для WEB
-     * @param string $display
      * @param int $mon_nr
      * @param string $bind_mac
      */
-    public function webDeleteLayouts($display, $mon_nr, $bind_mac = 'local')
+    public function webDeleteLayouts($mon_nr, $bind_mac = 'local')
     {
         $query = 'DELETE FROM WEB_LAYOUTS';
         $query .= " WHERE BIND_MAC ='$bind_mac'";
-        //$query .= " AND DISPLAY ='$display'";
         $query .= " AND MON_NR = $mon_nr";
         $res = $this->db->query($query);
         $this->error($res);

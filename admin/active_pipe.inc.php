@@ -68,11 +68,11 @@ print '<form action="' . $_SERVER['REQUEST_URI'] . '" method="POST">' . "\n";
 print '<p align="center">' . $strWcListShow .
 getSelectHtml(
     'pipes_show',
-    $MonCamListShow,
+    $CamListShowMode,
     false,
     1,
     0,
-    $MonCamListShow[$pipes_show],
+    $CamListShowMode[$pipes_show],
     false,
     true
 ) . '</p>' . "\n";
@@ -110,23 +110,13 @@ require('../lib/get_cams_params.inc.php');
 $active_pipes = array();
 $active_pipes_nr = 0;
 
-if ($GCP_cams_nr === 0) {
-    print '<p class="HiLiteBigErr">' . $strNotViewCams . '</p>' . "\n";
-} else {
+if ($GCP_cams_nr > 0) {
     // строим список активных для просмотра пайпов
     if ($pipes_show > 0) {
-        /*
-            print '<div align="center"><pre style="text-align:left;">'. "\n";
-            var_dump($_POST);
-            print '</pre></div>'. "\n";
-         */
         print '<div align="center">' . "\n";
-        print '<table cellspacing="0" border="1" cellpadding="3">' . "\n";
+        print $tabletag . "\n";
         print '<tr bgcolor="' . $header_color . '">' . "\n";
-        print '<th>&nbsp;</th>' . "\n";
-        print '<th nowrap>' . $strCam . '</th>' . "\n";
-        print '<th>' . $strName . '</th>' . "\n";
-        print '<th>' . $strType . '</th>' . "\n";
+        print '<th nowrap colspan=2>' . $strCam . '</th>' . "\n";
         print '<th>' . $strGeo . '</th>' . "\n";
         if ($pipes_show > 1) {
             print '<th>' . $sUnavailableReason . '</th>' . "\n";
@@ -135,17 +125,27 @@ if ($GCP_cams_nr === 0) {
     }
     $r_count = 0;
     $c_work = 0;
+    $c_video_src = 0;
     $c_mon_live = 0;
     $c_v4l_pipe = '';
+
+    $show_colums = array(
+       'ICONS' => false,
+       'CAM_NR' => true,
+       'NAME' => true,
+       'SRC' => false,
+       'RESOLUTION' => true,
+    );
 
     reset($GCP_cams_params);
     while (list($__cam_nr, $cam_detail) = each($GCP_cams_params)) {
         $cam_name = getCamName($GCP_cams_params[$__cam_nr]['text_left']);
         $c_work = intval($GCP_cams_params[$__cam_nr]['work']);
+        $c_video_src = intval(!is_empty_var($GCP_cams_params[$__cam_nr]['video_src']));
         $c_mon_live = intval($GCP_cams_params[$__cam_nr]['allow_local']);
         $c_v4l_pipe =& $GCP_cams_params[$__cam_nr]['v4l_pipe'];
 
-        if (($c_work && $c_mon_live && isset($c_v4l_pipe))) {
+        if (($c_work && $c_video_src && $c_mon_live && isset($c_v4l_pipe))) {
             $active_pipes[$active_pipes_nr] = $__cam_nr;
             $active_pipes_nr++;
         } else {
@@ -161,19 +161,54 @@ if ($GCP_cams_nr === 0) {
             } else {
                 print "<tr>\n";
             }
-            print_cam_detail_row($conf, $__cam_nr, $cam_detail);
+            print_cam_detail_row($conf, $__cam_nr, $cam_detail, $show_colums);
 
             if ($pipes_show > 1) {
                 // показывыть все c причиной почему не доступно
                 $off_reason = '&nbsp;';
                 if ($c_work === 0) {
-                    $off_reason .= 'work="' . $flags[0] . '";&nbsp;&nbsp;';
+                    if ($install_user) {
+                        $off_reason .= '<a href="./cam-tune.php?&cam_nr=' . $__cam_nr .
+                            '&categories=1#work" class="normal_link">';
+                    }
+                    $off_reason .= 'work';
+                    if ($install_user) {
+                        $off_reason .= '</a>';
+                    }
+                    $off_reason .= ' = "' . $flags[0] . '";&nbsp;&nbsp;';
+                }
+                if ($c_video_src === 0) {
+                    if ($install_user) {
+                        $off_reason .= '<a href="./cam-tune.php?&cam_nr=' . $__cam_nr .
+                            '&categories=3#video_src" class="normal_link">';
+                    }
+                    $off_reason .= 'video_src';
+                    if ($install_user) {
+                        $off_reason .= '</a>';
+                    }
+                    $off_reason .= '="' . $srtUndef . '";&nbsp;&nbsp;';
                 }
                 if ($c_mon_live === 0) {
-                    $off_reason .= 'allow_local="' . $flags[0] . '";&nbsp;&nbsp;';
+                    if ($install_user) {
+                        $off_reason .= '<a href="./cam-tune.php?&cam_nr=' . $__cam_nr .
+                            '&categories=15#allow_local" class="normal_link">';
+                    }
+                    $off_reason .= 'allow_local';
+                    if ($install_user) {
+                        $off_reason .= '</a>';
+                    }
+                    $off_reason .= ' = "' . $flags[0] . '";&nbsp;&nbsp;';
                 }
                 if (!isset($c_v4l_pipe)) {
-                    $off_reason .= 'v4l_pipe="' . $srtUndef . '";';
+                    if ($install_user) {
+                        $off_reason .= '<a href="./cam-tune.php?&cam_nr=' . $__cam_nr .
+                            '&categories=15.1#v4l_pipe" class="normal_link">';
+                    }
+                    $off_reason .= 'v4l_pipe';
+                    if ($install_user) {
+                        $off_reason .= '</a>';
+                    }
+                    $off_reason .= '="' . $srtUndef . '";&nbsp;&nbsp;';
                 }
                 print '<td>' . $off_reason . '</td>' . "\n";
             }
@@ -199,3 +234,4 @@ if ($active_pipes_nr === 0) {
     print '// -->' . "\n";
     print '</script>' . "\n";
 }
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */

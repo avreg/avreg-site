@@ -3,6 +3,7 @@
  * @file admin/mon-list.php
  * @brief Список определённых раскладок.
  */
+$lang_file = '_online.php';
 require('../head.inc.php');
 require('./mon-type.inc.php');
 

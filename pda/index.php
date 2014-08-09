@@ -57,7 +57,7 @@ $show_colums = array(
     'CAM_NR' => true,
     'NAME' => array('href' => 'online.php', 'title' => 'View online'),
     'SRC' => false,
-    'CAPS' => false,
+    'RESOLUTION' => false,
 );
 reset($GCP_cams_params);
 while (list($__cam_nr, $cam_detail) = each($GCP_cams_params)) {

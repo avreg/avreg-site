@@ -46,7 +46,7 @@ switch($_SERVER['REQUEST_METHOD'])
 $GCP_cams_list = $cam_nr;
 $GCP_query_param_list = array();
 foreach ($the_request as $key => $value) {
-    if ($key != 'cam_nr' && $key != 'cam_name') {
+    if ($key != 'cam_nr' && $key != 'cam_name' && $key != 'categories') {
         $GCP_query_param_list[] = $key;
     }
 }
@@ -67,12 +67,24 @@ foreach ($GCP_query_param_list as $param_name) {
         continue;
     }
     $par_defs = find_param_defs($param_name);
-    if (is_empty_var($GCP_cams_params[$cam_nr][$param_name])) {
-        $active_val = &$par_defs['def_val'];
+    if ($cam_nr > 0) {
+        // real camera
+        if (is_empty_var($GCP_cams_params[$cam_nr][$param_name])) {
+            $active_val = &$par_defs['def_val'];
+        } else {
+            $active_val = &$GCP_cams_params[$cam_nr][$param_name];
+        }
     } else {
-        $active_val = &$GCP_cams_params[$cam_nr][$param_name];
+        // default template
+        if (is_empty_var($GCP_def_pars[$param_name])) {
+            $active_val = &$par_defs['def_val'];
+        } else {
+            $active_val = &$GCP_def_pars[$param_name];
+        }
     }
-    if ((string)($active_val) != (string)$new_val) {
+    // error_log(print_r($active_val, TRUE));
+    // error_log(print_r($new_val, TRUE));
+    // FIXME if ((string)($active_val) != (string)$new_val) {
         CorrectParVal($param_name, $new_val);
         $param_value = ($new_val == '') ? null : html_entity_decode($new_val);
         $adb->replaceCamera('local', $cam_nr, $param_name, $param_value, $remote_addr, $login_user);
@@ -83,11 +95,11 @@ foreach ($GCP_query_param_list as $param_name) {
                 'cam[%s]: update param "%s", set new value "%s", old value "%s"',
                 $cam_nr === 0 ? 'default' : (string)$cam_nr,
                 $param_name,
-                empty($param_value) ? "<empty>" : $param_value,
-                empty($GCP_cams_params[$cam_nr][$param_name]) ? "<empty>" : $GCP_cams_params[$cam_nr][$param_name]
+                is_null($param_value) ? "<empty>" : $param_value,
+                is_empty_var($active_val) ? "<empty>" : $active_val
             )
         );
-    }
+    // }
 }
 
 $ret = array(

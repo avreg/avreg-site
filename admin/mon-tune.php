@@ -16,6 +16,8 @@ if (isset($pipes_show)) {
         $pipes_show = 1;
     }
 }
+
+$lang_file = '_online.php';
 require('../head.inc.php');
 
 DENY($admin_status);
@@ -109,7 +111,6 @@ if (isset($cmd)) {
     require('active_pipe.inc.php');
     $wins_array = & $active_pipes;
     if (count($wins_array) == 0) {
-        print '<p class="HiLiteBigErr">' . $strNotViewCams . '</p>' . "\n";
         print_go_back();
         require('../foot.inc.php');
         exit;

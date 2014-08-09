@@ -8,7 +8,6 @@ session_start();
 /**
  *
  * Функция выводит информацию о раскладке монитора в таблицу создания раскладок
- * @param string $display правый или левый монитор
  * @param int $l_nr Номер монитора
  * @param array $l_def Настройки монитора
  * @param bool $is_admin Админ
@@ -20,7 +19,6 @@ session_start();
  * @param $isDefault
  */
 function prt_l(
-    $display,
     $l_nr,
     $l_def,
     $is_admin,
@@ -31,40 +29,88 @@ function prt_l(
     $PrintCamNames,
     $isDefault
 ) {
+    global $strAspectRatio, $strPrintCamNames, $strReconnectTimeout, $AspectRatioArray,
+        $ReconnectTimeout, $ReconnectTimeoutArray, $strCamName_Yes, $strCamName_No,
+        $strSetByDefault, $strDelete, $strTune;
+
+    $is_client_layout = (false != strpos($l_nr, "UL"));
+
     if ($PrintCamNames == 1 || $PrintCamNames == "t") {
         $PCN = true;
     } else {
         $PCN = false;
     }
-    print "<div>\n";
-    print "<span style=\"font-size:20px; font-weight:bold\">$layout_word ID: $l_nr </span>\n<br />\n
-            <span style=\"font-size:16px; font-weight:bold\">";
+
     if (!empty($l_def['layout_name'])) {
-        print $l_def['layout_name'] . "</span>\n";
+        $l_name =& $l_def['layout_name'];
     } else {
-        print $l_def['layout_type'] . "</span>\n";
+        $l_name =& $l_def['layout_type'];
     }
+
+    print "<div>\n";
+    print "<div>\n";
+    print "<span class='HiLite'>[$l_nr]&nbsp;$l_name";
+
+    print "</span>\n";
+
+    if ($is_client_layout || $is_admin) {
+        print '<span style="float: right; vertical-align: top;">';
+        $req_array = array(
+            'mon_nr' => $l_nr,
+            'mon_type' => $l_def['layout_type'],
+            'counter' => $counter,
+            'mon_name' => $l_name
+        );
+        if ($is_client_layout) {
+            $req_array['storage'] = 'client';
+            $url = './web_mon_tune.php?' . http_build_query($req_array);
+            print '<a onclick="return user_layouts.to_tune_mode(\'' . $l_nr. '\', \'' . $url
+                . '\')" href="#" >' . "\n";
+        } else {
+            $url =  './web_mon_tune.php?' . http_build_query($req_array);
+            print "<a href='$url' >\n";
+        }
+    
+        print '<img src="../img/gearwheel.png" width=24 height=24 title="' . $strTune
+            . '" class="vertical-align: middle;" alt="' . $strTune . '" />'
+            . "</a>\n";
+
+        if ($is_client_layout) {
+            $url = './web_mon_list.php?' . http_build_query($req_array);
+            print '<a onclick="return user_layouts.remove(\'' . $l_nr. '\', \'' . $url
+                . '\')" href="#" >' . "\n";
+        } else {
+            $req_array['cmd'] = 'DEL';
+            $url =  './web_mon_list.php?' . http_build_query($req_array);
+            print "<a href='$url' >\n";
+        }
+
+        print '<img src="../img/trash_24x24.png" title="' . $strDelete
+            . '" class="vertical-align: middle;" alt="' . $strDelete . '" />'
+            . "</a>\n";
+
+        print "</span>\n";
+    }
+    print "</div>\n";
 
     if (!empty($l_def['CHANGE_TIME'])) {
-        print '<br>' . $l_def['CHANGE_USER'] . '@' . $l_def['CHANGE_HOST'] . '<br>' . $l_def['CHANGE_TIME'];
+        print '<div>' . $l_def['CHANGE_USER'] . '@' . $l_def['CHANGE_HOST'] .
+            '<br>' . $l_def['CHANGE_TIME'] . "</div>\n";
     }
 
-    require('../lang/russian/utf-8/_online.php');
     //сохранять пропорции/ на весь экран ?
-    print '<br /><div style="float:left;" ><span style="font-weight:bold;">' . $strAspectRatio . ":</span>&nbsp;"
+    print '<br /><div style="float:left;" >' . $strAspectRatio . ':&nbsp;'
         . $AspectRatioArray[$AspectRatio] . "</div>\n";
     //Выводить имена камер ?
-    print '<br /><div style="float:left;" ><span style="font-weight:bold;">' . $strPrintCamNames . ":</span>&nbsp;"
+    print '<br /><div style="float:left;" >' . $strPrintCamNames . ":&nbsp;"
         . ($PCN ? $strCamName_Yes : $strCamName_No) . "</div>\n";
     //реконнект таймаут
-    print '<br /><div style="float:left;" ><span style="font-weight:bold;">' . $strReconnectTimeout . ":</span>&nbsp;"
+    print '<br /><div style="float:left;" >' . $strReconnectTimeout . ":&nbsp;"
         . intval(
             @$ReconnectTimeoutArray[$ReconnectTimeout]
         ) . "</div>\n";
-    //Установить по умолчанию
-    $strSetByDefault = "Установить по умолчанию";
     //$radio_disable = ($admin_user)? '':'disabled'; //доступно толко администратору
-    print '<br /><div style="float:left;" ><span style="font-weight:bold;">' . $strSetByDefault . ":</span>";
+    print '<br /><div style="float:left;" >' . $strSetByDefault . ":";
     if ($is_admin) {
         $onchange = "SetByDefault($l_nr);";
     } else {
@@ -73,7 +119,7 @@ function prt_l(
     $isDefault = ($isDefault == 1) ? true : false;
     print "<input type=\"radio\" name=\"ByDefault\" " . ($isDefault ? 'checked="checked"' : '')
         . " onchange=\"$onchange\" noLay=\"$l_nr\"/></div>\n";
-    print '</div> <br /><br />' . "\n";
+    print '</div><br /><br />' . "\n";
 }
 
 //Генерация страницы
@@ -84,6 +130,8 @@ $link_javascripts = array(
     'lib/js/user_layouts.js',
     'lib/js/third-party/json2.js'
 );
+
+$lang_file = '_online.php';
 
 /* Если не установлено ни одной раскладки (как клиентом, так и администратором),
 перенаправляем на создание пользовательской раскладки*/
@@ -134,9 +182,6 @@ if ($admin_user) {
 //Заголовок окна ($named,$sip - название и IP сервера; $r_mons - в lang/russian/utf-8/common.inc.php)
 echo '<h1>' . sprintf($web_r_mons, $named, $sip) . '</h1>' . "\n";
 
-//Пользуемся только одним левым монитором
-$display = 'L';
-
 $counter = @$GLOBALS['counter'];
 //загружается если нажато удаление раскладки
 if (isset($cmd)) {
@@ -146,7 +191,6 @@ if (isset($cmd)) {
             echo '<p class="HiLiteBigWarn">' . sprintf($fmtLayoutDelConfirm, $counter, $mon_name) . '</p>' . "\n";
             print '<form action="' . $_SERVER['PHP_SELF'] . '" method="POST">' . "\n";
             print '<input type="hidden" name="cmd" value="DEL_OK">' . "\n";
-            print '<input type="hidden" name="display" value="' . $display . '">' . "\n";
             print '<input type="hidden" name="mon_nr" value="' . $mon_nr . '">' . "\n";
             print '<input type="hidden" name="counter" value="' . $counter . '">' . "\n";
             print '<input type="hidden" name="mon_name" value="' . $mon_name . '">' . "\n";
@@ -158,7 +202,7 @@ if (isset($cmd)) {
             break;
         case 'DEL_OK': //Удаление раскладки
             if (($mult_btn == $strYes) && isset($mon_nr)) {
-                $adb->webDeleteLayouts($display, $mon_nr);
+                $adb->webDeleteLayouts($mon_nr);
                 echo '<p><font color="' . $warn_color . '">' . sprintf(
                     $fmtLayoutDeleted,
                     $counter,
@@ -239,7 +283,6 @@ if (!isset($_SESSION['is_admin_mode'])) {
                 $is_clients_layout_default = true;
             }
             prt_l(
-                'L',
                 $client_mon_nr,
                 $clients_layouts[$client_mon_nr],
                 false,
@@ -250,7 +293,7 @@ if (!isset($_SESSION['is_admin_mode'])) {
                 $clients_layouts[$client_mon_nr]['PrintCamNames'],
                 $def
             );
-            print '<div class=\'camlayout\' >';
+            print '<div class="camlayout">';
 
             //преобразование массива камер
             $cams_array = array();
@@ -261,25 +304,6 @@ if (!isset($_SESSION['is_admin_mode'])) {
             layout2table($clients_layouts[$client_mon_nr]['layout_type'], 160, $cams_array);
 
             print '</div>' . "\n";
-            //if ( $admin_user )
-            {
-
-                //print '<br><a onclick="user_layouts.remove('.$client_mon_nr.')" href="#">'. $GLOBALS['strDelete']
-                //  . '</a>&nbsp;/&nbsp;';
-                $url = $GLOBALS['conf']['prefix'] . '/admin/web_mon_list.php';
-                print '<br><a onclick="user_layouts.remove(\'' . $client_mon_nr . '\', \'' . $url . '\')" href="#">'
-                    . $GLOBALS['strDelete'] . '</a>&nbsp;/&nbsp;';
-
-                $url = $GLOBALS['conf']['prefix'] . '/admin/web_mon_tune.php?display=' . $display
-                    . '&storage=client'
-                    . '&mon_nr=' . $client_mon_nr
-                    . '&mon_name=' . $clients_layouts[$client_mon_nr]['layout_name']
-                    . '&mon_type=' . $clients_layouts[$client_mon_nr]['layout_type']
-                    . '&counter=' . $client_counter;
-                print '<a onclick="return user_layouts.to_tune_mode(\'' . $client_mon_nr . '\', \'' . $url
-                    . '\')" href="#">' . $GLOBALS['strEdit'] . '</a>' . "\n";
-
-            }
         }
         print "</div>\n";
         $client_counter++;
@@ -298,126 +322,108 @@ if (!isset($_SESSION['is_admin_mode'])) {
         . '&counter=' . $client_counter . '">' . $l_mon_addnew . '</a>' . "\n";
 
     print "</div>\n";
+    print '<hr style="height:2px;border-width:0;color:gray;background-color:gray">'. "\n";
 }
 ///////////////////////////////////////////////////////////////////////////////////////
 
-function Print_Arr($arr)
-{
-    echo "<pre>";
-    var_dump($arr);
-    echo "</pre>";
-}
-
-if ($admin_user) {
+if ($admin_user && (!isset($mon_nr) || $mon_nr == '')) {
     //раскладки определенные администратором
     echo '</form><form oncubmit="return false;"><h2>' . $r_mon_list . '</h2>' . "\n";
-    if (!isset($mon_nr) || $mon_nr == '') {
-        /* Performing new SQL query */
-        //Загрузка установленных раскладок
-        $result = $adb->webGetLayouts();
+    /* Performing new SQL query */
+    //Загрузка установленных раскладок
+    $result = $adb->webGetLayouts();
 
-        $LD = array();
-        // Print_Arr($layouts_defs);
-        foreach ($result as $row) {
-            $LD[(int)$row['MON_NR']] = array(
-                'layout_type' => $row['MON_TYPE'],
-                'layout_name' => $row['SHORT_NAME'],
-                'CHANGE_TIME' => $row['CHANGE_TIME'],
-                'CHANGE_USER' => $row['CHANGE_USER'],
-                'CHANGE_HOST' => $row['CHANGE_HOST'],
-                'PrintCamNames' => $row['PRINT_CAM_NAME'],
-                'AspectRatio' => $row['PROPORTION'],
-                'ReconnectTimeout' => $row['RECONNECT_TOUT'],
-                'isDefault' => $row['IS_DEFAULT'],
-                'wins' => json_decode($row['WINS'], true),
-                'MON_NR' => $row['MON_NR'],
-                'count_cells' => count($layouts_defs[$row['MON_TYPE']][3])
-            );
-            //print_r
+    $LD = array();
+    foreach ($result as $row) {
+        $LD[(int)$row['MON_NR']] = array(
+            'layout_type' => $row['MON_TYPE'],
+            'layout_name' => $row['SHORT_NAME'],
+            'CHANGE_TIME' => $row['CHANGE_TIME'],
+            'CHANGE_USER' => $row['CHANGE_USER'],
+            'CHANGE_HOST' => $row['CHANGE_HOST'],
+            'PrintCamNames' => $row['PRINT_CAM_NAME'],
+            'AspectRatio' => $row['PROPORTION'],
+            'ReconnectTimeout' => $row['RECONNECT_TOUT'],
+            'isDefault' => $row['IS_DEFAULT'],
+            'wins' => json_decode($row['WINS'], true),
+            'MON_NR' => $row['MON_NR'],
+            'count_cells' => count($layouts_defs[$row['MON_TYPE']][3])
+        );
+        //print_r
 
-        }
-        function cmp($val1, $val2)
-        {
-            if ($val1['count_cells'] == $val2['count_cells']) {
-                return 0;
-            }
-            return ($val1['count_cells'] < $val2['count_cells']) ? -1 : 1;
-        }
-
-        $sort = usort($LD, 'cmp');
-        //Создание перечня готовых раскладок
-        $mon_nr = 0;
-        $counter = 1;
-        print "<div id='admin_layouts'>";
-
-        //Если нет ни одной готовой раскладки
-        if (!count($LD)) {
-            $mon_nr = -1;
-            print '<div> &nbsp;' . $no_any_layout . "</div>\n";
-        }
-        //Вывод готовых раскладок
-        foreach ($LD as $mon_nr => $res_val) {
-            print "<div style=\"border: 1px solid black; padding: 5px; height:310px; width: 290px; text-align:center;
-                    float:left; margin:10px; \">\n";
-            if (array_key_exists($mon_nr, $LD)) {
-                //левый монитор (правый вообще не используем)
-                $def = $LD[$mon_nr]['isDefault'];
-                prt_l(
-                    'L',
-                    $LD[$mon_nr]['MON_NR'],
-                    $LD[$mon_nr],
-                    $admin_user,
-                    $layout_word,
-                    $counter,
-                    $LD[$mon_nr]['AspectRatio'],
-                    $LD[$mon_nr]['ReconnectTimeout'],
-                    $LD[$mon_nr]['PrintCamNames'],
-                    $def
-                );
-                print '<div class=\'camlayout\' >';
-
-                //преобразование массива камер
-                $cams_array = array();
-                foreach ($LD[$mon_nr]['wins'] as $key => $val) {
-                    $cams_array[$key] = $val[0];
-                }
-
-                layout2table($LD[$mon_nr]['layout_type'], 160, $cams_array);
-
-                print '</div>' . "\n";
-                if ($admin_user) {
-                    print '<br><a href="' . $_SERVER['PHP_SELF'] . '?cmd=DEL&display=' . $display . '&mon_nr='
-                        . $LD[$mon_nr]['MON_NR'] . '&mon_name=' . $LD[$mon_nr]['layout_name'] . '&counter=' . $counter
-                        . '">' . $GLOBALS['strDelete'] . '</a>&nbsp;/&nbsp;';
-                    print '<a href="' . $GLOBALS['conf']['prefix'] . '/admin/web_mon_tune.php?display=' . $display
-                        . '&mon_nr=' . $LD[$mon_nr]['MON_NR'] . '&mon_name=' . $LD[$mon_nr]['layout_name']
-                        . '&mon_type=' . $LD[$mon_nr]['layout_type'] . '&counter=' . $counter . '">'
-                        . $GLOBALS['strEdit'] . '</a>' . "\n";
-                }
-            }
-            print "</div></form>\n";
-            $counter++;
-        }
-        print "</div>\n";
-        //Выравниваем таблицы раскладок по центру элемента
-        print '<script type="text/javascript"> $(".camlayout table").attr("align", "center");  </script>';
-
-        // Выбираю максимальный индекс раскладки в базе данных
-        $max_mon_nr = 0;
-        foreach ($LD as $key => $value) {
-            $max_mon_nr = ($LD[$key]['MON_NR'] > $max_mon_nr) ? $LD[$key]['MON_NR'] : $max_mon_nr;
-        }
-        $mon_nr = $max_mon_nr + 1;
-
-        //Создать новую раскладку
-        print "<div style='clear:left;'><br>\n";
-        if ($admin_user) {
-            print '<a href="' . $conf['prefix'] . '/admin/web_mon_addnew.php?storage=server&mon_nr=' . $mon_nr
-                . '&counter=' . $counter . '">' . $l_mon_addnew . '</a>' . "\n";
-        } else {
-            print '&nbsp;' . $l_mon_admin_only . "\n";
-        }
-        print "</div>\n";
     }
+    function cmp($val1, $val2)
+    {
+        if ($val1['count_cells'] == $val2['count_cells']) {
+            return 0;
+        }
+        return ($val1['count_cells'] < $val2['count_cells']) ? -1 : 1;
+    }
+
+    $sort = usort($LD, 'cmp');
+    //Создание перечня готовых раскладок
+    $mon_nr = 0;
+    $counter = 1;
+    print "<div id='admin_layouts'>";
+
+    //Если нет ни одной готовой раскладки
+    if (!count($LD)) {
+        $mon_nr = -1;
+        print '<div> &nbsp;' . $no_any_layout . "</div>\n";
+    }
+    //Вывод готовых раскладок
+    foreach ($LD as $mon_nr => $res_val) {
+        print "<div style=\"border: 1px solid black; padding: 5px; height:310px; width: 290px; text-align:center;
+        float:left; margin:10px; \">\n";
+        if (array_key_exists($mon_nr, $LD)) {
+            //левый монитор (правый вообще не используем)
+            $def = $LD[$mon_nr]['isDefault'];
+            prt_l(
+                $LD[$mon_nr]['MON_NR'],
+                $LD[$mon_nr],
+                $admin_user,
+                $layout_word,
+                $counter,
+                $LD[$mon_nr]['AspectRatio'],
+                $LD[$mon_nr]['ReconnectTimeout'],
+                $LD[$mon_nr]['PrintCamNames'],
+                $def
+            );
+            print '<div class=\'camlayout\' >';
+
+            //преобразование массива камер
+            $cams_array = array();
+            foreach ($LD[$mon_nr]['wins'] as $key => $val) {
+                $cams_array[$key] = $val[0];
+            }
+
+            layout2table($LD[$mon_nr]['layout_type'], 160, $cams_array);
+
+            print '</div>' . "\n";
+        }
+        print "</div></form>\n";
+        $counter++;
+    }
+    print "</div>\n";
+    //Выравниваем таблицы раскладок по центру элемента
+    print '<script type="text/javascript"> $(".camlayout table").attr("align", "center");  </script>';
+
+    // Выбираю максимальный индекс раскладки в базе данных
+    $max_mon_nr = 0;
+    foreach ($LD as $key => $value) {
+        $max_mon_nr = ($LD[$key]['MON_NR'] > $max_mon_nr) ? $LD[$key]['MON_NR'] : $max_mon_nr;
+    }
+    $mon_nr = $max_mon_nr + 1;
+
+    //Создать новую раскладку
+    print "<div style='clear:left;'><br>\n";
+    if ($admin_user) {
+        print '<a href="' . $conf['prefix'] . '/admin/web_mon_addnew.php?storage=server&mon_nr=' . $mon_nr
+            . '&counter=' . $counter . '">' . $l_mon_addnew . '</a>' . "\n";
+    } else {
+        print '&nbsp;' . $l_mon_admin_only . "\n";
+    }
+    print "</div>\n";
 }
 require('../foot.inc.php');
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */
