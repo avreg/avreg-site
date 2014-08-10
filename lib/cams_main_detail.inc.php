@@ -381,20 +381,16 @@ function print_cam_detail_row($conf, $cam_nr, $cam_detail, $columns = null)
     /* print cameras short capabilities <td> */
     if (isset($_cols['RECORDING']) && $_cols['RECORDING']) {
         $rec_mode_int = (int)$cam_detail['rec_mode'];
-        if ($rec_mode_int  > 0 || $cam_nr <= 0) {
-            print '<td align="center" valign="center">';
-            if ($_cols['RECORDING'] === 'tune_link') {
-                print '<a href="./cam-tune.php?&cam_nr=' . $cam_nr . '&categories=11" ' .
-                    'class="normal_link">';
-            }
-            print $GLOBALS['recording_mode'][$rec_mode_int];
-            if ($_cols['RECORDING'] === 'tune_link') {
-                print '</a>';
-            }
-            print "</td>\n";
-        } else {
-            print '<td>&nbsp;</td>' . "\n";
+        print '<td align="center" valign="center">';
+        if ($_cols['RECORDING'] === 'tune_link') {
+            print '<a href="./cam-tune.php?&cam_nr=' . $cam_nr . '&categories=11" ' .
+                'class="normal_link">';
         }
+        print $GLOBALS['recording_mode'][$rec_mode_int];
+        if ($_cols['RECORDING'] === 'tune_link') {
+            print '</a>';
+        }
+        print "</td>\n";
     }
 }
 /* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */
