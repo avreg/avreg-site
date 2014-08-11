@@ -91,7 +91,7 @@ if (isset($cmd)) {
 
             $allWINS = json_encode($allWINS);
             if ($allWINS != '') {
-                $PrintCamNames = ($PrintCamNames != null) ? 1 : 0;
+                $PrintCamNames = (isset($PrintCamNames) && $PrintCamNames != null) ? 1 : 0;
 
                 $adb->webReplaceLayouts(
                     $mon_nr,
