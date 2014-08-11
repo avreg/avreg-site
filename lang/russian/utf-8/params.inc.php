@@ -1618,16 +1618,40 @@ avregd HTTP CGI-интерфейс</a>).</li>
         'type' => $STRING200_VAL,
         'def_val' => null,
         'desc' => '
-<b>Альтернативные источники видео (минуя avregd)</b> для конфигурирования раскладок просмотра веб-браузерами.
-<p>Альтернативный <b>URL #1</b> для камеры в раскладке, например, для камер Axis:
-rtsp://login:password@axis-camera-ip/axis-media/media.amp?resolution=320x240&videocodec=h264&audio=0</p>
-<p>Определив эти альтернативные url-лы, в настройках веб-раскладки для этой камеры в качестве источника видеоданных
-вместо &quot;avregd&quot; нужно выбрать &quot;ALT1&quot; или &quot;ALT2&quot;.</p>
+<b>Альтернативный &quot;ALT1&quot; URL</b> в качестве источника видео для камеры в раскладке (не в режиме fullscreen).
+Определив этот и может другие альтернативные URL-ы,
+в настройках веб-раскладки для этой камеры в качестве источника видео
+вместо &quot;avregd&quot; нужно выбрать &quot;ALT1&quot; или &quot;ALT2&quot;.
+<br /><br />
+Допустимые форматы значений параметра:
+<ul>
+<li><span style="white-space:nowrap; font-weight: bold;">{cam_nr}[:(avregd|camera[:(rtsp|http)])]</span> - например:
+<ul>
+<li><span style="white-space:nowrap">143:avregd</span>
+- в окне камеры на странице просмотра в качестве источника MJPEG видео
+будет использован URL вида <span style="white-space:nowrap">
+http://этот_сервер/avreg-cgi/mjpg/video.cgi?camera=143</span>;</li>
+<li>143:camera - при указании ключевого слова &quot;camera&quot;
+будет использован прямой URL на камеру (минуя сервер AVReg),
+который сконфигурирован для захвата видео 143 камеры;</li>
+<li>143:camera:rtsp - то же что и выше, но только конкретно RTSP URL;</li>
+<li>143:camera:http - то же что и выше, но только конкретно HTTP URL, даже если {video_src} = rtsp;</li>
+</ul>
+</li>
+<li><span style="white-space:nowrap; font-weight: bold;">(http|rtsp)://[login:password@]host:port/path</span>
+- полный URL на произвольный медиа-поток, например, для камер Axis:
+<ul>
+<li>rtsp://login:password@axis-camera-ip/axis-media/media.amp?resolution=320x240&audio=0</li>
+<li>http://login:password@axis-camera-ip/axis-cgi/mjpg/video.cgi?resolution=640x480&fps=5</li>
+</ul>
+</li>
+</ul>
 <div>Примечания:
 <ul>
 <li>Для RTSP url-ов на клиенте потребуется <a href="http://avreg.net/howto-install-vlc-plugin.html" target="_blank">
 установить плагин VLC Browser Plugin</a>.</li>
-<li>Для доступа из-вне (клиентов не из локалки) необходимо обеспечить прямой доступ к камере.</li>
+<li>При использовании прямых URL-ов на камеру, для доступа из-вне (клиентов не из локалки)
+необходимо обеспечить прямой доступ к камере (белый адрес или настройками маршрутизатора).</li>
 </ul>
 </div>
 По умолчанию: не установлено (получать видео от avregd)',

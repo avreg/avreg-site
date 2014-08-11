@@ -1139,23 +1139,22 @@ function change_layout(mon_nr) {
         switch (layout_wins[i][1]) {
             case '0':
             case '1': //avregd
-
-                cam_url = CAMS_URLS[cam_nr]['avregd'];// get_cam_http_url(conf, cam_nr,'mjpeg', true);
+                cam_url = CAMS_URLS[cam_nr]['avregd'];
                 active_cams_srcs[i]['type'] = 'avregd';
                 active_cams_srcs[i]['cell'] = cam_url;
                 active_cams_srcs[i]['fs'] = cam_url;
                 break;
             case '2': //alt 1
-                cam_url = CAMS_URLS[cam_nr]['cell_url_alt_1']; //get_cam_alt_url(GCP_cams_params[layout_wins[i][0]]['cell_url_alt_1'], cam_nr, true);
+                cam_url = CAMS_URLS[cam_nr]['cell_url_alt_1'];
                 active_cams_srcs[i]['type'] = 'alt_1';
                 active_cams_srcs[i]['cell'] = cam_url;
-                active_cams_srcs[i]['fs'] = CAMS_URLS[cam_nr]['fs_url_alt_1']; //get_cam_alt_url(GCP_cams_params[cam_nr]['fs_url_alt_1'],cam_nr, true);
+                active_cams_srcs[i]['fs'] = CAMS_URLS[cam_nr]['fs_url_alt_1'];
                 break;
             case '3': //alt 2
-                cam_url = CAMS_URLS[cam_nr]['cell_url_alt_2']; //get_cam_alt_url(GCP_cams_params[layout_wins[i][0]]['cell_url_alt_2'], cam_nr, true);
+                cam_url = CAMS_URLS[cam_nr]['cell_url_alt_2'];
                 active_cams_srcs[i]['type'] = 'alt_1';
                 active_cams_srcs[i]['cell'] = cam_url;
-                active_cams_srcs[i]['fs'] = CAMS_URLS[cam_nr]['fs_url_alt_2']; //get_cam_alt_url(GCP_cams_params[cam_nr]['fs_url_alt_2'], cam_nr, true);
+                active_cams_srcs[i]['fs'] = CAMS_URLS[cam_nr]['fs_url_alt_2'];
                 break;
         }
 

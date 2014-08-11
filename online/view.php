@@ -249,6 +249,14 @@ $msie_addons_scripts = array();
 
 $GCP_query_param_list = array(
     'work',
+    'video_src',
+    'InetCam_IP',
+    'InetCam_USER',
+    'InetCam_PASSWD',
+    'rtsp_play',
+    'InetCam_rtsp_port',
+    'InetCam_http_port',
+    'V.http_get',
     'allow_networks',
     'text_left',
     'geometry',
@@ -260,9 +268,6 @@ $GCP_query_param_list = array(
     'cell_url_alt_2',
     'ptz'
 );
-if ($operator_user) {
-    array_push($GCP_query_param_list, 'video_src', 'InetCam_IP');
-}
 require('../lib/get_cams_params.inc.php');
 
 if ($GCP_cams_nr == 0) {
@@ -308,10 +313,10 @@ foreach ($GCP_cams_params as $key => $value) {
     $cu = array(
         "ipcam_interface_url" => $ipcamUrl,
         "avregd" => get_cam_http_url($conf, $key, 'mjpeg', true),
-        "cell_url_alt_1" => checkUrlParam($GCP_cams_params[$key]['cell_url_alt_1'], $conf, $key, 'mjpeg'),
-        "fs_url_alt_1" => checkUrlParam($GCP_cams_params[$key]['fs_url_alt_1'], $conf, $key, 'mjpeg'),
-        "cell_url_alt_2" => checkUrlParam($GCP_cams_params[$key]['cell_url_alt_2'], $conf, $key, 'mjpeg'),
-        "fs_url_alt_2" => checkUrlParam($GCP_cams_params[$key]['fs_url_alt_2'], $conf, $key, 'mjpeg')
+        "cell_url_alt_1" => checkUrlParam($GCP_cams_params[$key]['cell_url_alt_1']),
+        "fs_url_alt_1" => checkUrlParam($GCP_cams_params[$key]['fs_url_alt_1']),
+        "cell_url_alt_2" => checkUrlParam($GCP_cams_params[$key]['cell_url_alt_2']),
+        "fs_url_alt_2" => checkUrlParam($GCP_cams_params[$key]['fs_url_alt_2'])
     );
     $cams_urls[$key] = $cu;
 }
@@ -351,7 +356,7 @@ for ($win_nr = 0; $win_nr < $wins_nr; $win_nr++) {
     switch ($win_cams[$win_nr][1]) {
         case 0:
         case 1: //используем камеру avregd
-            $cam_url = get_cam_http_url($conf, $cam_nr, 'mjpeg', true, $cams_urls);
+            $cam_url = get_cam_http_url($conf, $cam_nr, 'mjpeg', true);
             $active_cams_srcs[$win_nr]['type'] = 'avregd';
             $active_cams_srcs[$win_nr]['cell'] = $cam_url;
             $active_cams_srcs[$win_nr]['fs'] = $cam_url;
@@ -360,35 +365,39 @@ for ($win_nr = 0; $win_nr < $wins_nr; $win_nr++) {
         case 2: //используем источник "alt 1"
             // Проверяю есть ли альтернативная ссылка 1 (если нет, то генерирую ссылку на avregd)
             $active_cams_srcs[$win_nr]['type'] = 'alt_1';
-            $cam_url = ($new_url = checkUrlParam($GCP_cams_params[$cam_nr]['cell_url_alt_1'], $conf, $key, 'mjpeg')) ?
-                $new_url : get_cam_http_url($conf, $cam_nr, 'mjpeg', true, $cams_urls);
-            $active_cams_srcs[$win_nr]['cell'] = $cam_url;
-
-            $active_cams_srcs[$win_nr]['fs'] = ($fsUrl = checkUrlParam(
-                $GCP_cams_params[$cam_nr]['fs_url_alt_1'],
+            $cam_url = get_alt_url(
                 $conf,
-                $key,
-                'mjpeg'
-            )) ?
-                $fsUrl : get_cam_http_url($conf, $cam_nr, 'mjpeg', true, $cams_urls);
+                $cam_nr,
+                $GCP_cams_params,
+                $GCP_cams_params[$cam_nr]['cell_url_alt_1']
+            );
+            $active_cams_srcs[$win_nr]['cell'] = $cam_url;
+            $active_cams_srcs[$win_nr]['fs'] = get_alt_url(
+                $conf,
+                $cam_nr,
+                $GCP_cams_params,
+                $GCP_cams_params[$cam_nr]['fs_url_alt_1']
+            );
             $stop_url = false;
             break;
         case 3: //используем камеру "alt 2"
             $active_cams_srcs[$win_nr]['type'] = 'alt_2';
-            $cam_url = ($new_url = checkUrlParam($GCP_cams_params[$cam_nr]['cell_url_alt_2'], $conf, $key, 'mjpeg')) ?
-                $new_url : get_cam_http_url($conf, $cam_nr, 'mjpeg', true, $cams_urls);
-            $active_cams_srcs[$win_nr]['cell'] = $cam_url;
-            $active_cams_srcs[$win_nr]['fs'] = ($fsUrl = checkUrlParam(
-                $GCP_cams_params[$cam_nr]['fs_url_alt_2'],
+            $cam_url = get_alt_url(
                 $conf,
-                $key,
-                'mjpeg'
-            )) ?
-                $fsUrl : get_cam_http_url($conf, $cam_nr, 'mjpeg', true, $cams_urls);
+                $cam_nr,
+                $GCP_cams_params,
+                $GCP_cams_params[$cam_nr]['cell_url_alt_2']
+            );
+            $active_cams_srcs[$win_nr]['cell'] = $cam_url;
+            $active_cams_srcs[$win_nr]['fs'] = get_alt_url(
+                $conf,
+                $cam_nr,
+                $GCP_cams_params,
+                $GCP_cams_params[$cam_nr]['fs_url_alt_2']
+            );
             $stop_url = false;
             break;
     }
-    // $cam_url= get_cam_alt_url($cam_url,$cam_nr, true);
 
     if ($operator_user && (@$GCP_cams_params[$cam_nr]['video_src'] == 'rtsp'
             || @$GCP_cams_params[$cam_nr]['video_src'] == 'http')) {
@@ -503,3 +512,4 @@ if (!empty($msie_addons_scripts) || is_array($msie_addons_scripts)) {
 }
 
 require('../foot.inc.php');
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */
