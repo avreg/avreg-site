@@ -35,7 +35,7 @@ function checkUrlParam($url = null)
  * @param bool $append_abenc аутентификация пользователя
  * @return string адрес видео с камеры
  */
-function get_cam_http_url($conf, $cam_nr, $media, $append_abenc = false)
+function get_avregd_cam_url($conf, $cam_nr, $media, $append_abenc = false)
 {
     $cams_subconf = & $GLOBALS['cams_subconf'];
 
@@ -49,24 +49,6 @@ function get_cam_http_url($conf, $cam_nr, $media, $append_abenc = false)
     $path_var = sprintf('avregd-%s-path', $media);
     if (isset($conf[$path_var])) {
         $url .= sprintf("%s?camera=%d", $conf[$path_var], $cam_nr);
-    }
-    if ($append_abenc && !empty($GLOBALS['user_info']['USER'])) {
-        $url .= '&ab=' . base64_encode($GLOBALS['user_info']['USER'] . ':' . $_SERVER['PHP_AUTH_PW']);
-    }
-
-    return $url;
-}
-
-function get_cam_alt_url($alt_src, $cam_nr, $append_abenc)
-{
-    if (!isset($alt_src) || $alt_src == "") {
-        return '';
-    }
-    $url = $alt_src;
-    $test = array();
-    preg_match("/\?camera=\d*/", $alt_src, $test);
-    if (sizeof($test) == 0) {
-        $url .= sprintf("?camera=%d", $cam_nr);
     }
     if ($append_abenc && !empty($GLOBALS['user_info']['USER'])) {
         $url .= '&ab=' . base64_encode($GLOBALS['user_info']['USER'] . ':' . $_SERVER['PHP_AUTH_PW']);
@@ -158,7 +140,7 @@ function get_alt_url($conf, $cam_nr, $cams_params, $alt_url = null)
                             !empty($cams_params[$target_cam_nr]['video_src'])) {
                             if (@empty($a[1]) || 0 === stripos($a[1], 'avreg')) {
                                 $url_src = 'avregd';
-                                $url = get_cam_http_url($conf, $target_cam_nr, 'mjpeg', true);
+                                $url = get_avregd_cam_url($conf, $target_cam_nr, 'mjpeg', true);
                             } else {
                                 $url_src = 'camera';
                                 $url = build_cam_url($cams_params[$target_cam_nr], $a[2]);
@@ -171,7 +153,7 @@ function get_alt_url($conf, $cam_nr, $cams_params, $alt_url = null)
     }
 
     if (is_empty_var($url)) {
-        $url = get_cam_http_url($conf, $cam_nr, 'mjpeg', true);
+        $url = get_avregd_cam_url($conf, $cam_nr, 'mjpeg', true);
     }
 
     return $url;

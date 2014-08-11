@@ -21,7 +21,7 @@ list($w, $h) = sscanf($cam_conf['geometry'], '%ux%u');
 if ($cam_conf['Hx2']) {
     $h *= 2;
 }
-$cam_url = get_cam_http_url($conf, $camera, 'jpeg', true);
+$cam_url = get_avregd_cam_url($conf, $camera, 'jpeg', true);
 
 if (!isset($refresh)) {
     printf(

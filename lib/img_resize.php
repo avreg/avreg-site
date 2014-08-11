@@ -129,7 +129,7 @@ if ($is_local) {
     /* live camera image over http:// */
     $cam_nr = (int)$_REQUEST['camera'];
     require_once('../lib/get_cam_url.php');
-    $img_uri = get_cam_http_url($conf, $cam_nr, 'jpeg', true);
+    $img_uri = get_avregd_cam_url($conf, $cam_nr, 'jpeg', true);
     header('X-URL: ' . $img_uri);
     $jpeg_data = file_get_contents($img_uri, false);
     if ($jpeg_data === false) {

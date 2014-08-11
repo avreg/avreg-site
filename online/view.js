@@ -180,8 +180,10 @@ function img_click(clicked_div) {
         // current - fullscreen
         //меняем на источник для ячейки
         if (active_cams_srcs[win_nr]['type'] != 'avregd') {
-            if (active_cams_srcs[win_nr]['cell'] != null && active_cams_srcs[win_nr]['cell'] != '' && active_cams_srcs[win_nr]['cell'].toLowerCase() !== active_cams_srcs[win_nr]['fs'].toLowerCase()) {
-                current_src = active_cams_srcs[win_nr]['cell']; // get_cam_alt_url(active_cams_srcs[win_nr]['cell'], win_nr, true) ;
+            if (active_cams_srcs[win_nr]['cell'] != null &&
+                active_cams_srcs[win_nr]['cell'] != '' &&
+                active_cams_srcs[win_nr]['cell'].toLowerCase() !== active_cams_srcs[win_nr]['fs'].toLowerCase()) {
+                    current_src = active_cams_srcs[win_nr]['cell'];
             }
         }
         if (WIN_DIV_W == undefined) {
@@ -277,7 +279,6 @@ function img_click(clicked_div) {
             if (active_cams_srcs[win_nr]['fs'] != null && active_cams_srcs[win_nr]['fs'] != ''
                 && active_cams_srcs[win_nr]['cell'].toLowerCase() !== active_cams_srcs[win_nr]['fs'].toLowerCase()) {
                 current_src = active_cams_srcs[win_nr]['fs'];
-                //get_cam_alt_url(active_cams_srcs[win_nr]['fs'], win_nr ,true);
             }
         }
 
@@ -379,30 +380,6 @@ function brout(win_nr, win_div, win_geo) {
     $cont.mouseout(function () {
         hideddrivetip();
     });
-}
-
-/**
- *
- * Функция, которая возвращает ссылку на просмотр видео с альтернативных камер камеры
- * аналог php-функции из lib/get_cam_url.php
- * @param alt_src альтернативный источник
- * @return {*} адрес видео с камеры
- * @param $cam_nr
- * @param append_abenc
- */
-function get_cam_alt_url(alt_src, $cam_nr, append_abenc) {
-    var url = alt_src;
-    if (url == null) {
-        return null;
-    }
-    reg = /\?camera=\d*/;
-    if (!reg.test(url)) {
-        url += "?camera=" + $cam_nr;
-    }
-    if (append_abenc && user_info_USER.length > 0) {
-        url += '&ab=' + ___abenc;
-    }
-    return url;
 }
 
 var checking_connection = {

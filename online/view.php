@@ -312,7 +312,7 @@ foreach ($GCP_cams_params as $key => $value) {
 
     $cu = array(
         "ipcam_interface_url" => $ipcamUrl,
-        "avregd" => get_cam_http_url($conf, $key, 'mjpeg', true),
+        "avregd" => get_avregd_cam_url($conf, $key, 'mjpeg', true),
         "cell_url_alt_1" => checkUrlParam($GCP_cams_params[$key]['cell_url_alt_1']),
         "fs_url_alt_1" => checkUrlParam($GCP_cams_params[$key]['fs_url_alt_1']),
         "cell_url_alt_2" => checkUrlParam($GCP_cams_params[$key]['cell_url_alt_2']),
@@ -356,11 +356,11 @@ for ($win_nr = 0; $win_nr < $wins_nr; $win_nr++) {
     switch ($win_cams[$win_nr][1]) {
         case 0:
         case 1: //используем камеру avregd
-            $cam_url = get_cam_http_url($conf, $cam_nr, 'mjpeg', true);
+            $cam_url = get_avregd_cam_url($conf, $cam_nr, 'mjpeg', true);
             $active_cams_srcs[$win_nr]['type'] = 'avregd';
             $active_cams_srcs[$win_nr]['cell'] = $cam_url;
             $active_cams_srcs[$win_nr]['fs'] = $cam_url;
-            $stop_url = get_cam_http_url($conf, $cam_nr, 'jpeg', true);
+            $stop_url = get_avregd_cam_url($conf, $cam_nr, 'jpeg', true);
             break;
         case 2: //используем источник "alt 1"
             // Проверяю есть ли альтернативная ссылка 1 (если нет, то генерирую ссылку на avregd)
