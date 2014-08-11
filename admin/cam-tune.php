@@ -255,7 +255,7 @@ if (isset($categories)) {
         $def_val = ($DEF_VALUE === '' || is_null($DEF_VALUE)) ? null : $DEF_VALUE;
         $val = null;
         $val_owner = null; // avregd
-        if ($VALUE === '' || is_null($VALUE)) {
+        if (is_empty_var($VALUE)) {
             // не установленное поле
             if ($VALUE != $def_val) {
                 print '<span style="color: ' . $ParDefColor . ';">' . $parname1 . '<sup>**</sup></span>';
@@ -336,7 +336,7 @@ if (isset($categories)) {
                 }
         }
 
-        if ($VALUE !== '' && !is_null($VALUE)) {
+        if (!is_empty_var($VALUE)) {
             /* reset action */
             if ($cam_nr <= 0 || $val_owner === $cam_nr) {
                 print '<a href="#" class="update_param" id="a~' .
@@ -347,9 +347,10 @@ if (isset($categories)) {
                     'alt="reset" width="24" height="24" style="vertical-align: bottom;" />' .
                     "</a>\n";
             }
-        } elseif ($cam_nr > 0) {
+        }
+        if ($cam_nr > 0 && !is_empty_var($val) && $val !== $VALUE) {
             print '<a href="#" class="update_param" id="a~' .
-                $cam_nr . '~' . $parname1 . '~' . $def_val . '~' . $def_val . '~' . $categories . '">' .
+                $cam_nr . '~' . $parname1 . '~' . $val . '~' . $def_val . '~' . $categories . '">' .
                                                /* ^^^^^^^^^ */
                 '<img src="' . $conf['prefix'] . '/img/pin_black_24x24.png" title="' . $strSetToCam . '" ' .
                 'alt="set" width="24" height="24" style="vertical-align: bottom;" />' .
