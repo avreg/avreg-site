@@ -156,14 +156,17 @@ function get_alt_url($conf, $cam_nr, $cams_params, $alt_url = null)
                     /* excect cam number */
                     if (settype($proto, 'integer')) {
                         $target_cam_nr = $proto;
+                        $who = @empty($a[1]) ? 'avregd' : $a[1];
+                        $proto_pref_list = @empty($a[2]) ? null : $a[2];
+                        $query_str = @empty($a[3]) ? null : $a[3];
                         if (array_key_exists($target_cam_nr, $cams_params) &&
                             !empty($cams_params[$target_cam_nr]['video_src'])) {
-                            if (@empty($a[1]) || 0 === stripos($a[1], 'avreg')) {
-                                $url_src = 'avregd';
-                                $url = get_avregd_cam_url($conf, $target_cam_nr, 'mjpeg', true, $a[3]);
+                            if (0 === stripos($who, 'avreg')) {
+                                // $url_src = 'avregd';
+                                $url = get_avregd_cam_url($conf, $target_cam_nr, 'mjpeg', true, $query_str);
                             } else {
-                                $url_src = 'camera';
-                                $url = build_cam_url($cams_params[$target_cam_nr], $a[2], $a[3]);
+                                // $url_src = 'camera';
+                                $url = build_cam_url($cams_params[$target_cam_nr], $proto_pref_list, $query_str);
                             }
                         }
                     }

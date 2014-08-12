@@ -173,15 +173,6 @@ if (isset($cur_layout['WINS'])) {
     $cur_layout_wins = $cur_layout['w'];
 }
 
-$_cookie_value = sprintf(
-    '%s-%u-%u-%u-%s',
-    $cur_layout_wins, // implode('.', $cams_in_wins),
-    isset($OpenInBlankPage),
-    isset($PrintCamNames),
-    isset($EnableReconnect),
-    isset($AspectRatio) ? $AspectRatio : 'calc'
-);
-
 while (@ob_end_flush()) {
     ;
 }
@@ -419,9 +410,7 @@ for ($win_nr = 0; $win_nr < $wins_nr; $win_nr++) {
 printf("var WINS_DEF = %s;\n", json_encode($WINS_DEF));
 
 // FIXME FIXME а нужны эти переменные, они же вроде в раскладке
-printf("var FitToScreen = %s;\n", empty($FitToScreen) ? 'false' : 'true');
 printf("var PrintCamNames = %s;\n", $PrintCamNames ? 'true' : 'false');
-printf("var EnableReconnect = %s;\n", empty($EnableReconnect) ? 'false' : 'true');
 if (empty($AspectRatio)) {
     print 'var CamsAspectRatio = \'fs\';' . "\n";
 } else {
@@ -435,15 +424,6 @@ if (empty($AspectRatio)) {
             print 'var CamsAspectRatio = \'fs\';' . "\n";
         }
     }
-}
-
-// $user_info config.inc.php
-// FIXME FIXME а нужны эти __u и __p ?
-print 'var ___u="' . $user_info['USER'] . "\"\n";
-if (empty($user_info['PASSWD']) /* задан пароль */) {
-    print 'var ___p="empty"' . ";\n";
-} else { // нужно чтобы AMC не запрашивал пароль при пустом пароле
-    print 'var ___p="' . @$_SERVER["PHP_AUTH_PW"] . "\";\n";
 }
 
 /* other php layout_defs to javascript vars */
