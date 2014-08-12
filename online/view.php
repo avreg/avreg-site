@@ -283,11 +283,6 @@ print 'var conf_debug = ' . json_encode($conf['debug']) . ";\n";
 //передаем базовую часть адреса в JS
 print "var http_cam_location = '$http_cam_location' ;\n";
 
-//Передаем инфо о пользователе в JS
-print "var user_info_USER = " . json_encode($GLOBALS['user_info']['USER']) . ";\n";
-print "var base64_encode_user_info_USER = '" . base64_encode($GLOBALS['user_info']['USER']) . "';\n";
-print "var PHP_AUTH_PW = '" . @$_SERVER['PHP_AUTH_PW'] . "';\n";
-
 //Передаем JS параметр operator_user
 print "var operator_user = " . json_encode($operator_user) . ";\n";
 
@@ -369,6 +364,10 @@ for ($win_nr = 0; $win_nr < $wins_nr; $win_nr++) {
             $cam_view_srcs['stop_url'] = false;
             break;
     }
+    if ($cam_view_srcs['stop_url'] === false &&
+        false !== strpos($cam_view_srcs['cell'], 'avreg-cgi')) {
+        $cam_view_srcs['stop_url'] = get_avregd_cam_url($conf, $cam_nr, 'jpeg', true);
+    }
 
     $direct_link = null;
     if ($operator_user && (@$GCP_cams_params[$cam_nr]['video_src'] == 'rtsp'
@@ -419,8 +418,8 @@ for ($win_nr = 0; $win_nr < $wins_nr; $win_nr++) {
 
 printf("var WINS_DEF = %s;\n", json_encode($WINS_DEF));
 
+// FIXME FIXME а нужны эти переменные, они же вроде в раскладке
 printf("var FitToScreen = %s;\n", empty($FitToScreen) ? 'false' : 'true');
-
 printf("var PrintCamNames = %s;\n", $PrintCamNames ? 'true' : 'false');
 printf("var EnableReconnect = %s;\n", empty($EnableReconnect) ? 'false' : 'true');
 if (empty($AspectRatio)) {
@@ -439,14 +438,13 @@ if (empty($AspectRatio)) {
 }
 
 // $user_info config.inc.php
+// FIXME FIXME а нужны эти __u и __p ?
 print 'var ___u="' . $user_info['USER'] . "\"\n";
 if (empty($user_info['PASSWD']) /* задан пароль */) {
     print 'var ___p="empty"' . ";\n";
 } else { // нужно чтобы AMC не запрашивал пароль при пустом пароле
     print 'var ___p="' . @$_SERVER["PHP_AUTH_PW"] . "\";\n";
 }
-
-print 'var ___abenc="' . base64_encode($user_info['USER'] . ':' . $_SERVER["PHP_AUTH_PW"]) . "\";\n";
 
 /* other php layout_defs to javascript vars */
 

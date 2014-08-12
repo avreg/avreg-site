@@ -1625,29 +1625,40 @@ avregd HTTP CGI-интерфейс</a>).</li>
 <br /><br />
 Допустимые форматы значений параметра:
 <ul>
-<li><span style="white-space:nowrap; font-weight: bold;">{cam_nr}[:(avregd|camera[:(rtsp|http)])]</span> - например:
+<li><span style="white-space:nowrap; font-weight: bold;">{cam_nr}[:avregd[:http[:{req_params}]]</span> - например:
 <ul>
-<li><span style="white-space:nowrap">143:avregd</span>
+<li><span style="white-space:nowrap"><i>143</i></span>
 - в окне камеры на странице просмотра в качестве источника MJPEG видео
 будет использован URL вида <span style="white-space:nowrap">
-http://этот_сервер/avreg-cgi/mjpg/video.cgi?camera=143</span>;</li>
-<li>143:camera - при указании ключевого слова &quot;camera&quot;
-будет использован прямой URL на камеру (минуя сервер AVReg),
-который сконфигурирован для захвата видео 143 камеры;</li>
-<li>143:camera:rtsp - то же что и выше, но только конкретно RTSP URL;</li>
-<li>143:camera:http - то же что и выше, но только конкретно HTTP URL, даже если {video_src} = rtsp;</li>
+http://<b>этот_сервер</b>/avreg-cgi/mjpg/video.cgi?camera=143</span>;</li>
+<li><i>143:avregd:http:fps=5</i> - <span style="white-space:nowrap">
+.../video.cgi?camera=143&fps=5</span>;</li>
 </ul>
 </li>
-<li><span style="white-space:nowrap; font-weight: bold;">(http|rtsp)://[login:password@]host:port/path</span>
+<li><span style="white-space:nowrap; font-weight: bold;">{cam_nr}:camera[:(rtsp|http)[:{req_params}]]</span> - например:
+<ul>
+<li><i>143:camera</i> - при указании ключевого слова &quot;camera&quot;
+будет использован прямой URL на камеру (минуя сервер AVReg),
+который сконфигурирован для захвата видео 143 камеры;</li>
+<li><i>143:camera:rtsp</i> - то же что и выше, но только конкретно RTSP URL;</li>
+<li><i>143:camera:http:fps=10&resolution=1920x1280</i> - то же что и выше, но только конкретно HTTP URL,
+даже если {video_src} = rtsp и также в URL будут добавлены параметры запроса;</li>
+</ul>
+</li>
+<li><span style="white-space:nowrap; font-weight: bold;">(http|rtsp)://[login:password@]host:port/path?query</span>
 - полный URL на произвольный медиа-поток, например, для камер Axis:
 <ul>
-<li>rtsp://login:password@axis-camera-ip/axis-media/media.amp?resolution=320x240&audio=0</li>
-<li>http://login:password@axis-camera-ip/axis-cgi/mjpg/video.cgi?resolution=640x480&fps=5</li>
+<li><i>rtsp://login:password@axis-camera-ip/axis-media/media.amp?resolution=320x240&audio=0</i></li>
+<li><i>http://login:password@axis-camera-ip/axis-cgi/mjpg/video.cgi?resolution=640x480&fps=5</i></li>
 </ul>
 </li>
 </ul>
 <div>Примечания:
 <ul>
+<li>Основное назначение альтернативных URL-лов - переключение
+на поток высокого разрешения при разворачивании камеры в полный экран
+при использовании  <a href=" http://avreg.net/manual_applications_multi-stream.html" target="_blank">
+мультипоточного захвата</a>.</li>
 <li>Для RTSP url-ов на клиенте потребуется <a href="http://avreg.net/howto-install-vlc-plugin.html" target="_blank">
 установить плагин VLC Browser Plugin</a>.</li>
 <li>При использовании прямых URL-ов на камеру, для доступа из-вне (клиентов не из локалки)

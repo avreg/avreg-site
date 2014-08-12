@@ -35,7 +35,7 @@ function checkUrlParam($url = null)
  * @param bool $append_abenc аутентификация пользователя
  * @return string адрес видео с камеры
  */
-function get_avregd_cam_url($conf, $cam_nr, $media, $append_abenc = false)
+function get_avregd_cam_url($conf, $cam_nr, $media, $append_abenc = false, $query_string = '')
 {
     $cams_subconf = & $GLOBALS['cams_subconf'];
 
@@ -49,11 +49,15 @@ function get_avregd_cam_url($conf, $cam_nr, $media, $append_abenc = false)
     $path_var = sprintf('avregd-%s-path', $media);
     if (isset($conf[$path_var])) {
         $url .= sprintf("%s?camera=%d", $conf[$path_var], $cam_nr);
+    } else {
+        $url .= '?fake=1';
+    }
+    if (!empty($query_string)) {
+        $url .= $query_string;
     }
     if ($append_abenc && !empty($GLOBALS['user_info']['USER'])) {
         $url .= '&ab=' . base64_encode($GLOBALS['user_info']['USER'] . ':' . $_SERVER['PHP_AUTH_PW']);
     }
-
     return $url;
 }
 
@@ -63,9 +67,10 @@ function get_avregd_cam_url($conf, $cam_nr, $media, $append_abenc = false)
  * @param array $cam_params      масив настроек камеры $GCP_cams_params[$cam_nr],
  *                               необходимый для постройки URL
  * @param string $pref_proto_csv CSV-список протоколов в порядке предпочтения
+ * @param string $query          query: param1=val1&param2=val2&...
  * @return null|string           адрес видео с камеры
  */
-function build_cam_url($cam_params, $pref_proto_csv = null)
+function build_cam_url($cam_params, $pref_proto_csv = null, $query = null)
 {
     if (@empty($cam_params['video_src'])) {
         return null;
@@ -82,6 +87,7 @@ function build_cam_url($cam_params, $pref_proto_csv = null)
         $req = '/';
         $port = '';
         $auth = '';
+        $__query = '';
         if ($proto_pref === 'rtsp') {
             if (!@empty($cam_params['InetCam_rtsp_port']) && (int)$cam_params['InetCam_rtsp_port'] !== 554) {
                 $port = ':' . $cam_params['InetCam_rtsp_port'];
@@ -111,7 +117,15 @@ function build_cam_url($cam_params, $pref_proto_csv = null)
             $auth = $cam_params['InetCam_USER'] . ':' . $pwd . '@';
         }
 
-        $url = $proto_pref . '://' . $auth . $cam_params['InetCam_IP'] . $req;
+        if (!@empty($query)) {
+            if (false !== strrpos($req, '?')) {
+                $__query = '&' . $query;
+            } else {
+                $__query = '?' . $query;
+            }
+        }
+
+        $url = $proto_pref . '://' . $auth . $cam_params['InetCam_IP'] . $req . $__query;
         if (filter_var($url, FILTER_VALIDATE_URL)) {
             return $url;
         }
@@ -119,6 +133,12 @@ function build_cam_url($cam_params, $pref_proto_csv = null)
     return null;
 } /* build_cam_url() */
 
+/***
+ * Строит альтернативный URL
+ *   - {cam_nr}[:avregd[:http[:{req_params}]]
+ *   - {cam_nr}:camera[:(rtsp|http)[:{req_params}]]
+ *   - (http|rtsp)://[login:password@]host:port/path?query
+ */
 function get_alt_url($conf, $cam_nr, $cams_params, $alt_url = null)
 {
     $url = null;
@@ -140,10 +160,10 @@ function get_alt_url($conf, $cam_nr, $cams_params, $alt_url = null)
                             !empty($cams_params[$target_cam_nr]['video_src'])) {
                             if (@empty($a[1]) || 0 === stripos($a[1], 'avreg')) {
                                 $url_src = 'avregd';
-                                $url = get_avregd_cam_url($conf, $target_cam_nr, 'mjpeg', true);
+                                $url = get_avregd_cam_url($conf, $target_cam_nr, 'mjpeg', true, $a[3]);
                             } else {
                                 $url_src = 'camera';
-                                $url = build_cam_url($cams_params[$target_cam_nr], $a[2]);
+                                $url = build_cam_url($cams_params[$target_cam_nr], $a[2], $a[3]);
                             }
                         }
                     }
