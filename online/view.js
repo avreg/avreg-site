@@ -114,8 +114,7 @@ function img_mouseover(cell, win_nr) {
     var cam_nr = WINS_DEF[win_nr].cam.nr;
     var orig_w = WINS_DEF[win_nr].cam.orig_w;
     var orig_h = WINS_DEF[win_nr].cam.orig_h;
-//   var url = WINS_DEF[win_nr].cam.url;
-    var val = ((WINS_DEF[win_nr].cam.url).split('?'))[0];
+    var val = ((WINS_DEF[win_nr].cam.urls.cell).split('?'))[0];
 
     hint = '<table style="font-weight:bold;" cellspacing="0" border="0" cellpadding="1"><tbody><tr>\n' + '<td align="right">Камера:<\/td>\n' + '<td>#' + cam_nr + ' ' + WINS_DEF[win_nr].cam.name + '<\/td>\n' + '<\/tr><tr>\n' + '<td align="left">URL:<\/td>\n' + '<td>' + val + '<\/td>\n' + '<\/tr><tr>\n' + '<td align="right">Размер:<\/td>\n' + '<td>' + orig_w + 'x' + orig_h + ' (исходный), ' + img_jq.width() + 'x' + img_jq.height() + ' (на экране)<\/td>\n' + '<\/tr><\/tbody><\/table>\n';
 
@@ -164,6 +163,7 @@ $.fn.mjpeg_player_create = function(win_nr, mjpeg_src) {
 function img_click(clicked_div) {
     var pl_cont = $('.pl_cont', clicked_div);
 
+    var cam_srcs;
     var tmp_div;
     var clicked_div_jq = $(clicked_div);
     var win_geo;
@@ -176,14 +176,17 @@ function img_click(clicked_div) {
     if (win_nr == null) {
         return;
     }
+
+    cam_srcs = WINS_DEF[win_nr].cam.urls;
+
     if (FS_WIN_DIV) {
         // current - fullscreen
         //меняем на источник для ячейки
-        if (active_cams_srcs[win_nr]['type'] != 'avregd') {
-            if (active_cams_srcs[win_nr]['cell'] != null &&
-                active_cams_srcs[win_nr]['cell'] != '' &&
-                active_cams_srcs[win_nr]['cell'].toLowerCase() !== active_cams_srcs[win_nr]['fs'].toLowerCase()) {
-                    current_src = active_cams_srcs[win_nr]['cell'];
+        if (cam_srcs['type'] != 'avregd') {
+            if (cam_srcs['cell'] != null &&
+                cam_srcs['cell'] != '' &&
+                cam_srcs['cell'].toLowerCase() !== cam_srcs['fs'].toLowerCase()) {
+                    current_src = cam_srcs['cell'];
             }
         }
         if (WIN_DIV_W == undefined) {
@@ -275,10 +278,10 @@ function img_click(clicked_div) {
         set_win_size_class(clicked_div_jq, win_geo);
 
         //меняем на источник для ячейки
-        if (active_cams_srcs[win_nr]['type'] != 'avregd') {
-            if (active_cams_srcs[win_nr]['fs'] != null && active_cams_srcs[win_nr]['fs'] != ''
-                && active_cams_srcs[win_nr]['cell'].toLowerCase() !== active_cams_srcs[win_nr]['fs'].toLowerCase()) {
-                current_src = active_cams_srcs[win_nr]['fs'];
+        if (cam_srcs['type'] != 'avregd') {
+            if (cam_srcs['fs'] != null && cam_srcs['fs'] != ''
+                && cam_srcs['cell'].toLowerCase() !== cam_srcs['fs'].toLowerCase()) {
+                current_src = cam_srcs['fs'];
             }
         }
 
@@ -354,7 +357,7 @@ function brout(win_nr, win_div, win_geo) {
 //   var id='cam'+cam_nr;
 //   var orig_w = WINS_DEF[win_nr].cam.orig_w;
 //   var orig_h = WINS_DEF[win_nr].cam.orig_h;
-    var url = WINS_DEF[win_nr].cam.url;
+    var url = WINS_DEF[win_nr].cam.urls.cell;
 
     //Установка плеера в элемент  // win_geo.cam_h
     var $cont = $(win_div);
@@ -1035,8 +1038,6 @@ function layouts_to_list() {
         html += '<div class="layout' + ((cur_layout == value.MON_NR) ? ' selectedLayout' : '' ) + '" >';
 
         html += '<a id="layout_' + value.MON_NR + '" class="layout_link"';
-        //html+=' onclick="change_layout('+value.MON_NR+')"  href="#">'; //динамическая смена раскладки - отключена
-        // html+=' href="?layout_id='+value.MON_NR+'">';  //нединаимическая смена раскладки без использованиz пользовательских раскладок
 
         //нединаимическая смена раскладки c использованием пользовательских раскладок
         html += ' onclick="user_layouts.setCookie(\'layouts\', JSON.stringify(user_layouts.client_layouts), 86400, \'/\', window.location.hostname, \'\');"  href="../online/view.php?layout_id=' + value.MON_NR + '" >';
@@ -1048,166 +1049,6 @@ function layouts_to_list() {
     html += '<div id="user_layouts" class="layout" style="margin: 0px; padding: 6px; border: 1px solid black; background: rgba(220,220,220,0.4);" onclick="clients_layouts_list();"> <a href="../admin/web_mon_list.php"  style="outline: none;">Раскладки</a> </div></span></div>';
 
     return html;
-}
-
-/**
- * Смена раскладки
- * @param mon_nr - номер устанавливаемой раскладки (из MON_NR в WEB_MONITORS БД)
- */
-function change_layout(mon_nr) {
-    //Если был включен режим - 1 камера на весь экран
-    FS_WIN_DIV = null;
-    //целевая раскладка
-    var layout = null;
-    //кол-во элементов для отображения камер в целевой раскладке
-    var wins_nr = 0;
-    //структура целевой раскладки
-    var l_defs = null;
-    //Пропорции
-    var AspectRatio;
-    //Главная ячейка раскладки
-    var main_cell = 0;
-
-    //обнуляем массив масштабов
-    $.aplayer.scale = [];
-
-    cur_layout = mon_nr;
-
-    //Устанавливаем целевую раскладку
-    $.each(layouts_list, function (i, value) {
-        if (value['MON_NR'] == mon_nr) {
-            layout = value;
-            return;
-        }
-    });
-
-    //Чистим канвас
-    $('#canvas').empty();
-
-    l_defs = layouts_defs[layout['MON_TYPE']];
-
-    //Главная ячейка раскладки
-    main_cell = l_defs[4];
-
-    //кол-во элементов для отображения камер
-    wins_nr = l_defs[0];
-
-    //пересоздаем объект текущей раскладки
-    WINS_DEF = new MakeArray(wins_nr);
-
-    //размеры камер
-    major_win_cam_geo = null;
-
-    layout_wins = $.parseJSON(layout['WINS']);
-    active_cams_srcs = [];
-
-    //и перезаполняем новыми значениями
-    $.each(WINS_DEF, function (i, value) {
-        if (layout_wins[i] == null || GCP_cams_params[layout_wins[i][0]] == null) {
-            return;
-        }
-        //Параметры текущего типа раскладки
-        var l_wins = l_defs[3][i];
-        var cam_nr = layout_wins[i][0];
-        //установка url камеры
-        active_cams_srcs[i] = [];
-        var cam_url = '';
-
-        switch (layout_wins[i][1]) {
-            case '0':
-            case '1': //avregd
-                cam_url = CAMS_URLS[cam_nr]['avregd'];
-                active_cams_srcs[i]['type'] = 'avregd';
-                active_cams_srcs[i]['cell'] = cam_url;
-                active_cams_srcs[i]['fs'] = cam_url;
-                break;
-            case '2': //alt 1
-                cam_url = CAMS_URLS[cam_nr]['cell_url_alt_1'];
-                active_cams_srcs[i]['type'] = 'alt_1';
-                active_cams_srcs[i]['cell'] = cam_url;
-                active_cams_srcs[i]['fs'] = CAMS_URLS[cam_nr]['fs_url_alt_1'];
-                break;
-            case '3': //alt 2
-                cam_url = CAMS_URLS[cam_nr]['cell_url_alt_2'];
-                active_cams_srcs[i]['type'] = 'alt_1';
-                active_cams_srcs[i]['cell'] = cam_url;
-                active_cams_srcs[i]['fs'] = CAMS_URLS[cam_nr]['fs_url_alt_2'];
-                break;
-        }
-
-        var wxh = GCP_cams_params[ layout_wins[i][0] ]['geometry'];
-        var cam_width = parseInt(wxh.slice(0, wxh.indexOf('x')));
-        var cam_height = parseInt(wxh.slice(wxh.indexOf('x') + 1));
-        if (cam_width == null || cam_width == 0) {
-            cam_width = 640;
-        }
-        if (cam_height == null || cam_height == 0) {
-            cam_height = 480;
-        }
-        //Возможно неверно интерпретировано: if(!empty($GCP_cams_params[$cam_nr]['Hx2'])) $height*=2;
-        if (GCP_cams_params[layout_wins[i][0]]['Hx2'] != 0 && GCP_cams_params[layout_wins[i][0]]['Hx2'] != null) {
-            cam_height *= 2;
-        }
-
-        if (major_win_cam_geo == null /* || major_win_nr === win_nr */) {
-            major_win_cam_geo = new Array(cam_width, cam_height);
-        }
-
-        var net_cam_host = null;
-        if (operator_user && ( GCP_cams_params[layout_wins[i][0]].video_src == "rtsp" || GCP_cams_params[layout_wins[i][0]].video_src == "http" )) {
-            net_cam_host = GCP_cams_params[layout_wins[i][0]]['InetCam_IP'];
-        } else {
-            net_cam_host = null;
-        }
-
-        //устанавливаем параметры и камеру для ячейки
-        WINS_DEF[i] = {
-            row: l_wins[0],
-            col: l_wins[1],
-            rowspan: l_wins[2],
-            colspan: l_wins[3],
-            main: main_cell - 1 == i ? 1 : 0,
-            cam: {
-                nr: cam_nr,
-                name: GCP_cams_params[layout_wins[i][0]]['text_left'],
-                url: cam_url,
-                orig_w: cam_width,
-                orig_h: cam_height,
-                netcam_host: net_cam_host
-            }
-        };
-    });
-
-    //Вывод в шапке элемента отображения камеры - названия камеры
-    PrintCamNames = !!((layout['PRINT_CAM_NAME'] == 't' || layout['PRINT_CAM_NAME'] == true));
-
-    //Установка пропорций
-    AspectRatio = layout['PROPORTION'];
-
-    //если растягивается на весь экран
-    if (AspectRatio == 'fs') {
-        CamsAspectRatio = 'fs';
-    } else { //если сохраняем пропорции
-
-        var rex = new RegExp("[0-9]+", "g");
-        if (AspectRatio == 'calc') {
-            ar = calcAspectForGeo(major_win_cam_geo[0], major_win_cam_geo[1]);
-            CamsAspectRatio = { num: ar[0], den: ar[1] };
-            //Если пропропорции заданы в БД
-        } else if (rex.test(AspectRatio)) {
-            var m = AspectRatio.match(rex);
-            CamsAspectRatio = { 'num': m[0], 'den': m[1] };
-        } else {
-            CamsAspectRatio = 'fs';
-        }
-    }
-
-    WINS_NR = wins_nr;
-    ROWS_NR = l_defs[1];
-    COLS_NR = l_defs[2];
-
-    fill_canvas();
-
 }
 
 function showErrorMessage(indexCam, typeErr) {
@@ -1346,12 +1187,18 @@ function fill_canvas() {
         if (win_def.rowspan == 1 && win_def.colspan == 1) {
             win_geo = base_win_geo;
         } else {
-            win_geo = new calc_win_geo(base_win_geo.win_w * win_def.colspan, base_win_geo.win_h * win_def.rowspan, CamsAspectRatio, 1, 1, win_def.rowspan);
+            win_geo = new calc_win_geo(base_win_geo.win_w * win_def.colspan,
+                    base_win_geo.win_h * win_def.rowspan,
+                    CamsAspectRatio, 1, 1, win_def.rowspan);
         }
         _top = calc_win_top(base_win_geo, win_def.row);
         _left = calc_win_left(base_win_geo, win_def.col);
 
-        win_div = $('<div id="win' + win_nr + '" name="win" class="win ' + (win_def['main'] == 1 ? 'main_cell' : '') + '" ' + ' style="position: absolute; ' + ' top:' + _top + 'px;' + ' left:' + _left + 'px; ' + ' width:' + win_geo.win_w + 'px;' + ' height:' + win_geo.win_h + 'px;' + ' z-index: 30;' + '"><\/div>');
+        win_div = $('<div id="win' + win_nr + '" name="win" class="win '
+                + (win_def['main'] == 1 ? 'main_cell' : '') + '" '
+                + ' style="position: absolute; ' + ' top:' + _top + 'px;' + ' left:' + _left + 'px; '
+                + ' width:' + win_geo.win_w + 'px;' + ' height:' + win_geo.win_h + 'px;'
+                + ' z-index: 30;' + '"><\/div>');
         win_div.appendTo(CANVAS);
 
         set_win_size_class(win_div, win_geo);
@@ -1360,30 +1207,26 @@ function fill_canvas() {
             var ipcamhost_link_begin = '';
             var ipcamhost_link_end = '';
             var host = '';
-            if (GCP_cams_params[WINS_DEF[win_nr].cam.nr].video_src == "rtsp" || GCP_cams_params[WINS_DEF[win_nr].cam.nr].video_src == "http") {
-                if (CAMS_URLS[WINS_DEF[win_nr].cam.nr].ipcam_interface_url) {
-                    host = CAMS_URLS[WINS_DEF[win_nr].cam.nr].ipcam_interface_url;
-                } else {
-                    host = 'http://' + WINS_DEF[win_nr].cam.netcam_host;
-                }
-                ipcamhost_link_begin = '<a href="' + host + '" target="_blank" style="color:inherit;" title="' + strToolbarControls['to_cam_interface'] + '">';
+            if (WINS_DEF[win_nr].cam.direct_link) {
+                ipcamhost_link_begin = '<a href="' + WINS_DEF[win_nr].cam.direct_link
+                    + '" target="_blank" style="color:inherit;" title="'
+                    + strToolbarControls['to_cam_interface'] + '">';
                 ipcamhost_link_end = ' &rarr;<\/a>';
             }
 
-                 var hdr = $('<div id="cell_header_'+win_nr+'" class="cell_header"  style="cursor:default;'+
-                       ' padding:0px; margin:0px; overflow:hidden; border:0px;">'+
-                       '<div class="camera_name_wrapper font-scaled">' +
-                       '<span class="camera_name">' +
-                       ipcamhost_link_begin + WINS_DEF[win_nr].cam.name + ipcamhost_link_end +
-                       '</span></div></div>')
-                       .appendTo(win_div);
+            var hdr = $('<div id="cell_header_'+win_nr+'" class="cell_header"  style="cursor:default;'+
+                    ' padding:0px; margin:0px; overflow:hidden; border:0px;">'+
+                    '<div class="camera_name_wrapper font-scaled">' +
+                    '<span class="camera_name">' +
+                    ipcamhost_link_begin + WINS_DEF[win_nr].cam.name + ipcamhost_link_end +
+                    '</span></div></div>')
+                .appendTo(win_div);
 
-                // font scaler
-                hdr.find('.font-scaled').textfill();
+            // font scaler
+            hdr.find('.font-scaled').textfill();
 
             //ToolBar
-                 var toolbar = $('<div class="tool_bar"></div>')
-                 .appendTo(hdr);
+            var toolbar = $('<div class="tool_bar"></div>').appendTo(hdr);
 
             //свернуть/развернуть
             if (WINS_NR != 1) {
@@ -1808,7 +1651,7 @@ var controls_handlers = {
         var stop = $(e.currentTarget);
         var cell_nr = parseInt(($(stop).attr('id')).replace('pl_stop_', ''));
         var aplayer_id = $('.aplayer', '#win' + cell_nr).attr('id');
-        var stop_baner_url = WINS_DEF[cell_nr].cam.stop_url;
+        var stop_baner_url = WINS_DEF[cell_nr].cam.urls.stop_url;
 
         checking_connection.stop_check_me($("#" + aplayer_id));
 

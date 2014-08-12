@@ -288,43 +288,14 @@ print "var user_info_USER = " . json_encode($GLOBALS['user_info']['USER']) . ";\
 print "var base64_encode_user_info_USER = '" . base64_encode($GLOBALS['user_info']['USER']) . "';\n";
 print "var PHP_AUTH_PW = '" . @$_SERVER['PHP_AUTH_PW'] . "';\n";
 
-print 'var WINS_DEF = new MakeArray(' . $wins_nr . ')' . "\n";
-
-//Передаем JS параметры длосупных камер
-print "var GCP_cams_params = " . json_encode($GCP_cams_params) . ";\n";
-
 //Передаем JS параметр operator_user
 print "var operator_user = " . json_encode($operator_user) . ";\n";
 
 //передаем titles для контролов toolbara
 print "var strToolbarControls = " . json_encode($strToolbarControls) . ";\n";
 
-//передаем url-ы камер
-$cams_urls = array();
-foreach ($GCP_cams_params as $key => $value) {
-    if (isset($GCP_cams_params[$key]['ipcam_interface_url']) &&
-        !empty($GCP_cams_params[$key]['ipcam_interface_url'])
-    ) {
-        $ipcamUrl = $GCP_cams_params[$key]['ipcam_interface_url'];
-    } else {
-        $ipcamUrl = '';
-    }
-
-    $cu = array(
-        "ipcam_interface_url" => $ipcamUrl,
-        "avregd" => get_avregd_cam_url($conf, $key, 'mjpeg', true),
-        "cell_url_alt_1" => checkUrlParam($GCP_cams_params[$key]['cell_url_alt_1']),
-        "fs_url_alt_1" => checkUrlParam($GCP_cams_params[$key]['fs_url_alt_1']),
-        "cell_url_alt_2" => checkUrlParam($GCP_cams_params[$key]['cell_url_alt_2']),
-        "fs_url_alt_2" => checkUrlParam($GCP_cams_params[$key]['fs_url_alt_2'])
-    );
-    $cams_urls[$key] = $cu;
-}
-print "var CAMS_URLS = " . json_encode($cams_urls) . ";\n\n\n\n\n";
-
 //для js сопоставление камер и источников
-$active_cams_srcs = array();
-
+$WINS_DEF = array();
 for ($win_nr = 0; $win_nr < $wins_nr; $win_nr++) {
     if (empty($win_cams[$win_nr]) || !array_key_exists($win_cams[$win_nr][0], $GCP_cams_params)) {
         continue;
@@ -352,99 +323,84 @@ for ($win_nr = 0; $win_nr < $wins_nr; $win_nr++) {
     $l_wins = & $l_defs[3][$win_nr];
 
     //устанавливаем url камеры
-    $active_cams_srcs[$win_nr] = array();
+    $cam_view_srcs = array();
     switch ($win_cams[$win_nr][1]) {
         case 0:
         case 1: //используем камеру avregd
             $cam_url = get_avregd_cam_url($conf, $cam_nr, 'mjpeg', true);
-            $active_cams_srcs[$win_nr]['type'] = 'avregd';
-            $active_cams_srcs[$win_nr]['cell'] = $cam_url;
-            $active_cams_srcs[$win_nr]['fs'] = $cam_url;
-            $stop_url = get_avregd_cam_url($conf, $cam_nr, 'jpeg', true);
+            $cam_view_srcs['type'] = 'avregd';
+            $cam_view_srcs['cell'] = $cam_url;
+            $cam_view_srcs['fs'] = $cam_url;
+            $cam_view_srcs['stop_url'] = get_avregd_cam_url($conf, $cam_nr, 'jpeg', true);
             break;
         case 2: //используем источник "alt 1"
             // Проверяю есть ли альтернативная ссылка 1 (если нет, то генерирую ссылку на avregd)
-            $active_cams_srcs[$win_nr]['type'] = 'alt_1';
+            $cam_view_srcs['type'] = 'alt_1';
             $cam_url = get_alt_url(
                 $conf,
                 $cam_nr,
                 $GCP_cams_params,
                 $GCP_cams_params[$cam_nr]['cell_url_alt_1']
             );
-            $active_cams_srcs[$win_nr]['cell'] = $cam_url;
-            $active_cams_srcs[$win_nr]['fs'] = get_alt_url(
+            $cam_view_srcs['cell'] = $cam_url;
+            $cam_view_srcs['fs'] = get_alt_url(
                 $conf,
                 $cam_nr,
                 $GCP_cams_params,
                 $GCP_cams_params[$cam_nr]['fs_url_alt_1']
             );
-            $stop_url = false;
+            $cam_view_srcs['stop_url'] = false;
             break;
         case 3: //используем камеру "alt 2"
-            $active_cams_srcs[$win_nr]['type'] = 'alt_2';
+            $cam_view_srcs['type'] = 'alt_2';
             $cam_url = get_alt_url(
                 $conf,
                 $cam_nr,
                 $GCP_cams_params,
                 $GCP_cams_params[$cam_nr]['cell_url_alt_2']
             );
-            $active_cams_srcs[$win_nr]['cell'] = $cam_url;
-            $active_cams_srcs[$win_nr]['fs'] = get_alt_url(
+            $cam_view_srcs['cell'] = $cam_url;
+            $cam_view_srcs['fs'] = get_alt_url(
                 $conf,
                 $cam_nr,
                 $GCP_cams_params,
                 $GCP_cams_params[$cam_nr]['fs_url_alt_2']
             );
-            $stop_url = false;
+            $cam_view_srcs['stop_url'] = false;
             break;
     }
 
+    $direct_link = null;
     if ($operator_user && (@$GCP_cams_params[$cam_nr]['video_src'] == 'rtsp'
-            || @$GCP_cams_params[$cam_nr]['video_src'] == 'http')) {
-        $netcam_host = '"' . $GCP_cams_params[$cam_nr]['InetCam_IP'] . '"';
-    } else {
-        $netcam_host = 'null';
+        || @$GCP_cams_params[$cam_nr]['video_src'] == 'http')) {
+        if (@empty($GCP_cams_params[$cam_nr]['ipcam_interface_url'])) {
+            $direct_link = 'http://' . $GCP_cams_params[$cam_nr]['InetCam_IP'];
+        } else {
+            $direct_link = $GCP_cams_params[$cam_nr]['ipcam_interface_url'];
+        }
     }
 
     if ($operator_user && !empty($GCP_cams_params[$cam_nr]['ptz'])) {
-        $ptz_handler = '"' . $GCP_cams_params[$cam_nr]['ptz'] . '"';
+        $ptz_handler = $GCP_cams_params[$cam_nr]['ptz'];
     } else {
-        $ptz_handler = 'null';
+        $ptz_handler = null;
     }
 
-    printf(
-        'WINS_DEF[%d]={
-           row: %u,
-           col: %u,
-           rowspan: %u,
-           colspan: %u,
-           main:  %u,
-           cam: {
-              nr:   %s,
-              name: "%s",
-              url:  "%s",
-              orig_w: %u,
-              orig_h: %u,
-              netcam_host: %s,
-              stop_url: "%s",
-              ptz: %s
-           }
-        };%s',
-        $win_nr,
-        $l_wins[0],
-        $l_wins[1],
-        $l_wins[2],
-        $l_wins[3],
-        $l_defs[4] - 1 == $win_nr ? 1 : 0,
-        $cam_nr,
-        getCamName($GCP_cams_params[$cam_nr]['text_left']),
-        $cam_url,
-        $width,
-        $height,
-        $netcam_host,
-        $stop_url,
-        $ptz_handler,
-        "\n"
+    $WINS_DEF[$win_nr] = array(
+        'row' => $l_wins[0],
+        'col' => $l_wins[1],
+        'rowspan' => $l_wins[2],
+        'colspan' => $l_wins[3],
+        'main' => (($l_defs[4] - 1) == $win_nr ? 1 : 0),
+        'cam' => array(
+            'nr' => $cam_nr,
+            'name' => getCamName($GCP_cams_params[$cam_nr]['text_left']),
+            'urls' =>  $cam_view_srcs,
+            'orig_w' => $width,
+            'orig_h' => $height,
+            'direct_link' => $direct_link,
+            'ptz' => $ptz_handler,
+        )
     );
 
     if ($MSIE) {
@@ -461,7 +417,7 @@ for ($win_nr = 0; $win_nr < $wins_nr; $win_nr++) {
     }
 }
 
-printf("var active_cams_srcs = %s;\n", json_encode($active_cams_srcs));
+printf("var WINS_DEF = %s;\n", json_encode($WINS_DEF));
 
 printf("var FitToScreen = %s;\n", empty($FitToScreen) ? 'false' : 'true');
 

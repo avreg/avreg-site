@@ -140,7 +140,6 @@ if (isset($cmd)) {
                 print '<input type="hidden" name="mon_type" value="' . $mon_type . '">' . "\n";
 
 
-                require_once('../lang/russian/utf-8/_online.php');
                 //Селектор сохранять пропорции/ на весь экран
                 $AspectRatio = 'calc';
                 print '<br /><div><span>' . $strAspectRatio . ":&nbsp;&nbsp;</span> \n";

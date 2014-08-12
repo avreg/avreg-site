@@ -239,7 +239,6 @@ if (isset($cmd)) {
         print '<input type="hidden" name="counter" value="' . $counter . '">' . "\n";
         print '<input type="hidden" name="mon_type" value="' . $mon_type . '">' . "\n";
 
-        require_once('../lang/russian/utf-8/_online.php');
         //Селектор сохранять пропорции/ на весь экран
         $AspectRatio = trim($row[9]);
         print '<br /><div><div style="float:left;" >' . $strAspectRatio . ":&nbsp;&nbsp;</div> \n";
