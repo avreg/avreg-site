@@ -41,10 +41,11 @@ if (isset($cmd) && $cmd == '_ADD_NEW_CAM_') {
             $cam_nr,
             $cam_text
         ) . '</font></h4>');
-        print ('<h4><font color="' . $warn_color . '">' . $r_cam_addnew_ok2 . '</font></h4>');
+        print ('<div class="warn">' . sprintf($r_cam_addnew_ok2, $cam_nr, $cam_text) . '</div>');
     } else {
         print ('<p><font color="' . $error_color . '">' . $strInvalidParams . '</font></p>');
     }
+    print '<hr style="height:2px;border-width:0;color:gray;background-color:gray">'. "\n";
 }
 
 /// Номер добавляемой камеры
