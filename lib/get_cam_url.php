@@ -50,10 +50,10 @@ function get_avregd_cam_url($conf, $cam_nr, $media, $append_abenc = false, $quer
     if (isset($conf[$path_var])) {
         $url .= sprintf("%s?camera=%d", $conf[$path_var], $cam_nr);
     } else {
-        $url .= '?fake=1';
+        $url .= '?f=1';
     }
     if (!empty($query_string)) {
-        $url .= $query_string;
+        $url .= '&' . $query_string;
     }
     if ($append_abenc && !empty($GLOBALS['user_info']['USER'])) {
         $url .= '&ab=' . base64_encode($GLOBALS['user_info']['USER'] . ':' . $_SERVER['PHP_AUTH_PW']);
