@@ -9,8 +9,6 @@ DENY($admin_status);
 require('warn.inc.php');
 require('_vidserv_status.inc.php');
 
-$upstart_used = file_exists('/etc/init/avreg.conf');
-
 /*
 printf ("current character set is %s\n", $charset);
  */
@@ -48,8 +46,7 @@ function print_log_messages()
             '/crit|err|fail|error|warn|invalid|wrong|bad|unable|notice|could`t|could not| no |'
             .'cannot|can`t|not|duplicate|reset|reject|drop|unsupport|bnormal/i',
             $buffer
-        )
-        ) {
+        )) {
             print '<font color="#FFFF99">' . htmlspecialchars($buffer, ENT_QUOTES, $chset) . '</font><br>';
         } else {
             print htmlspecialchars($buffer, ENT_QUOTES, $chset) . '<br>';
@@ -63,13 +60,15 @@ echo '<h1>' . $r_control . '</h1>' . "\n";
 /// Флаг выполнения команды
 $cmd_released = null;
 if (!empty($cmd)) {
-    $status_cmd = get_full_cmd($upstart_used, 'status', $profile);
+    $status_cmd = get_full_cmd($init_type, 'status', $profile);
     unset($outs);
     exec($GLOBALS['conf']['sudo'] . ' ' . $status_cmd, $outs, $retval);
-    if ($upstart_used) {
+    if ($init_type === 'upstart') {
         // avreg-worker (cpu1) start/running, process 6208
         // avreg-worker start/running, process 6208
         $running = (count($outs) > 0 && preg_match('@start/running@', $outs[0]));
+    } elseif ($init_type === 'systemd') {
+        $running = ($retval === 0) ? true : false;
     } else {
         $running = ($retval === 0) ? true : false;
     }
@@ -107,7 +106,7 @@ if (isset($cmd)) {
 
             if (!empty($strwarning)) {
                 print '<p><font size="+1" color="' . $warn_color . '">' . $strwarning;
-                $fullcmd = get_full_cmd($upstart_used, $cmd, $profile);
+                $fullcmd = get_full_cmd($init_type, $cmd, $profile);
                 print_syslog(LOG_WARNING, sprintf('command `%s\'', $fullcmd));
                 unset($outs);
                 while (@ob_end_flush()) {
@@ -141,7 +140,7 @@ if (isset($cmd)) {
             MYDIE("invalid command");
         }
         print '<div class="warn">' . "\n";
-        echo '# ' . get_full_cmd($upstart_used, $cmd, $profile) . '  [?]';
+        echo '# ' . get_full_cmd($init_type, $cmd, $profile) . '  [?]';
         print '</div><br />' . "\n";
         print '<form action="' . $_SERVER['PHP_SELF'] . '" method="POST">' . "\n";
         print '<input type="hidden" name="cmd" value="' . $cmd . '">' . "\n";
@@ -163,7 +162,7 @@ if (isset($cmd)) {
     }
 }
 
-$daemon_states = print_daemons_status($upstart_used, $profile);
+$daemon_states = print_daemons_status($init_type, $profile);
 
 print '<form action="' . $_SERVER['PHP_SELF'] . '" method="POST"><FIELDSET>' . "\n";
 echo '<h2>' . "\n";
@@ -210,10 +209,10 @@ if (empty($profile)) {
 
 print "<input type=\"submit\" name=\"cmd\" $allow_start class=\"$allow_start\" value=\"Start\">$strRun\n";
 print "<br><input type=\"submit\" $allow_stop name=\"cmd\"  class=\"$allow_stop\" value=\"Restart\">$strRestart&nbsp;
-        <img src=\"$conf[prefix]/img/hotsync_busy.gif\" width=\"22\" height=\"22\" align=\"middle\" border=\"0\">&nbsp;
-        <img src=\"$conf[prefix]/img/hotsync.gif\" width=\"22\" height=\"22\" align=\"middle\" border=\"0\">\n";
+<img src=\"$conf[prefix]/img/hotsync_busy.gif\" width=\"22\" height=\"22\" align=\"middle\" border=\"0\">&nbsp;
+<img src=\"$conf[prefix]/img/hotsync.gif\" width=\"22\" height=\"22\" align=\"middle\" border=\"0\">\n";
 print "<br><input type=\"submit\" $allow_reload name=\"cmd\"  class=\"$allow_reload\" value=\"Reload\">$strReload&nbsp;
-        <img src=\"$conf[prefix]/img/hotsync.gif\" width=\"22\" height=\"22\" align=\"middle\" border=\"0\">\n";
+<img src=\"$conf[prefix]/img/hotsync.gif\" width=\"22\" height=\"22\" align=\"middle\" border=\"0\">\n";
 print "<br><input type=\"submit\" $allow_stop name=\"cmd\"  class=\"$allow_stop\" value=\"Stop\">$strStop\n";
 print '</FIELDSET></form>' . "\n";
 
@@ -224,3 +223,4 @@ if ($cmd_released !== false) {
 
 // phpinfo();
 require('../foot.inc.php');
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */

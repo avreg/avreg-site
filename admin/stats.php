@@ -5,7 +5,6 @@
  */
 require('../head.inc.php');
 
-$upstart_used = file_exists('/etc/init/avreg.conf');
 require('_vidserv_status.inc.php');
 
 /**
@@ -31,7 +30,7 @@ function color_level($val, $warn_val, $max_val)
 
 echo '<h1>' . $r_stats . '</h1>' . "\n";
 
-print_daemons_status($upstart_used, null);
+print_daemons_status($init_type, null);
 
 echo '<h2>' . $r_cpu_stat . '</h2>' . "\n";
 exec($conf['iostat'] . ' -c 2>/dev/null', $lines, $retval);

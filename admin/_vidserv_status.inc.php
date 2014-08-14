@@ -1,18 +1,27 @@
 <?php
 
+if (file_exists('/etc/init/avreg.conf')) {
+    $init_type = 'upstart';
+} elseif (is_dir('/run/systemd/system')) {
+    $init_type = 'systemd';
+} else {
+    $init_type = 'sysv';
+}
+
 /**
  * Строит init-команду для демона
  */
-function get_full_cmd($_upstart_used, $_cmd, $_profile)
+function get_full_cmd($init_type, $_cmd, $_profile)
 {
+    $upstart_init = ($init_type === 'upstart');
     if (empty($_profile) /* нет профилей, одна копия демона */) {
-        if ($_upstart_used && $_cmd == 'reload') {
+        if ($upstart_init && $_cmd == 'reload') {
             return $GLOBALS['conf']['daemon'] . '-worker ' . $_cmd;
         } else {
             return $GLOBALS['conf']['daemon'] . ' ' . $_cmd;
         }
     } else {
-        if ($_upstart_used) {
+        if ($upstart_init) {
             return $GLOBALS['conf']['daemon'] . '-worker ' . $_cmd . ' PROFILE=' . $_profile;
         } else {
             return $GLOBALS['conf']['daemon'] . ' ' . $_cmd . ' ' . $_profile;
@@ -23,8 +32,9 @@ function get_full_cmd($_upstart_used, $_cmd, $_profile)
 /**
  * Проверяет статус демонов и выводит на страницу.
  */
-function print_daemons_status($upstart_used, $profile = null)
+function print_daemons_status($init_type, $profile = null)
 {
+    $upstart_init = ($init_type === 'upstart');
     $daemon_states = array();
     // load avail profiles
     if (!empty($profile)) {
@@ -37,10 +47,10 @@ function print_daemons_status($upstart_used, $profile = null)
     print '<p>' . $GLOBALS['r_conrol_state'] . ":</p>\n";
     foreach ($profiles as $path) {
         $_profile = basename($path);
-        $cmd = get_full_cmd($upstart_used, 'status', $_profile);
+        $cmd = get_full_cmd($init_type, 'status', $_profile);
         unset($outs);
         exec($GLOBALS['conf']['sudo'] . ' ' . $cmd, $outs, $retval);
-        if ($upstart_used) {
+        if ($upstart_init) {
             // avreg-worker (cpu1) start/running, process 6208
             // avreg-worker start/running, process 6208
             $running = (count($outs) > 0 && preg_match('@start/running@', $outs[0]));
@@ -66,8 +76,12 @@ function print_daemons_status($upstart_used, $profile = null)
         if (isset($outs) && is_array($outs)) {
             echo '<pre>';
             echo '# ' . $cmd . "\n";
-            foreach ($outs as $line) {
-                echo $line . "\n";
+            if ($init_type === 'systemd') {
+                echo 'Status: ' . implode(preg_filter('/^\s*Active:\s*(.*)/', '\1', $outs));
+            } else {
+                foreach ($outs as $line) {
+                    echo $line . "\n";
+                }
             }
             echo '</pre>' . "\n";
         }
@@ -75,3 +89,4 @@ function print_daemons_status($upstart_used, $profile = null)
     print '</div><br />' . "\n";
     return $daemon_states;
 }
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */
