@@ -314,7 +314,7 @@ function checkParam($parname, $parval, $def_val = null)
             break;
 
         case 'norm':
-            if ($parval == '' || is_null($parval)) {
+            if ($parval === '' || is_null($parval)) {
                 $sel = '';
             } else {
                 $sel = $GLOBALS['vid_standarts'][$parval];
@@ -353,9 +353,23 @@ function checkParam($parname, $parval, $def_val = null)
                 false,
                 1,
                 0,
-                $parval,
-                true,
-                false
+                $parval
+            );
+            break;
+
+        case 'decode_video':
+            if ($parval === '' || is_null($parval)) {
+                $sel = '';
+            } else {
+                $sel = $GLOBALS['decode_video_a'][$parval];
+            }
+            $ret = getSelectHtml(
+                'fields[' . $parname . ']',
+                $GLOBALS['decode_video_a'],
+                false,
+                1,
+                0,
+                $sel
             );
             break;
 
