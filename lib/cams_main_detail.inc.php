@@ -315,7 +315,7 @@ function print_cam_detail_row($conf, $cam_nr, $cam_detail, $columns = null)
 
     /* print cameras name <td> */
     if (isset($_cols['NAME']) && $_cols['NAME']) {
-        print '<td align="left" valign="center" nowrap>';
+        print '<td valign="center" nowrap>';
         if (!empty($_cols['NAME']['href'])) {
             $tag_a_cont = sprintf(
                 'href="%s?camera=%d" title="%s"',
@@ -381,7 +381,12 @@ function print_cam_detail_row($conf, $cam_nr, $cam_detail, $columns = null)
     /* print cameras short capabilities <td> */
     if (isset($_cols['RECORDING']) && $_cols['RECORDING']) {
         $rec_mode_int = (int)$cam_detail['rec_mode'];
-        print '<td align="center" valign="center">';
+        print '<td valign="center">';
+        if ($rec_mode_int > 0) {
+            print '<span style="color:red;">&#9679;&nbsp;</span>';
+        } else {
+            print '<span style="visibility: hidden;">&#9679;&nbsp;</span>';
+        }
         if ($_cols['RECORDING'] === 'tune_link') {
             print '<a href="./cam-tune.php?&cam_nr=' . $cam_nr . '&categories=11" ' .
                 'class="normal_link">';
