@@ -383,9 +383,9 @@ function print_cam_detail_row($conf, $cam_nr, $cam_detail, $columns = null)
         $rec_mode_int = (int)$cam_detail['rec_mode'];
         print '<td valign="center">';
         if ($rec_mode_int > 0) {
-            print '<span style="color:red;">&#9679;&nbsp;</span>';
+            print '<span style="color:red;">&bull;&nbsp;</span>';
         } else {
-            print '<span style="visibility: hidden;">&#9679;&nbsp;</span>';
+            print '<span style="visibility: hidden;">&bull;&nbsp;</span>';
         }
         if ($_cols['RECORDING'] === 'tune_link') {
             print '<a href="./cam-tune.php?&cam_nr=' . $cam_nr . '&categories=11" ' .
