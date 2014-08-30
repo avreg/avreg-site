@@ -449,3 +449,19 @@ a:hover {
    color: inherit;
    font: inherit;
 }
+
+/* $NotSetParColor */
+.parval_by_avregd {
+   color: #333333;
+}
+
+/* $ParDefColor */
+.parval_by_template {
+   color: #660099;
+}
+
+/* $ParSetColor */
+.parval_by_camera {
+   color: #990000;
+}
+

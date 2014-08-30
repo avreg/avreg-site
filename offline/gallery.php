@@ -57,12 +57,18 @@ if (!isset($_POST['method']) && !isset($_GET['method'])) {
         'lib/js/third-party/base64utf.js'
     );
     require_once('../head.inc.php');
-
-    $GCP_query_param_list = array('text_left', 'Hx2');
-    require('../lib/get_cams_params.inc.php');
-    if ($GCP_cams_nr == 0) {
+    require_once('../lib/get_cams_params.inc.php');
+   
+    $cams_params = get_cams_params(array(
+        'work',
+        'text_left',
+        'Hx2'));
+    $cams_nbr = count($cams_params) - 1; // off template camera
+    if ($cams_nbr <= 0) {
         die('There are no available cameras!');
     }
+    $cams_array = array_keys($cams_params);
+    unset($cams_array[0]); // remove template
     $cookies = isset($_COOKIE['gallery']) ? (array)json_decode(base64_decode($_COOKIE['gallery'])) : array();
 
     /// Подключение самой страницы галереи
@@ -71,14 +77,20 @@ if (!isset($_POST['method']) && !isset($_GET['method'])) {
 } else {
     /// Ответ аякс запроса
     require_once('../lib/config.inc.php');
-
     require_once('../lib/adb.php');
-
-    $GCP_query_param_list = array('text_left', 'Hx2');
-    require('../lib/get_cams_params.inc.php');
-    if ($GCP_cams_nr == 0) {
+    require_once('../lib/get_cams_params.inc.php');
+   
+    $cams_params = get_cams_params(array(
+        'work',
+        'text_left',
+        'Hx2'));
+    $cams_nbr = count($cams_params) - 1; // off template camera
+    if ($cams_nbr <= 0) {
         die('There are no available cameras!');
     }
+    $cams_array = array_keys($cams_params);
+    unset($cams_array[0]); // remove template
+
     require_once 'gallery/memcache.php';
     require_once('gallery/gallery.php');
     /// Инициализация класа галереи

@@ -32,7 +32,7 @@ foreach ($cams as &$value) {
         input_data_invalid('cams');
     }
 }
-if (!empty($GCP_cams_list)) {
+if (is_array($allow_cams) && count($allow_cams) > 0) {
     $a = array_intersect($allow_cams, $cams);
     $cams = array_values($a);
     if (count($cams) === 0) {

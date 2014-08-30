@@ -11,6 +11,7 @@ $lang_file = '_offline.php';
 $USE_JQUERY = true;
 $link_javascripts = array('lib/js/checkbox.js');
 require('../head.inc.php');
+require('../lib/get_cams_params.inc.php');
 DENY($arch_status);
 ?>
 
@@ -83,13 +84,13 @@ DENY($arch_status);
 </script>
 
 <?php
-$GCP_query_param_list = array('work', 'text_left', 'rec_mode');
-require('../lib/get_cams_params.inc.php');
-reset($GCP_cams_params);
+$cams_params = get_cams_params(array('work', 'text_left', 'rec_mode'));
 $recorded_cams = array();
-while (list($_cam, $_opt) = each($GCP_cams_params)) {
+reset($cams_params);
+each($cams_params); // пропускаем шаблонную
+while (list($_cam, $_opt) = each($cams_params)) {
     if (((int)$_opt['rec_mode']) > 0) {
-        $recorded_cams[$_cam] = empty($_opt['text_left']) ? "cam $_cam" : "$_opt[text_left]($_cam)";
+        $recorded_cams[$_cam] = empty($_opt['text_left']['v']) ? "cam $_cam" : $_opt['text_left']['v'] . " ($_cam)";
     }
 }
 

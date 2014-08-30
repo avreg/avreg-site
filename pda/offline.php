@@ -7,7 +7,6 @@ $pageTitle = 'Сеансы записи';
 
 $lang_file = '_admin_cams.php';
 require('head_pda.inc.php');
-// phpinfo(INFO_VARIABLES);
 if (!isset($cams) || empty($cams)) {
     die('should use "cams" cgi param');
 }
@@ -90,8 +89,12 @@ $pagi = new \Avreg\PdaPaginator(
 );
 $pagi->printAbove();
 
-$GCP_query_param_list = array('work', 'text_left', 'geometry', 'Hx2');
 require_once('../lib/get_cams_params.inc.php');
+$cams_params = get_cams_params(array(
+    'work',
+    'text_left',
+    'geometry',
+    'Hx2'));
 
 /* print record session info into page */
 print "<br>\n";
@@ -100,8 +103,8 @@ foreach ($pagi as $row) {
     $FINISH = (int)$row[1];
     $CAM_NR = (int)$row[2];
     $SER_NR = (int)$row[3];
-    $cam_conf = & $GCP_cams_params[$CAM_NR];
-    $cam_name = isset($cam_conf['text_left']) ? $cam_conf['text_left'] : '';
+    $cam_conf = & $cams_params[$CAM_NR];
+    $cam_name = isset($cam_conf['text_left']['v']) ? $cam_conf['text_left']['v'] : '';
 
     print "<div style='margin: 1px 1px 10px 1px; pad: 2px 2px 2px 2px; border-bottom: 1px dotted;'>\n";
     printf(

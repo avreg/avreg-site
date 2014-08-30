@@ -64,7 +64,7 @@
                                        value="select_all">
 							</span>
 							<label style="float: none !important;" for="cam_selector">
-                                <a id="lbl_cam_selector" href="#" class="" title=""> Выбрать/отменить все камеры </a>
+                                <a id="lbl_cam_selector" href="#" class="" title="">Выбрать/отменить все камеры </a>
                             </label>
 						</span>
                 </div>
@@ -77,14 +77,16 @@
                         }
                         ?>
                         <?php
-                        foreach ($GCP_cams_params as $CAM_NR => $PARAM) :?>
+                        reset($cams_params);
+                        each($cams_params);
+                        while (list($CAM_NR, $PARAM) = each($cams_params)) : ?>
                             <span class="new_Check" style="white-space: nowrap; ">
                             <span class="niceCheck"><input type="checkbox" id="camera_<?= $CAM_NR; ?>" name="cameras"
                                 value="<?= $CAM_NR; ?>"
                                 checked="<?= (empty($cameras) || in_array($CAM_NR, $cameras)) ? 'checked' : '' ?>"/>
                             </span>
                                 <?php
-                                $name = $name_orig = $PARAM['text_left'];
+                                $name = $name_orig = $PARAM['text_left']['v'];
                                 // @codingStandardsIgnoreStart
                                 // probably bug in phpcs, as it forcing to use 4 spaces on next block
                                 if (mb_strlen($name) > 18) {
@@ -104,7 +106,7 @@
                                 </label>
                             </span>
                         <?php
-                        endforeach;
+                        endwhile;
                         ?>
 
                     </div>

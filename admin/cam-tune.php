@@ -336,25 +336,27 @@ if (isset($categories)) {
                 }
         }
 
-        if (!is_empty_var($VALUE)) {
-            /* reset action */
-            if ($cam_nr <= 0 || $val_owner === $cam_nr) {
+        if ($parname1 !== 'work' && $parname1 !== 'text_left') {
+            if (!is_empty_var($VALUE)) {
+                /* reset action */
+                if ($cam_nr <= 0 || $val_owner === $cam_nr) {
+                    print '<a href="#" class="update_param" id="a~' .
+                        $cam_nr . '~' . $parname1 . '~' . '~' . $def_val . '~' . $categories . '">' .
+                        /*                          ^^^^^^^^^
+                         *                          XXX - empty value */
+                        '<img src="' . $conf['prefix'] . '/img/trash_24x24.png" title="' . $strReset . '" ' .
+                        'alt="reset" width="24" height="24" style="vertical-align: bottom;" />' .
+                        "</a>\n";
+                }
+            }
+            if ($cam_nr > 0 && !is_empty_var($val) && $val !== $VALUE) {
                 print '<a href="#" class="update_param" id="a~' .
-                    $cam_nr . '~' . $parname1 . '~' . '~' . $def_val . '~' . $categories . '">' .
-                    /*                          ^^^^^^^^^
-                     *                          XXX - empty value */
-                    '<img src="' . $conf['prefix'] . '/img/trash_24x24.png" title="' . $strReset . '" ' .
-                    'alt="reset" width="24" height="24" style="vertical-align: bottom;" />' .
+                    $cam_nr . '~' . $parname1 . '~' . $val . '~' . $def_val . '~' . $categories . '">' .
+                    /* ^^^^^^^^^ */
+                    '<img src="' . $conf['prefix'] . '/img/pin_black_24x24.png" title="' . $strSetToCam . '" ' .
+                    'alt="set" width="24" height="24" style="vertical-align: bottom;" />' .
                     "</a>\n";
             }
-        }
-        if ($cam_nr > 0 && !is_empty_var($val) && $val !== $VALUE) {
-            print '<a href="#" class="update_param" id="a~' .
-                $cam_nr . '~' . $parname1 . '~' . $val . '~' . $def_val . '~' . $categories . '">' .
-                                               /* ^^^^^^^^^ */
-                '<img src="' . $conf['prefix'] . '/img/pin_black_24x24.png" title="' . $strSetToCam . '" ' .
-                'alt="set" width="24" height="24" style="vertical-align: bottom;" />' .
-                "</a>\n";
         }
         print '</div></div></td>' . "\n";
         print '<td>' . $COMMENT . '</td>' . "\n";

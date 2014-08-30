@@ -80,7 +80,6 @@ if (isset($cmd)) {
         exit;
     }
     switch ($cmd) {
-
         case '_ADD_NEW_MON_':
             require('web_active_pipe.inc.php');
 
@@ -97,13 +96,15 @@ if (isset($cmd)) {
 
                 //формирование массива альтернативных источников видео
                 $cams_srcs = array();
-                foreach ($GCP_cams_params as $key => $val) {
-                    $cams_srcs[$key] = array();
-                    $cams_srcs[$key]['avregd'] = 'true';
-                    $cams_srcs[$key]['alt_1'] = ($val['cell_url_alt_1'] != null
-                        || $val['fs_url_alt_1'] != null) ? 'true' : 'false';
-                    $cams_srcs[$key]['alt_2'] = ($val['cell_url_alt_2'] != null
-                        || $val['fs_url_alt_2'] != null) ? 'true' : 'false';
+                foreach ($cams_params as $__cam_nr => $cam_detail) {
+                    $cams_srcs[$__cam_nr] = array();
+                    $cams_srcs[$__cam_nr]['avregd'] = 'true';
+                    $cams_srcs[$__cam_nr]['alt_1'] = (!is_empty_var($cam_detail['cell_url_alt_1']['v']) ||
+                        !is_empty_var($cam_detail['fs_url_alt_1']['v'])) ?
+                        'true' : 'false';
+                    $cams_srcs[$__cam_nr]['alt_2'] = (!is_empty_var($cam_detail['cell_url_alt_2']['v']) ||
+                        !is_empty_var($cam_detail['fs_url_alt_2']['v'])) ?
+                        'true' : 'false';
                 }
                 print '<script type="text/javascript">' . "\n";
                 print 'var cams_alt =' . json_encode($cams_srcs) . ";\n";
@@ -280,3 +281,4 @@ if (isset($cmd)) {
 }
 
 require('../foot.inc.php');
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */

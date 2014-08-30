@@ -28,10 +28,16 @@
 require('head_pda.inc.php');
 session_write_close();
 require('../lib/cams_main_detail.inc.php');
-
-$GCP_query_param_list = array('work', 'allow_networks', 'text_left', 'geometry', 'Hx2');
 require('../lib/get_cams_params.inc.php');
-if ($GCP_cams_nr == 0) {
+
+$cams_params = get_cams_params(array(
+    'work',
+    'allow_networks',
+    'text_left',
+    'geometry',
+    'Hx2'));
+$cams_nbr = count($cams_params) - 1;
+if ($cams_nbr <= 0) {
     die('There are no available cameras!');
 }
 
@@ -46,7 +52,7 @@ print '<tr bgcolor="' . $header_color . '">' . "\n";
 printf(
     '<th><input type="checkbox" id="all_cams" value="1" %s title="Выделить/снять все" ' .
     'onchange="sel_desel(this);"></th>' . "\n",
-    (!isset($cams) || count($cams) === $GCP_cams_nr) ? 'checked' : ''
+    (!isset($cams) || count($cams) === $cams_nbr) ? 'checked' : ''
 );
 print '<th nowrap>&nbsp;№&nbsp;</th>' . "\n";
 print '<th>' . $strCam . '</th>' . "\n";
@@ -55,12 +61,15 @@ print '</tr>' . "\n";
 $show_colums = array(
     'ICONS' => false,
     'CAM_NR' => true,
-    'NAME' => array('href' => 'online.php', 'title' => 'View online'),
+    'NAME' => array('href' => 'online.php', 'title' => 'Наблюдать камеру'),
     'SRC' => false,
     'RESOLUTION' => false,
 );
-reset($GCP_cams_params);
-while (list($__cam_nr, $cam_detail) = each($GCP_cams_params)) {
+
+foreach ($cams_params as $__cam_nr => $cam_detail) {
+    if ($__cam_nr <= 0) {
+        continue;
+    }
     print "<tr>\n";
     $checked = (!isset($cams) || in_array($__cam_nr, $cams)) ? 'checked' : '';
     print "<td><input type='checkbox' name='cams[]' value='$__cam_nr' $checked></td>\n";
@@ -93,7 +102,7 @@ print "<fieldset><legend>Поиск по архиву</legend>\n";
 print "<table cellpadding='2' border='0' cellspacing='0'>\n";
 print "<thead>\n";
 print "<tr><th>&nbsp;</th><th>$strYear</th><th>$strMonth</th><th>$strDay</th><th>$strHour</th>
-<th>$strMinute</th></tr>\n";
+    <th>$strMinute</th></tr>\n";
 print "</thead>\n";
 print "<tbody>\n";
 print "<tr valign='bottom'><td align='right'>$strFrom</td>";
@@ -132,18 +141,19 @@ print "</form>\n";
 ?>
 
 <script type="text/javascript">
-    var cams_chkboxes = null;
-    function sel_desel(elem) {
-        var checked = elem.checked;
-        if (cams_chkboxes == null) {
-            cams_chkboxes = document.getElementsByName('cams[]');
-        }
-        for (var i = 0, len = cams_chkboxes.length; i < len; i++)
-            cams_chkboxes[i].checked = checked;
-        return true;
+var cams_chkboxes = null;
+function sel_desel(elem) {
+    var checked = elem.checked;
+    if (cams_chkboxes == null) {
+        cams_chkboxes = document.getElementsByName('cams[]');
     }
+    for (var i = 0, len = cams_chkboxes.length; i < len; i++)
+        cams_chkboxes[i].checked = checked;
+    return true;
+}
 </script>
 
 <?php
 
 require('../foot.inc.php');
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */

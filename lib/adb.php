@@ -858,8 +858,8 @@ class Adb
         $__EVENTS_QUERY_INFO['timebegin'] = $timebegin;
         $__EVENTS_QUERY_INFO['timeend'] = $timeend;
         $__EVENTS_QUERY_INFO['dayofweek'] = $dayofweek;
-        $__EVENTS_QUERY_INFO['time_in_day_begin'] = $time_in_day_begin;
-        $__EVENTS_QUERY_INFO['time_in_day_end'] = $time_in_day_end;
+        @$__EVENTS_QUERY_INFO['time_in_day_begin'] = $time_in_day_begin;
+        @$__EVENTS_QUERY_INFO['time_in_day_end'] = $time_in_day_end;
         return $events;
     }
 
@@ -1010,9 +1010,9 @@ class Adb
             'ON ( c1.CAM_NR = c2.CAM_NR AND c1.BIND_MAC=c2.BIND_MAC AND c2.PARNAME = \'text_left\' ) ' .
             'WHERE c1.BIND_MAC=\'local\' AND';
         if (empty($cams_list)) {
-            $query .= ' c1.CAM_NR>0';
+            $query .= ' c1.CAM_NR > 0';
         } else {
-            $query .= " c1.CAM_NR in($cams_list)";
+            $query .= " c1.CAM_NR in ($cams_list)";
         }
 
         $query .= ' AND c1.PARNAME = \'work\' ' .

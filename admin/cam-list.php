@@ -7,6 +7,7 @@
 $lang_file = '_admin_cams.php';
 $USE_JQUERY = true;
 require('../head.inc.php');
+require('../lib/get_cams_params.inc.php');
 require('../lib/cams_main_detail.inc.php');
 
 echo '<h1>' . sprintf($r_cam_list, $named, $sip) . '</h1>' . "\n";
@@ -56,8 +57,7 @@ if (!isset($cam_nr)) {
         }
         echo "\n</div>\n</div>\n";
     }
-
-    $GCP_query_param_list = array(
+    $cams_params = get_cams_params(array(
         'work',
         'video_src',
         'audio_src',
@@ -76,14 +76,14 @@ if (!isset($cam_nr)) {
         'text_left',
         'rec_mode',
         'allow_local',
-        'allow_networks'
-    );
-    require('../lib/get_cams_params.inc.php');
+        'allow_networks'));
+    $cams_nbr = count($cams_params); /// XXX с дефолтной 0
+
     if ($install_user) {
         print '<p align="center"><a href="' . $conf['prefix'] . '/admin/cam-addnew.php">' . $l_cam_addnew
             . '</a></p>' . "\n";
     }
-    if ($GCP_cams_nr > 0) {
+    if (count($cams_params) > 0) {
         /* Printing results in HTML */
         $show_colums = array(
             'ICONS' => false,
@@ -107,35 +107,9 @@ if (!isset($cam_nr)) {
         print '<th>' . $strGeo . '</th>' . "\n";
         print '<th>' . $strRecording . '</th>' . "\n";
         print '</tr>' . "\n";
-
-        print '<tr>' . "\n";
-        if ($admin_user) {
-            if ($install_user) {
-                print '<td>&nbsp;</td>' . "\n";
-            }
-
-            print '<td align="center" valign="center"><a href="./cam-tune.php?cam_nr=0">' .
-                '<img width="24" height="24" src="' . $conf['prefix'] . '/img/gearwheel.png" '.
-                'title="' . $strTune . '" alt="' . $strTune . '" />' .
-                '</a></td>' . "\n";
-        }
-        $__cam_nr = 0;
-        $cam_detail = & $GCP_def_pars;
-        print_cam_detail_row($conf, $__cam_nr, $cam_detail, $show_colums);
-        print "</tr>\n";
-
         $r_count = 0;
-        reset($GCP_cams_params);
-
-        //-->
-        /*
-        print '<pre>';
-        var_dump($GCP_cams_params);
-        print '</pre>';
-        */
-        //-->
-        while (list($__cam_nr, $cam_detail) = each($GCP_cams_params)) {
-            $cam_name = getCamName($cam_detail['text_left']);
+        foreach ($cams_params as $__cam_nr => $cam_detail) {
+            $cam_name = getCamName($cam_detail['text_left']['v']);
             $r_count++;
             if ($r_count % 2) {
                 print '<tr style="background-color:#FCFCFC">' . "\n";
@@ -143,7 +117,7 @@ if (!isset($cam_nr)) {
                 print "<tr>\n";
             }
             if ($install_user) {
-                if ($r_count == $GCP_cams_nr) {
+                if ($r_count === $cams_nbr) {
                     // удалить последнюю камеру
                     $del_href = sprintf(
                         '%s?cmd=DEL&cam_nr=%d&cam_name=%s',
@@ -168,7 +142,7 @@ if (!isset($cam_nr)) {
                       '</a></td>' . "\n";
             }
             //вывести инфу о камере
-            print_cam_detail_row($conf, $__cam_nr, $cam_detail, $show_colums);
+            print_cam_detail_row($conf, $__cam_nr, $cam_detail, $show_colums, true);
 
             print "</tr>\n";
         }

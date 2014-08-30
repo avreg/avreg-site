@@ -2024,7 +2024,6 @@ var matrix = {
 
     //создание недостающих ячеек (при модификации матрицы в ходе ресайза)
     create_cell: function (el_num, att_mode) {
-
         var height, width; //размер ячейки
         var img_height, img_width;//размер изображения
 
@@ -2062,7 +2061,7 @@ var matrix = {
             var extension = value[2].match(reg);
             extension = extension[extension.length - 1].slice(1);
 
-            html += '>' + matrix.cameras[value[5]].text_left + '<br /> ' + value[7] + ': ' + extension;
+            html += '>' + matrix.cameras[value[5]].text_left.v + '<br /> ' + value[7] + ': ' + extension;
             if (value[7] == 'image') {
                 html += ' (' + value[6] + ') <br />';
             } else {
@@ -2089,7 +2088,7 @@ var matrix = {
             var value = matrix.events[el_num];
 
             //формирование html ToolTip
-            var ttl = '<tr><td>Камера</td> <td>' + matrix.cameras[value[5]].text_left + '</td> </tr>';
+            var ttl = '<tr><td>Камера</td> <td>' + matrix.cameras[value[5]].text_left.v + '</td> </tr>';
             if (value[7] == 'image') {
                 ttl += '<tr><td>Файл</td>   <td>' + value[2].slice((value[2].lastIndexOf('/') + 1)) + '</td> </tr>';
                 ttl += '<tr><td>Размер</td> <td>' + value[6] + ' [' + value[4] + 'x' + value[3] + ']</td> </tr>';
@@ -2390,7 +2389,7 @@ var matrix = {
                         var extension = value[2].match(reg);
                         extension = extension[extension.length - 1].slice(1);
 
-                        html += '>' + matrix.cameras[value[5]].text_left + '<br />' + value[7] + ': ' + extension;
+                        html += '>' + matrix.cameras[value[5]].text_left.v + '<br />' + value[7] + ': ' + extension;
 
                         if (value[7] == 'image') {
                             html += ' (' + value[6] + ') <br />';
@@ -2445,7 +2444,7 @@ var matrix = {
                         var value = matrix.events[i];
 
                         //формирование html ToolTip
-                        var ttl = '<tr><td>Камера</td> <td>' + matrix.cameras[value[5]].text_left + '</td> </tr>';
+                        var ttl = '<tr><td>Камера</td> <td>' + matrix.cameras[value[5]].text_left.v + '</td> </tr>';
                         if (value[7] == 'image') {
                             ttl += '<tr><td>Файл</td>   <td>' + value[2].slice((value[2].lastIndexOf('/') + 1)) + '</td> </tr>';
                             ttl += '<tr><td>Размер</td> <td>' + value[6] + ' [' + value[4] + 'x' + value[3] + ']</td> </tr>';
@@ -2608,7 +2607,7 @@ var matrix = {
                         extension = extension[extension.length - 1].slice(1);
 
                         //формирование html ToolTip
-                        var ttl = '<tr><td>Камера</td> <td>' + matrix.cameras[value[5]].text_left + '</td> </tr>';
+                        var ttl = '<tr><td>Камера</td> <td>' + matrix.cameras[value[5]].text_left.v + '</td> </tr>';
                         if (value[7] == 'image') {
                             ttl += '<tr><td>Файл</td>   <td>' + value[2].slice((value[2].lastIndexOf('/') + 1)) + '</td> </tr>';
                             ttl += '<tr><td>Размер</td> <td>' + value[6] + ' [' + value[4] + 'x' + value[3] + ']</td> </tr>';
@@ -2627,7 +2626,7 @@ var matrix = {
                             .empty()
                             .html(function () {
                                 //формирование информационной строки
-                                var info_html = matrix.cameras[value[5]].text_left + '<br />' + value[7] + ': ' + extension;
+                                var info_html = matrix.cameras[value[5]].text_left.v + '<br />' + value[7] + ': ' + extension;
                                 if (value[7] == 'image') {
                                     info_html += ' (' + value[6] + ') <br />';
                                 } else {

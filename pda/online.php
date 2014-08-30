@@ -11,19 +11,23 @@ $link_javascripts = array();
 $pageTitle = sprintf('Камера №%u', $_GET['camera']);
 // $body_onload='body_loaded();';
 require('head_pda.inc.php');
+require_once('../lib/get_cam_url.php');
+require('../lib/get_cams_params.inc.php');
 
 if (!isset($camera) || !settype($camera, 'int')) {
     die('should use "camera" cgi param');
 }
 
-require_once('../lib/get_cam_url.php');
-
-$GCP_query_param_list = array('work', 'allow_networks', 'text_left', 'geometry', 'Hx2');
-require_once('../lib/get_cams_params.inc.php');
-$cam_conf = & $GCP_cams_params[$camera];
-$cam_name = $cam_conf['text_left'];
-list($w, $h) = sscanf($cam_conf['geometry'], '%ux%u');
-if ($cam_conf['Hx2']) {
+$cams_params = get_cams_params(array(
+    'work',
+    'allow_networks',
+    'text_left',
+    'geometry',
+    'Hx2'));
+$cam_conf = & $cams_params[$camera];
+$cam_name = $cam_conf['text_left']['v'];
+list($w, $h) = sscanf($cam_conf['geometry']['v'], '%ux%u');
+if ($cam_conf['Hx2']['v']) {
     $h *= 2;
 }
 $cam_url = "../lib/img_resize.php?camera=$camera&prop=false";
@@ -76,22 +80,22 @@ if ($width == 'FS') {
 ?>
 
 <script type="text/javascript">
-    //переменные масштаба изображений
-    var isFs =
+//переменные масштаба изображений
+var isFs =
     <?php print  $isFs."\n"; ?>;
-    var reload = <?php print $reload."\n"; ?>;
-    var scale = <?php print $scale."\n"; ?>;
-    var SELF_ADR = <?php print "\"".$_SERVER['REQUEST_URI']."\"" ; ?>;
-    var TOTAL_SCLS = <?php print sizeof($tumb_sizes); ?>; //кол-во предопределенных значений масштаба
+var reload = <?php print $reload."\n"; ?>;
+var scale = <?php print $scale."\n"; ?>;
+var SELF_ADR = <?php print "\"".$_SERVER['REQUEST_URI']."\"" ; ?>;
+var TOTAL_SCLS = <?php print sizeof($tumb_sizes); ?>; //кол-во предопределенных значений масштаба
 
-    function img_evt(e_id) {
-        if ((typeof window.img_evt2).charAt(0) != 'u') {
-            img_evt2(e_id);
-        }
-        else {
-            IMG_EVT_OCCURED = e_id;
-        }
+function img_evt(e_id) {
+    if ((typeof window.img_evt2).charAt(0) != 'u') {
+        img_evt2(e_id);
     }
+    else {
+        IMG_EVT_OCCURED = e_id;
+    }
+}
 </script>
 
 <?php
@@ -130,48 +134,18 @@ if (!isset($refresh)) {
         ($reload != 'false') ? 'display:none;' : '',
         $cam_name
     );
-
-    //		//установка плеера
-    //    $cam_src = sprintf('src="%s&width=%u&height=%u"',
-    //    $cam_url,
-    //    $width,
-    //    $heigt,
-    //    $cam_name
-    //    );
-
     ?>
     <div id="view_cam_"></div>
 
     <script type="text/javascript">
 
-        $(function () {
-            $('body').css({'overflow': 'hidden'});
+    $(function () {
+        $('body').css({'overflow': 'hidden'});
 
-            corr_h = $('#div_scl').height() + $('#rf_frm').height();
-            set_full_screen();
+        corr_h = $('#div_scl').height() + $('#rf_frm').height();
+        set_full_screen();
 
-        });
-
-        $(document).ready(function () {
-            /*
-             //Установка плеера
-             $('#view_cam_')
-             .height(
-            <?php print $heigt;?>)
-             .width(
-            <?php print $width+5;?>)
-             .addPlayer({
-             'src':
-            <?php print $cam_src;?> ,
-             'mediaType':'pseudo',
-             'controls':'off',
-             'freq': 1000000
-             })
-             .aplayerSetSrcSizes();
-             $('.ElMedia').css({'border':'1px solid black'});
-             */
-        });
-
+    });
     </script>
 
     <form id="rf_frm" action="online.php" method="GET">
@@ -190,6 +164,7 @@ if (!isset($refresh)) {
             </a>
         </div>
     </form>
+
     <?php
 
 } else {
@@ -200,78 +175,80 @@ if (!isset($refresh)) {
     $cam_url .= "&width=$width&height=$heigt&scl=&$scale";
     printf(
         '<IMG class="cam_snapshot" id="viewport" src="%s"
-              alt="Загружается изображение с %s ..."
-              border="1px"
-              onclick="refresh_img();" onload="img_evt(0);" onerror="img_evt(1);" oabort="img_evt(2);">',
+        alt="Загружается изображение с %s ..."
+        border="1px"
+        onclick="refresh_img();" onload="img_evt(0);" onerror="img_evt(1);" oabort="img_evt(2);">',
         $cam_url,
         $cam_name
     );
+
     ?>
 
     <script type="text/javascript">
-        $(function () {
-            $('body').css({'overflow': 'hidden'});
-            CAM_INFO['url'] = $(IMG).attr('src');
-        });
+    $(function () {
+        $('body').css({'overflow': 'hidden'});
+        CAM_INFO['url'] = $(IMG).attr('src');
+    });
 
     </script>
 
     <?php
+
 }
 ?>
 
 <script type="text/javascript">
-    var refresh_mode = <?php echo (!isset($refresh) ? '-1' : $refresh) ?>;
-    var CAM_INFO = {
-        'nr': <?php echo $camera; ?>,
-        'name': '<?php echo $cam_name; ?>',
-        'active': <?php echo ($cam_conf['work'] && $cam_conf['allow_networks']) ? 'true' : 'false' ?>,
-        'width': <?php echo $w; ?>,
-        'height': <?php echo $h; ?>,
-        'url': '<?php echo $cam_url; ?>'
-    };
+var refresh_mode = <?php echo (!isset($refresh) ? '-1' : $refresh) ?>;
+var CAM_INFO = {
+'nr': <?php echo $camera; ?>,
+    'name': '<?php echo $cam_name; ?>',
+    'active': <?php echo ($cam_conf['work']['v'] && $cam_conf['allow_networks']['v']) ? 'true' : 'false' ?>,
+    'width': <?php echo $w; ?>,
+    'height': <?php echo $h; ?>,
+    'url': '<?php echo $cam_url; ?>'
+};
 
-    var IMG = document.getElementById('viewport'); // FIXME if isn't DOM ready?
-    var BTSUBMIT = document.getElementById('btSubmit');
-    var REFRESH = document.getElementById('refresh');
+var IMG = document.getElementById('viewport'); // FIXME if isn't DOM ready?
+var BTSUBMIT = document.getElementById('btSubmit');
+var REFRESH = document.getElementById('refresh');
 
-    function refresh_img() {
-        var now = new Date();
-        var update_url = CAM_INFO['url'] + '&_=' + now.getTime(); // prevent local browser caching
-        IMG.setAttribute('src', update_url);
+function refresh_img() {
+    var now = new Date();
+    var update_url = CAM_INFO['url'] + '&_=' + now.getTime(); // prevent local browser caching
+    IMG.setAttribute('src', update_url);
 
 
+}
+function img_evt2(e_id) {
+    if (typeof(tmr) != 'undefined') {
+        clearTimeout(tmr);
     }
-    function img_evt2(e_id) {
-        if (typeof(tmr) != 'undefined') {
-            clearTimeout(tmr);
+
+    switch (e_id) {
+    case 0: // onload
+        if (refresh_mode <= 0 /* manual refresh */) {
+            return;
         }
-
-        switch (e_id) {
-            case 0: // onload
-                if (refresh_mode <= 0 /* manual refresh */) {
-                    return;
-                }
-                tmr = setTimeout('refresh_img();', refresh_mode * 500);
-                break;
-            case 1: // onerror
-                IMG.setAttribute('alt', 'Ошибка загрузки изображения');
-            case 2: // onabort
-                if (e_id != 1) {
-                    IMG.setAttribute('alt', 'Загрузка изображения прервана пользователем');
-                }
-                IMG.style.color = 'Red';
-                BTSUBMIT.setAttribute('disabled', true);
-                REFRESH.setAttribute('disabled', true);
-                break;
-            default:
-                alert('unknown event id ' + e_id);
+        tmr = setTimeout('refresh_img();', refresh_mode * 500);
+        break;
+    case 1: // onerror
+        IMG.setAttribute('alt', 'Ошибка загрузки изображения');
+    case 2: // onabort
+        if (e_id != 1) {
+            IMG.setAttribute('alt', 'Загрузка изображения прервана пользователем');
         }
+        IMG.style.color = 'Red';
+        BTSUBMIT.setAttribute('disabled', true);
+        REFRESH.setAttribute('disabled', true);
+        break;
+    default:
+        alert('unknown event id ' + e_id);
     }
-    /* если img_evt() успел сработать до загрузки страницы FIXME правильней исп. ready или хотя бы body_onload */
-    if ((typeof IMG_EVT_OCCURED).charAt(0) != 'u') {
-        img_evt2(IMG_EVT_OCCURED);
-    }
+}
+/* если img_evt() успел сработать до загрузки страницы FIXME правильней исп. ready или хотя бы body_onload */
+if ((typeof IMG_EVT_OCCURED).charAt(0) != 'u') {
+    img_evt2(IMG_EVT_OCCURED);
+}
 
 </script>
 
@@ -279,3 +256,4 @@ if (!isset($refresh)) {
 
 // tohtml($_SESSION);
 require('../foot.inc.php');
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */

@@ -36,6 +36,7 @@ $ie6_quirks_mode = true;
 $IE_COMPAT='10';
 $lang_file = '_online.php';
 require('../head.inc.php');
+require('../lib/get_cams_params.inc.php');
 
 //получение пользовательских раскладок
 $user_layouts = array();
@@ -238,7 +239,7 @@ $major_win_cam_geo = null;
 $major_win_nr = $l_defs[4] - 1;
 $msie_addons_scripts = array();
 
-$GCP_query_param_list = array(
+$cams_params = get_cams_params(array(
     'work',
     'video_src',
     'InetCam_IP',
@@ -258,10 +259,10 @@ $GCP_query_param_list = array(
     'fs_url_alt_2',
     'cell_url_alt_2',
     'ptz'
-);
-require('../lib/get_cams_params.inc.php');
+));
+$cams_nbr = count($cams_params) - 1; /// XXX без дефолтной 0
 
-if ($GCP_cams_nr == 0) {
+if ($cams_nbr <= 0) {
     die('There are no available cameras!');
 }
 
@@ -283,13 +284,13 @@ print "var strToolbarControls = " . json_encode($strToolbarControls) . ";\n";
 //для js сопоставление камер и источников
 $WINS_DEF = array();
 for ($win_nr = 0; $win_nr < $wins_nr; $win_nr++) {
-    if (empty($win_cams[$win_nr]) || !array_key_exists($win_cams[$win_nr][0], $GCP_cams_params)) {
+    if (empty($win_cams[$win_nr]) || !array_key_exists($win_cams[$win_nr][0], $cams_params)) {
         continue;
     } /// DeviceACL
     $cam_nr = $win_cams[$win_nr][0];
     $temp[$win_nr] = $cam_nr;
 
-    list($width, $height) = explode('x', $GCP_cams_params[$cam_nr]['geometry']);
+    list($width, $height) = explode('x', $cams_params[$cam_nr]['geometry']['v']);
     settype($width, 'integer');
     settype($height, 'integer');
     if (empty($width)) {
@@ -299,7 +300,7 @@ for ($win_nr = 0; $win_nr < $wins_nr; $win_nr++) {
         $height = 480;
     }
 
-    if (!empty($GCP_cams_params[$cam_nr]['Hx2'])) {
+    if (!empty($cams_params[$cam_nr]['Hx2']['v'])) {
         $height *= 2;
     }
 
@@ -325,15 +326,15 @@ for ($win_nr = 0; $win_nr < $wins_nr; $win_nr++) {
             $cam_url = get_alt_url(
                 $conf,
                 $cam_nr,
-                $GCP_cams_params,
-                $GCP_cams_params[$cam_nr]['cell_url_alt_1']
+                $cams_params,
+                $cams_params[$cam_nr]['cell_url_alt_1']['v']
             );
             $cam_view_srcs['cell'] = $cam_url;
             $cam_view_srcs['fs'] = get_alt_url(
                 $conf,
                 $cam_nr,
-                $GCP_cams_params,
-                $GCP_cams_params[$cam_nr]['fs_url_alt_1']
+                $cams_params,
+                $cams_params[$cam_nr]['fs_url_alt_1']['v']
             );
             $cam_view_srcs['stop_url'] = false;
             break;
@@ -342,15 +343,15 @@ for ($win_nr = 0; $win_nr < $wins_nr; $win_nr++) {
             $cam_url = get_alt_url(
                 $conf,
                 $cam_nr,
-                $GCP_cams_params,
-                $GCP_cams_params[$cam_nr]['cell_url_alt_2']
+                $cams_params,
+                $cams_params[$cam_nr]['cell_url_alt_2']['v']
             );
             $cam_view_srcs['cell'] = $cam_url;
             $cam_view_srcs['fs'] = get_alt_url(
                 $conf,
                 $cam_nr,
-                $GCP_cams_params,
-                $GCP_cams_params[$cam_nr]['fs_url_alt_2']
+                $cams_params,
+                $cams_params[$cam_nr]['fs_url_alt_2']['v']
             );
             $cam_view_srcs['stop_url'] = false;
             break;
@@ -361,17 +362,17 @@ for ($win_nr = 0; $win_nr < $wins_nr; $win_nr++) {
     }
 
     $direct_link = null;
-    if ($operator_user && (@$GCP_cams_params[$cam_nr]['video_src'] == 'rtsp'
-        || @$GCP_cams_params[$cam_nr]['video_src'] == 'http')) {
-        if (@empty($GCP_cams_params[$cam_nr]['ipcam_interface_url'])) {
-            $direct_link = 'http://' . $GCP_cams_params[$cam_nr]['InetCam_IP'];
+    if ($operator_user && (@$cams_params[$cam_nr]['video_src']['v'] == 'rtsp'
+        || @$cams_params[$cam_nr]['video_src']['v'] == 'http')) {
+        if (@empty($cams_params[$cam_nr]['ipcam_interface_url']['v'])) {
+            $direct_link = 'http://' . $cams_params[$cam_nr]['InetCam_IP']['v'];
         } else {
-            $direct_link = $GCP_cams_params[$cam_nr]['ipcam_interface_url'];
+            $direct_link = $cams_params[$cam_nr]['ipcam_interface_url']['v'];
         }
     }
 
-    if ($operator_user && !empty($GCP_cams_params[$cam_nr]['ptz'])) {
-        $ptz_handler = $GCP_cams_params[$cam_nr]['ptz'];
+    if ($operator_user && !empty($cams_params[$cam_nr]['ptz']['v'])) {
+        $ptz_handler = $cams_params[$cam_nr]['ptz']['v'];
     } else {
         $ptz_handler = null;
     }
@@ -384,7 +385,7 @@ for ($win_nr = 0; $win_nr < $wins_nr; $win_nr++) {
         'main' => (($l_defs[4] - 1) == $win_nr ? 1 : 0),
         'cam' => array(
             'nr' => $cam_nr,
-            'name' => getCamName($GCP_cams_params[$cam_nr]['text_left']),
+            'name' => getCamName($cams_params[$cam_nr]['text_left']['v']),
             'urls' =>  $cam_view_srcs,
             'orig_w' => $width,
             'orig_h' => $height,

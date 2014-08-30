@@ -132,15 +132,16 @@ class Gallery
             return;
         }
 
-        global $GCP_cams_params;
-        $cameras = implode(',', array_keys($GCP_cams_params));
+        global $cams_params; // offline/gallery.php
+        global $cams_array;  // offline/gallery.php
+        $cameras = implode(',', $cams_array);
         // TODO make 1 select
-        $count_event = $this->db->galleryGetCountEvent(array('cameras' => array_keys($GCP_cams_params)));
-        $count_tree_event = $this->db->galleryGetCountTreeEvent(array('cameras' => array_keys($GCP_cams_params)));
-        $last_event_date = $this->db->galleryGetLastEventDate(array('cameras' => array_keys($GCP_cams_params)));
-        $last_tree_date = $this->db->galleryGetLastTreeEventDate(array('cameras' => array_keys($GCP_cams_params)));
-        $oldest_event_date = $this->db->galleryGetOldestEventDate(array('cameras' => array_keys($GCP_cams_params)));
-        $oldest_tree_date = $this->db->galleryGetOldestTreeEventDate(array('cameras' => array_keys($GCP_cams_params)));
+        $count_event = $this->db->galleryGetCountEvent(array('cameras' => $cams_array));
+        $count_tree_event = $this->db->galleryGetCountTreeEvent(array('cameras' => $cams_array));
+        $last_event_date = $this->db->galleryGetLastEventDate(array('cameras' => $cams_array));
+        $last_tree_date = $this->db->galleryGetLastTreeEventDate(array('cameras' => $cams_array));
+        $oldest_event_date = $this->db->galleryGetOldestEventDate(array('cameras' => $cams_array));
+        $oldest_tree_date = $this->db->galleryGetOldestTreeEventDate(array('cameras' => $cams_array));
 
         if ($count_event != $count_tree_event  ||
             $last_tree_date < $last_event_date ||
@@ -183,7 +184,7 @@ class Gallery
         $key = md5($cameras . '-' . $last_tree_date);
         $tree_events_result = $this->cache->get($key);
         if (empty($tree_events_result)) {
-            $tree_events_result = $this->db->galleryGetTreeEvents(array('cameras' => array_keys($GCP_cams_params)));
+            $tree_events_result = $this->db->galleryGetTreeEvents(array('cameras' => $cams_array));
             if (!$this->cache->check($key)) {
                 $this->cache->lock($key);
                 $tree_events_keys = $this->cache->get('tree_events_keys');
@@ -205,7 +206,7 @@ class Gallery
         $this->result = array(
             'status' => 'success',
             'tree_events' => $tree_events_result,
-            'cameras' => $GCP_cams_params,
+            'cameras' => $cams_params,
             'last_tree_date' => $last_tree_date,
             'count_event' => $count_event,
             'count_tree_event' => $count_tree_event,
@@ -263,8 +264,8 @@ class Gallery
     // функция полного обновления деоева события
     public function reindexTreeEvents($par_hash)
     {
-        global $GCP_cams_params;
-        $par_hash['cameras'] = implode(',', array_keys($GCP_cams_params));
+        global $cams_array; // offline/gallery.php
+        $par_hash['cameras'] = implode(',', $cams_array);
         $this->updateTreeEvents($par_hash);
         $par_hash['initially'] = 'yes'; // чтобы getTreeEvents() возвратил данные
         $this->getTreeEvents($par_hash);

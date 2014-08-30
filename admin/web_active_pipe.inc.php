@@ -115,7 +115,8 @@ if (isset($_POST) && is_array($_POST)) {
 print '</form>' . "\n";
 
 // Определение перечня используемых параметров
-$GCP_query_param_list = array(
+require('../lib/get_cams_params.inc.php');
+$cams_params = get_cams_params(array(
     'work',
     'text_left',
     'video_src',
@@ -135,15 +136,15 @@ $GCP_query_param_list = array(
     'fs_url_alt_1',
     'cell_url_alt_2',
     'fs_url_alt_2'
-);
-require('../lib/get_cams_params.inc.php');
+));
+$cams_nbr = count($cams_params) - 1; /// XXX без дефолтной 0
 
 $active_pipes = array();
 $active_pipes_nr = 0;
 
 $active_pipes_alt_src = array();
 
-if ($GCP_cams_nr > 0) {
+if ($cams_nbr > 0) {
     // строим список активных для просмотра пайпов
     if ($pipes_show > 0) {
         /*
@@ -175,17 +176,20 @@ if ($GCP_cams_nr > 0) {
        'RESOLUTION' => true,
     );
 
-    reset($GCP_cams_params);
-    while (list($__cam_nr, $cam_detail) = each($GCP_cams_params)) {
-        $cam_name = getCamName($GCP_cams_params[$__cam_nr]['text_left']);
-        $c_work = intval($GCP_cams_params[$__cam_nr]['work']);
-        $c_video_src = intval(!is_empty_var($GCP_cams_params[$__cam_nr]['video_src']));
-        $c_allow_networks = intval($GCP_cams_params[$__cam_nr]['allow_networks']);
+    foreach ($cams_params as $__cam_nr => $cam_detail) {
+        /* пропускаем шаблонную */
+        if ($__cam_nr == 0) {
+            continue;
+        }
+        $cam_name = getCamName($cam_detail['text_left']['v']);
+        $c_work = intval($cam_detail['work']['v']);
+        $c_video_src = intval(!is_empty_var($cam_detail['video_src']['v']));
+        $c_allow_networks = intval($cam_detail['allow_networks']['v']);
 
-        $cell_alt_1 = & $GCP_cams_params[$__cam_nr]['cell_url_alt_1'];
-        $fs_alt_1 = & $GCP_cams_params[$__cam_nr]['fs_url_alt_1'];
-        $cell_alt_2 = & $GCP_cams_params[$__cam_nr]['cell_url_alt_2'];
-        $fs_alt_2 = & $GCP_cams_params[$__cam_nr]['fs_url_alt_2'];
+        $cell_alt_1 = & $cam_detail['cell_url_alt_1']['v'];
+        $fs_alt_1 = & $cam_detail['fs_url_alt_1']['v'];
+        $cell_alt_2 = & $cam_detail['cell_url_alt_2']['v'];
+        $fs_alt_2 = & $cam_detail['fs_url_alt_2']['v'];
 
         //условие доступнсти камер
         if ($c_work && $c_video_src && $c_allow_networks) {

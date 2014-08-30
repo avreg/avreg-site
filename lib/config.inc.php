@@ -1365,15 +1365,15 @@ function getSelectHtmlByName(
             $a .= '<select class="mon_wins_type" name="mon_wins_type[]" size="' . $_size . '" ' . $_title
                 . ' style="font-size:8pt; visibility:' . $visi_val . ';" >' . "\n";
 
-            if (isset($cams_srcs[$selected[0]]['avregd']) && $cams_srcs[$selected[0]]['avregd'] == 'true') {
+            if (isset($cams_srcs[$selected[0]]['avregd']) && $cams_srcs[$selected[0]]['avregd']) {
                 $a .= '<option ' . ($set_src_type == 1 ? 'selected="selected"' : '') . ' value="1">avregd</option>' .
                     "\n";
             }
-            if (isset($cams_srcs[$selected[0]]['alt_1']) && $cams_srcs[$selected[0]]['alt_1'] == 'true') {
+            if (isset($cams_srcs[$selected[0]]['alt_1']) && $cams_srcs[$selected[0]]['alt_1']) {
                 $a .= '<option ' . ($set_src_type == 2 ? 'selected="selected"' : '') . ' value="2">alt 1</option>' .
                     "\n";
             }
-            if (isset($cams_srcs[$selected[0]]['alt_2']) && $cams_srcs[$selected[0]]['alt_2'] == 'true') {
+            if (isset($cams_srcs[$selected[0]]['alt_2']) && $cams_srcs[$selected[0]]['alt_2']) {
                 $a .= '<option ' . ($set_src_type == 3 ? 'selected="selected"' : '') . ' value="3">alt 2</option>' .
                     "\n";
             }
@@ -1778,11 +1778,6 @@ if (isset($_SERVER['PHP_AUTH_USER'])) {
     $login_user_name = & $row['LONGNAME'];
     $login_host = & $remote_addr;
     $allow_cams = parse_dev_acl($user_info['ALLOW_CAMS']);
-    if (is_array($allow_cams) && count($allow_cams) > 0) {
-        $GCP_cams_list = @implode(',', $allow_cams);
-    } else {
-        $GCP_cams_list = null;
-    }
     if ($user_status <= $install_status && !$GuestAuth) {
         $install_user = true;
     }

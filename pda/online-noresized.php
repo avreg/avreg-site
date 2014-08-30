@@ -4,7 +4,6 @@
  * @brief
  */
 $pageTitle = sprintf('Камера №%u', $_GET['camera']);
-// $body_onload='body_loaded();';
 require('head_pda.inc.php');
 
 if (!isset($camera) || !settype($camera, 'int')) {
@@ -13,12 +12,18 @@ if (!isset($camera) || !settype($camera, 'int')) {
 
 require_once('../lib/get_cam_url.php');
 
-$GCP_query_param_list = array('work', 'allow_networks', 'text_left', 'geometry', 'Hx2');
 require_once('../lib/get_cams_params.inc.php');
-$cam_conf = & $GCP_cams_params[$camera];
-$cam_name = $cam_conf['text_left'];
-list($w, $h) = sscanf($cam_conf['geometry'], '%ux%u');
-if ($cam_conf['Hx2']) {
+$cams_params = get_cams_params(array(
+    'work',
+    'allow_networks',
+    'text_left',
+    'geometry',
+    'Hx2'));
+
+$cam_conf = & $cams_params[$camera];
+$cam_name = $cam_conf['text_left']['v'];
+list($w, $h) = sscanf($cam_conf['geometry']['v'], '%ux%u');
+if ($cam_conf['Hx2']['v']) {
     $h *= 2;
 }
 $cam_url = get_avregd_cam_url($conf, $camera, 'jpeg', true);
@@ -64,7 +69,7 @@ if (!isset($refresh)) {
     var CAM_INFO = {
         'nr': <?php echo $camera; ?>,
         'name': '<?php echo $cam_name; ?>',
-        'active': <?php echo ($cam_conf['work'] && $cam_conf['allow_networks']) ? 'true' : 'false'?>,
+        'active': <?php echo ($cam_conf['work']['v'] && $cam_conf['allow_networks']['v']) ? 'true' : 'false'?>,
         'width': <?php echo $w; ?>,
         'height': <?php echo $h; ?>,
         'url': '<?php echo $cam_url; ?>'
@@ -107,13 +112,6 @@ if (!isset($refresh)) {
                 alert('unknown event id ' + e_id);
         }
     }
-
-    // function body_loaded() {
-    //   IMG = document.getElementById('viewport');
-    //   if ( refresh_mode < 0 /* manual */)
-    //      IMG.click(refresh_img);
-    //}
-
 </script>
 
 <?php

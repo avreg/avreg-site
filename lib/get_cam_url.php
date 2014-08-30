@@ -64,7 +64,7 @@ function get_avregd_cam_url($conf, $cam_nr, $media, $append_abenc = false, $quer
 /***
  * Возвращает url медиа-потоков камеры из настроек аврега.
  *
- * @param array $cam_params      масив настроек камеры $GCP_cams_params[$cam_nr],
+ * @param array $cam_params      масив настроек камеры cams_params[$cam_nr] get_cams_params(),
  *                               необходимый для постройки URL
  * @param string $pref_proto_csv CSV-список протоколов в порядке предпочтения
  * @param string $query          query: param1=val1&param2=val2&...
@@ -72,12 +72,12 @@ function get_avregd_cam_url($conf, $cam_nr, $media, $append_abenc = false, $quer
  */
 function build_cam_url($cam_params, $pref_proto_csv = null, $query = null)
 {
-    if (@empty($cam_params['video_src'])) {
+    if (@empty($cam_params['video_src']['v'])) {
         return null;
     }
 
     if (is_empty_var($pref_proto_csv)) {
-        $proto_a = array($cam_params['video_src']);
+        $proto_a = array($cam_params['video_src']['v']);
     } else {
         $proto_a = array_map('trim', explode(',', $pref_proto_csv));
         $proto_a = array_map('strtolower', $proto_a);
@@ -89,32 +89,32 @@ function build_cam_url($cam_params, $pref_proto_csv = null, $query = null)
         $auth = '';
         $__query = '';
         if ($proto_pref === 'rtsp') {
-            if (!@empty($cam_params['InetCam_rtsp_port']) && (int)$cam_params['InetCam_rtsp_port'] !== 554) {
-                $port = ':' . $cam_params['InetCam_rtsp_port'];
+            if (!@empty($cam_params['InetCam_rtsp_port']['v']) && (int)$cam_params['InetCam_rtsp_port']['v'] !== 554) {
+                $port = ':' . $cam_params['InetCam_rtsp_port']['v'];
             }
-            if (!@empty($cam_params['rtsp_play'])) {
-                $req =& $cam_params['rtsp_play'];
+            if (!@empty($cam_params['rtsp_play']['v'])) {
+                $req =& $cam_params['rtsp_play']['v'];
             }
         } elseif ($proto_pref === 'http') {
-            if (!@empty($cam_params['InetCam_http_port']) && (int)$cam_params['InetCam_http_port'] !== 80) {
-                $port = ':' . $cam_params['InetCam_http_port'];
+            if (!@empty($cam_params['InetCam_http_port']['v']) && (int)$cam_params['InetCam_http_port']['v'] !== 80) {
+                $port = ':' . $cam_params['InetCam_http_port']['v'];
             }
-            if (!@empty($cam_params['V.http_get'])) {
-                $req =& $cam_params['V.http_get'];
+            if (!@empty($cam_params['V.http_get']['v'])) {
+                $req =& $cam_params['V.http_get']['v'];
             }
         } else {
             return null;
         }
-        if (@empty($cam_params['InetCam_IP'])) {
+        if (@empty($cam_params['InetCam_IP']['v'])) {
             return null;
         }
 
-        if (!@empty($cam_params['InetCam_USER'])) {
+        if (!@empty($cam_params['InetCam_USER']['v'])) {
             $pwd = '';
-            if (!@empty($cam_params['InetCam_USER'])) {
-                $pwd =& $cam_params['InetCam_PASSWD'];
+            if (!@empty($cam_params['InetCam_USER']['v'])) {
+                $pwd =& $cam_params['InetCam_PASSWD']['v'];
             }
-            $auth = $cam_params['InetCam_USER'] . ':' . $pwd . '@';
+            $auth = $cam_params['InetCam_USER']['v'] . ':' . $pwd . '@';
         }
 
         if (!@empty($query)) {
@@ -125,7 +125,7 @@ function build_cam_url($cam_params, $pref_proto_csv = null, $query = null)
             }
         }
 
-        $url = $proto_pref . '://' . $auth . $cam_params['InetCam_IP'] . $req . $__query;
+        $url = $proto_pref . '://' . $auth . $cam_params['InetCam_IP']['v'] . $req . $__query;
         if (filter_var($url, FILTER_VALIDATE_URL)) {
             return $url;
         }
@@ -160,7 +160,7 @@ function get_alt_url($conf, $cam_nr, $cams_params, $alt_url = null)
                         $proto_pref_list = @empty($a[2]) ? null : $a[2];
                         $query_str = @empty($a[3]) ? null : $a[3];
                         if (array_key_exists($target_cam_nr, $cams_params) &&
-                            !empty($cams_params[$target_cam_nr]['video_src'])) {
+                            !empty($cams_params[$target_cam_nr]['video_src']['v'])) {
                             if (0 === stripos($who, 'avreg')) {
                                 // $url_src = 'avregd';
                                 $url = get_avregd_cam_url($conf, $target_cam_nr, 'mjpeg', true, $query_str);
