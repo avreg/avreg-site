@@ -47,10 +47,15 @@ if (isset ($par_filter)) {
 }
 if (isset($cmd)) {
     if ($cmd == 'UPDATE_PARAM') {
-        require('./upload.inc.php');
+        if (isset($_FILES) && is_array($_FILES)) {
+            require('./upload.inc.php');
+        }
         if (isset($types) && is_array($types) && (count($types) > 0)) {
             $cmd = 'SHOW_PARAM';
             while (list($parname, $partype) = each($types)) {
+                if ($parname === 'mask_file') {
+                    continue;
+                }
                 if (!isset($olds[$parname])) {
                     die ('Error in post data!');
                 }

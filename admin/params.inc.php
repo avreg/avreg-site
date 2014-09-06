@@ -331,7 +331,7 @@ function checkParam($parname, $parval, $def_val = null)
                 $ret .= $GLOBALS['strDelete'] . ' &nbsp;&nbsp;<input type="checkbox" name="' . $parname . '_del"><br>'
                     . "\n";
             }
-            $ret .= '<input type="hidden" name="MAX_FILE_SIZE" value="500000">' . "\n";
+            $ret .= '<input type="hidden" name="MAX_FILE_SIZE" value="1000000">' . "\n";
             $ret .= '<input type="file" name="' . $parname . '" size=20 maxlength=200>' . "\n";
             break;
         case 'video_src':
