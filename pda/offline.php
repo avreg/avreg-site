@@ -126,3 +126,4 @@ $pagi->printBelow();
 print "<div><a href='./' title='$strHome'>$strHome</a></div>\n";
 
 require('../foot.inc.php');
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */

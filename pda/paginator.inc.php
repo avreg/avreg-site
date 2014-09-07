@@ -10,7 +10,7 @@ namespace Avreg;
  * @brief Клас реализовывающий функцию пагинации
  *
  */
-class PdaPaginator implements Iterator
+class PdaPaginator implements \Iterator
 {
     private $ary;
     private $position;
