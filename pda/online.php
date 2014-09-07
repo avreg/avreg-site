@@ -64,13 +64,13 @@ if ($scale >= sizeof($tumb_sizes) - 1) {
 }
 
 $width = $tumb_sizes[$scale]['w'];
-$heigt = $tumb_sizes[$scale]['h'];
+$height = $tumb_sizes[$scale]['h'];
 
 $isFs = 'false';
 $reload = 'false';
 if ($width == 'FS') {
     $width = isset($_GET['aw']) ? $_GET['aw'] : 0;
-    $heigt = isset($_GET['ah']) ? $_GET['ah'] : 0;
+    $height = isset($_GET['ah']) ? $_GET['ah'] : 0;
     if ($width == 0) {
         $reload = 'true';
     }
@@ -130,7 +130,7 @@ if (!isset($refresh)) {
         alt="%s снапшот" onerror="img_evt(1);"  />',
         $cam_url,
         $width,
-        $heigt,
+        $height,
         ($reload != 'false') ? 'display:none;' : '',
         $cam_name
     );
@@ -171,8 +171,10 @@ if (!isset($refresh)) {
 
     /* смотрим детально и с обновлениями */
     $_SESSION['refresh'] = $refresh;
-    $scale = $_GET['scale'];
-    $cam_url .= "&width=$width&height=$heigt&scl=&$scale";
+    $cam_url .= "&width=$width&height=$height";
+    if (@isset($_GET['scale'])) {
+        $cam_url .= "&scl=$_GET[scale]";
+    }
     printf(
         '<IMG class="cam_snapshot" id="viewport" src="%s"
         alt="Загружается изображение с %s ..."
