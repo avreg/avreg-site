@@ -1,14 +1,13 @@
 <?php
 /**
- * @file pda/files.php
+ * @file pda/snaplist.php
  * @brief
  */
 $USE_JQUERY = true;
-
-$pageTitle = sprintf('Камера №%u - файлы сеанса №%u', $_GET['camera'], $_GET['ser_nr']);
+$pageTitle = sprintf('Снапшоты камеры №%u', $_GET['camera']);
 $lang_file = '_admin_cams.php';
 require('head_pda.inc.php');
-// phpinfo(INFO_VARIABLES);
+
 if (!isset($camera) || !settype($camera, 'int')) {
     die('should use "camera" cgi param');
 }
@@ -18,7 +17,9 @@ if (!isset($ser_nr) || !settype($ser_nr, 'int')) {
 if (!isset($s) && !isset($f)) {
     die('invalid cgi params');
 }
-$files_sess_var_name = sprintf('files_%u_%u_%u_%u', $camera, $ser_nr, $s, $f);
+
+$desc = !@empty($desc);
+$oims = !@empty($oims);
 
 $files = null; // массив - ссылок на файлы, вычитанные с базы
 $recsess_list_url = null; // url, откуда пришли - со списка серий/записи движения
@@ -31,25 +32,49 @@ if (!empty($_SERVER['HTTP_REFERER']) && false != strpos($_SERVER['HTTP_REFERER']
     }
 }
 
-if (isset($_SESSION[$files_sess_var_name])) {
-    $files = & $_SESSION[$files_sess_var_name];
+$spanlist_session_name = sprintf(
+    'snaplist_%u_%u_%u_%u_%d_%d',
+    $camera,
+    $ser_nr,
+    $s,
+    $f,
+    $desc,
+    $oims
+);
+
+if (isset($_SESSION[$spanlist_session_name])) {
+    $files = & $_SESSION[$spanlist_session_name];
 } else {
     $timebegin = strftime('%Y-%m-%d %T', (int)$s);
     $timeend = false;
     if (!empty($f)) {
         $timeend = strftime('%Y-%m-%d %T', (int)$f);
     }
-    $use_desc_order = empty($desc) ? '' : 'desc';
 
-    $files = $adb->getFiles($camera, $ser_nr, $timebegin, $timeend, $use_desc_order);
+    $files = $adb->getSnapshots($camera, $ser_nr, $timebegin, $timeend, $desc ? 'desc' : '');
 
     if (!$files) {
         print "<div style='padding: 10px;'>Странно..., ничего не найдено :-0<br>\n";
         print "<a href='javascript:window.history.back();' title='$strBack'>$strBack</a></div>\n";
         exit;
     }
-    $_SESSION[$files_sess_var_name] = $files;
+    /* для свежих запросов не используем сохранённые сессии */
+    $use_session = true;
+    $now_sec = time();
+    if ($oims) {
+        if ($now_sec - (int)$s < 3600) {
+            $use_session = false;
+        }
+    } else {
+        if ((int)$f > $now_sec) {
+            $use_session = false;
+        }
+    }
+    if ($use_session) {
+        $_SESSION[$spanlist_session_name] = $files;
+    }
 }
+
 session_write_close();
 
 //масштаб изображений
@@ -109,7 +134,7 @@ require_once('paginator.inc.php');
 $pagi = new \Avreg\PdaPaginator(
     $files,
     isset($off) ? (int)($off) : 0,
-    sprintf('files.php?camera=%u&ser_nr=%u&s=%u&f=%u', $camera, $ser_nr, $s, $f),
+    sprintf('snaplist.php?camera=%u&ser_nr=%u&s=%u&f=%u&desc=%d&oims=%d', $camera, $ser_nr, $s, $f, $desc, $oims),
     $conf,
     $conf['pda-thumb-image-per-page']
 );
@@ -127,7 +152,7 @@ foreach ($pagi as $row) {
     $orig_src = $conf['prefix'] . $conf['media-alias'] . '/' . $row[7];
 
     print "<div style='margin: 0px 0px 10px 0px; pad: 0px 0px 0px 0px; border-bottom: 1px dotted;'>\n";
-    print strftime('&nbsp;%d(%a) %T<br>', $START);
+    print strftime('&nbsp;%h %d(%a) %T<br>', $START);
     if ($EVT_ID >= 15 && $EVT_ID <= 17 /* snapshot jpegs */) {
         $jpeg_info = "$FILESZ_KB kB, [$U16_1 x $U16_2]";
         printf("<a href='$orig_src' title='Открыть оригинал $jpeg_info'>\n");
@@ -152,3 +177,4 @@ if ($recsess_list_url) {
 print "<a href='./' title='$strHome'>$strHome</a></div>\n";
 
 require('../foot.inc.php');
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */

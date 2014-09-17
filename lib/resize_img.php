@@ -1,32 +1,29 @@
 <?php
+
+// TODO кэшировать картинки, т.к. имена уникальны
+// FIXME почему не используется img_resize.php
+
 require('/etc/avreg/site-defaults.php');
 //Загрузка исходнгого изображения
-$id = $_GET['url'];
+$src_jpeg_url = $_GET['url'];
 
 // пробуем открыть файл для чтения
-if (@fopen($id, "r")) {
+if (@fopen($src_jpeg_url, "r")) {
 
-    $path_info = pathinfo($id);
-    switch ($path_info['extension']) {
+    $path_info = pathinfo($src_jpeg_url);
+    switch (strtolower($path_info['extension'])) {
         case 'jpeg':
         case 'jpg':
-        case 'JPEG':
-        case 'JPG':
             $image_type = IMG_JPEG;
-            $im = @imagecreatefromjpeg($id);
-            break;
-        case 'png':
-        case 'PNG':
-            $image_type = IMG_PNG;
-            $im = @imagecreatefromjpeg($id);
             break;
         default:
-            die("only jpeg and png supported");
+            die("only jpeg supported");
     }
+    $src_gd = @imagecreatefromjpeg($src_jpeg_url);
 
     //Определение размеров исходного изображения
-    $im_width = imageSX($im);
-    $im_height = imageSY($im);
+    $im_width = imageSX($src_gd);
+    $im_height = imageSY($src_gd);
 
     //пропорции изображения
     $im_proportion = $im_width / $im_height;
@@ -41,7 +38,6 @@ if (@fopen($id, "r")) {
         $h = $im_height;
     }
 
-
     if ($w == 0 && $h == 0) {
         $w = $im_width;
         $h = $im_height;
@@ -50,7 +46,6 @@ if (@fopen($id, "r")) {
     } elseif ($h == 0) {
         $h = $w / $im_proportion;
     }
-
 
     //resulted sizes
     $new_width = $w;
@@ -69,33 +64,33 @@ if (@fopen($id, "r")) {
     }
 
     // resize
-    $new_im = imagecreatetruecolor($new_width, $new_height);
-    imagecolorallocate($im, 0xFF, 0xFF, 0xFF);
-    ImageCopyResized($new_im, $im, 0, 0, 0, 0, $new_width, $new_height, $im_width, $im_height);
+    $dst_gd = imagecreatetruecolor($new_width, $new_height);
+    imagecolorallocate($src_gd, 0xFF, 0xFF, 0xFF);
+    ImageCopyResized($dst_gd, $src_gd, 0, 0, 0, 0, $new_width, $new_height, $im_width, $im_height);
 
     //output
     header("Content-type: image/jpeg");
-    Imagejpeg($new_im, '', 80); // quality 80
-    ImageDestroy($im);
-    ImageDestroy($new_im);
+    Imagejpeg($dst_gd, null, 80); // quality 80
+    ImageDestroy($src_gd);
+    ImageDestroy($dst_gd);
 
     //если файл не найден
 } else {
-
+    // TODO отдать статическую картинку
     //изображение банера - "file not found"
     $string1 = "IMAGE NOT FOUND";
     $w = 200;
     $h = 120;
-    $im = imagecreatetruecolor($w, $h);
-    $orange = imagecolorallocate($im, 220, 210, 60);
-    $px = (imagesx($im) - 8.5 * strlen($string1)) / 2;
-    $py = (imagesy($im)) / 2.5;
+    $src_gd = imagecreatetruecolor($w, $h);
+    $orange = imagecolorallocate($src_gd, 220, 210, 60);
+    $px = (imagesx($src_gd) - 8.5 * strlen($string1)) / 2;
+    $py = (imagesy($src_gd)) / 2.5;
     $fs = 5;
-    imagestring($im, $fs, $px, $py, $string1, $orange);
+    imagestring($src_gd, $fs, $px, $py, $string1, $orange);
 
     //Определение размеров исходного изображения
-    $im_width = imageSX($im);
-    $im_height = imageSY($im);
+    $im_width = imageSX($src_gd);
+    $im_height = imageSY($src_gd);
 
     //размеры отображения
     $w = $_GET['w'];
@@ -119,14 +114,14 @@ if (@fopen($id, "r")) {
     }
 
     // resize
-    $new_im = imagecreatetruecolor($new_width, $new_height);
-    imagecolorallocate($im, 0xFF, 0xFF, 0xFF);
-    ImageCopyResized($new_im, $im, 0, 0, 0, 0, $new_width, $new_height, $im_width, $im_height);
+    $dst_gd = imagecreatetruecolor($new_width, $new_height);
+    imagecolorallocate($src_gd, 0xFF, 0xFF, 0xFF);
+    ImageCopyResized($dst_gd, $src_gd, 0, 0, 0, 0, $new_width, $new_height, $im_width, $im_height);
 
     //output
-    header("Content-type: image/jpeg");
-    Imagejpeg($new_im, '', 80); // quality 80
-    ImageDestroy($im);
-    ImageDestroy($new_im);
-
+    header("Content-Type: image/jpeg");
+    Imagejpeg($dst_gd, null, 80); // quality 80
+    ImageDestroy($src_gd);
+    ImageDestroy($dst_gd);
 }
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */

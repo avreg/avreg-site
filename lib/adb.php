@@ -687,20 +687,23 @@ class Adb
      * @return array масив событий
      */
 
-    public function getFiles($camera, $ser_nr, $timebegin, $timeend = false, $order = '')
+    public function getSnapshots($camera, $ser_nr, $timebegin, $timeend = false, $order = '')
     {
         $files = array();
-        $query = 'SELECT ' . $this->datePart('timestamp', 'DT1') . ' as START, ' . $this->datePart('timestamp', 'DT1') .
-            ' as FINISH,  EVT_ID, FILESZ_KB, FRAMES, ALT1 as U16_1, ALT2 as U16_2, EVT_CONT';
-        $query .= ' FROM EVENTS';
-        $query .= " WHERE CAM_NR=$camera AND SESS_NR=$ser_nr";
-        $query .= " AND EVT_ID in (15,16,17)";
+        $query = 'SELECT ' . $this->datePart('timestamp', 'DT1') . ' as START, '
+            . $this->datePart('timestamp', 'DT1') . ' as FINISH, '
+            . '  EVT_ID, FILESZ_KB, FRAMES, ALT1 as U16_1, ALT2 as U16_2, EVT_CONT' . "\n"
+            . 'FROM EVENTS' . "\n"
+            . "WHERE CAM_NR=$camera\n"
+            . "  AND EVT_ID >= 15 AND EVT_ID <= 21\n";
         if (empty($timeend)) {
-            $query .= " AND ((DT1 >= '$timebegin') OR (DT2 >= '$timebegin'))";
+            $query .= "  AND SESS_NR = $ser_nr\n";
+            $query .= "  AND DT1 >= '$timebegin'\n";
         } else {
-            $query .= " AND((DT1 between '$timebegin' and '$timeend') or (DT2 between '$timebegin' and '$timeend'))";
+            $query .= "  AND (DT1 between '$timebegin' and '$timeend')\n";
         }
-        $query .= " ORDER BY DT1 " . $order;
+        $query .= "ORDER BY DT1 " . $order;
+
         $res = $this->db->query($query);
         $this->error($res);
         while ($res->fetchInto($line)) {
@@ -723,20 +726,63 @@ class Adb
      *
      * @return array масив событий
      */
-    public function getPdaEvents($cams_csv, $timebegin, $timeend, $order = '')
+    public function getSnapStatsByRecSeries($cams_csv, $timebegin, $timeend, $order = '')
     {
 
         $files = array();
-        $query = 'SELECT ' . $this->datePart('timestamp', 'E1.DT1') . ' as START, ' .
-            $this->datePart('timestamp', 'E2.DT1') . ' as FINISH,  E1.CAM_NR, E1.SESS_NR AS SESS_NR';
-        $query .= ' FROM EVENTS AS E1';
-        $query .= ' LEFT JOIN EVENTS AS E2 ON (E1.SESS_NR = E2.SESS_NR AND E1.CAM_NR = E2.CAM_NR AND ' .
-            'E1.DT1 = E2.DT2 AND E1.EVT_ID = 13 AND E2.EVT_ID = 14)';
-        $query .= " WHERE E1.CAM_NR in ($cams_csv)";
-        $query .= " AND E1.EVT_ID in (13)";
-        $query .= " AND ((E1.DT1 between '$timebegin' and '$timeend') and " .
-            "(E2.DT1 is null or E2.DT1 between '$timebegin' and '$timeend'))";
-        $query .= " ORDER BY E1.DT1 " . $order;
+        $query = 'SELECT ' . $this->datePart('timestamp', 'E1.DT1') . ' as START, '
+            . $this->datePart('timestamp', 'E2.DT1') . ' as FINISH, '
+            . '  E1.CAM_NR, E1.SESS_NR AS SESS_NR,' . "\n"
+            . '  count(E3.DT1) as SHANPHOTS_NB' . "\n"
+            . "FROM EVENTS AS E1\n"
+            . '  JOIN EVENTS AS E2 ON (E1.SESS_NR = E2.SESS_NR AND E1.CAM_NR = E2.CAM_NR AND'
+            . '    E1.DT1 = E2.DT2 AND E1.EVT_ID = 13 AND E2.EVT_ID = 14)' . "\n"
+            . '  JOIN EVENTS AS E3 ON (E1.SESS_NR = E3.SESS_NR AND E1.CAM_NR = E3.CAM_NR)' . "\n"
+            . "WHERE E1.CAM_NR in ($cams_csv)\n"
+            . "  AND E1.EVT_ID in (13)\n"
+            . "  AND ((E1.DT1 between '$timebegin' and '$timeend') and "
+            . "      (E2.DT1 is null or E2.DT1 between '$timebegin' and '$timeend'))\n"
+            . '  AND (E3.EVT_ID >= 15 and E3.EVT_ID <= 21 and E3.DT1 >= E1.DT1 and E3.DT1 <= E2.DT1)' . "\n"
+            . 'GROUP BY E1.DT1, E2.DT1, E1.CAM_NR, E1.SESS_NR' . "\n"
+            . "ORDER BY E2.DT1 " . $order;
+
+        $res = $this->db->query($query);
+
+        $this->error($res);
+        while ($res->fetchInto($line)) {
+            $f = array();
+            foreach ($line as $k => $v) {
+                $k = strtoupper($k);
+                $f[$k] = trim($v);
+            }
+            $files[] = $f;
+        }
+        return $files;
+    }
+
+    /**
+     *  Метод позволяет получить события для pda-версии
+     * @param string $cams_csv список камер
+     * @param string $timebegin дата начала
+     * @param string $timeend дата окончания
+     * @param string $order сортировка
+     *
+     * @return array масив событий
+     */
+    public function getSnapStatsByInterval($cams_csv, $timebegin, $timeend, $order = '')
+    {
+        $files = array();
+        $query = 'select ' . "\n"
+           . $this->datePart('timestamp', 'min(DT1)') . " as FIRST,\n"
+           . $this->datePart('timestamp', 'max(DT1)') . " as LAST,\n"
+           . "CAM_NR, '0', count(*) as SHANPHOTS_NB\n"
+           . "from EVENTS\n"
+           . "where\n"
+           . "(DT1 between '$timebegin' and '$timeend')\n"
+           . "and CAM_NR in ($cams_csv)\n"
+           . "and EVT_ID >= 15 and EVT_ID <= 21\n"
+           . "group by CAM_NR\n"
+           . 'order by max(DT1) ' . $order;
 
         $res = $this->db->query($query);
 

@@ -109,22 +109,18 @@ if ($is_local) {
     }
 
     $path_info = pathinfo($img_uri);
-    switch ($path_info['extension']) {
+    switch ($strtolower(path_info['extension'])) {
         case 'jpeg':
         case 'jpg':
-        case 'JPEG':
-        case 'JPG':
             $image_type = IMG_JPEG;
-            $gd = @imagecreatefromjpeg($img_uri);
             break;
         case 'png':
-        case 'PNG':
             $image_type = IMG_PNG;
-            $gd = @imagecreatefromjpeg($img_uri);
             break;
         default:
             die("only jpeg and png supported");
     }
+    $gd = @imagecreatefromjpeg($img_uri);
 } else {
     /* live camera image over http:// */
     $cam_nr = (int)$_REQUEST['camera'];
@@ -196,23 +192,21 @@ $thumb = imagecreatetruecolor($new_width, $new_height);
 imagecopyresized($thumb, $gd, 0, 0, 0, 0, $new_width, $new_height, $width_src, $height_src);
 //-->>
 
-/// дата для заголовков
-$gmt_now = gmdate('D, d M Y H:i:s', $now) . ' GMT';
 if ($is_local) {
     /* включаем агрессивное кеширование */
     header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $img_file_stat['mtime']) . ' GMT');
     header('Expires: ' . gmdate('D, d M Y H:i:s', $now + $max_age) . ' GMT');
     header("Etag: \"$etag\"");
     header("Cache-Control: private, max-age=$max_age");
-    header("Content-type: " . image_type_to_mime_type($image_type));
 } else {
     /* live image отключаем вовсе кеширование */
+    $gmt_now = gmdate('D, d M Y H:i:s', $now) . ' GMT';
     header('Last-Modified: ' . $gmt_now);
     header('Expires: ' . $gmt_now);
     header('Cache-Control: no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0'); // HTTP/1.1
     header('Pragma: no-cache'); // HTTP/1.0
-    header("Content-type: " . image_type_to_mime_type($image_type));
 }
+header("Content-Type: " . image_type_to_mime_type($image_type));
 
 switch ($image_type) {
     case IMG_JPEG:
@@ -222,3 +216,4 @@ switch ($image_type) {
         imagepng($thumb);
         break;
 }
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */

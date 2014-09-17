@@ -10,7 +10,7 @@
  *
  * Файлы модуля:
  * - pda/index.php
- * - pda/files.php
+ * - pda/snaplist.php
  * - pda/head_pda.inc.php
  * - pda/offline.php
  * - pda/online-noresized.php
@@ -30,13 +30,27 @@ session_write_close();
 require('../lib/cams_main_detail.inc.php');
 require('../lib/get_cams_params.inc.php');
 
-$cams_params = get_cams_params(array(
+$__cams_params = get_cams_params(array(
     'work',
+    'video_src',
     'allow_networks',
     'text_left',
     'geometry',
     'Hx2'));
-$cams_nbr = count($cams_params) - 1;
+$cams_params = array();
+$cams_nbr = 0;
+foreach ($__cams_params as $__cam_nr => $__cam_opt) {
+    if ($__cam_nr >= 0) {
+        if (empty($__cam_opt['work']['v']) ||
+            empty($__cam_opt['video_src']['v']) ||
+            empty($__cam_opt['allow_networks']['v'])) {
+            continue;
+        }
+        $cams_nbr++;
+    }
+    $cams_params[$__cam_nr] = $__cam_opt;
+}
+unset($__cams_params);
 if ($cams_nbr <= 0) {
     die('There are no available cameras!');
 }

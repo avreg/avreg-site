@@ -3,7 +3,7 @@
  * @file pda/offline.php
  * @brief
  */
-$pageTitle = 'Сеансы записи';
+$pageTitle = 'Снапшоты';
 
 $lang_file = '_admin_cams.php';
 require('head_pda.inc.php');
@@ -18,7 +18,8 @@ foreach ($cams as &$value) {
 }
 $one_cam = (count($cams) === 1);
 $cams_csv = implode(',', $cams);
-$use_desc_order = empty($desc) ? '' : 'desc';
+$use_desc_order = @empty($desc) ? '' : 'desc';
+$oims = !@empty($oims);
 
 if (isset($s) && isset($f)) {
     $timebegin_unix = (int)$s;
@@ -28,13 +29,11 @@ if (isset($s) && isset($f)) {
         /* [ dt1 .. (dt1 + until) ]*/
         $timebegin_unix = mktime($hour, $minute_array[$minute], 0, $month, $day, 2000 + $year_array[$year]);
         $_SESSION['timestamp'] = $timebegin_unix;
-        $timeend_unix = $timebegin_unix + $until * 60 + 59 /*seconds*/
-        ;
+        $timeend_unix = $timebegin_unix + $until * 60 + 59;
     } else {
         /* [ (dt1 + until) .. dt1 ]*/
         $timeend_unix = mktime($hour, $minute_array[$minute], 59, $month, $day, 2000 + $year_array[$year]);
-        $timebegin_unix = $timeend_unix + $until * 60 - 59 /*seconds*/
-        ;
+        $timebegin_unix = $timeend_unix + $until * 60 - 59;
         $_SESSION['timestamp'] = $timeend_unix;
     }
 }
@@ -46,7 +45,8 @@ $_SESSION['until'] = (int)$until;
 $_SESSION['desc'] = !empty($desc);
 $_SESSION['oims'] = !empty($oims);
 
-$recsess_sess_var_name = sprintf(
+
+$recsess_session_name = sprintf(
     'offline_%s_%u_%u_%u_%u',
     implode('_', $cams),
     $use_desc_order ? 1 : 0,
@@ -55,19 +55,37 @@ $recsess_sess_var_name = sprintf(
     $timeend_unix
 );
 
+
 $rec_sessions = null;
-if (isset($_SESSION[$recsess_sess_var_name])) {
-    $rec_sessions = & $_SESSION[$recsess_sess_var_name];
+if (isset($_SESSION[$recsess_session_name])) {
+    $rec_sessions = & $_SESSION[$recsess_session_name];
 } else {
-
-    $rec_sessions = $adb->getPdaEvents($cams_csv, $timebegin, $timeend, $use_desc_order);
-
+    if ($oims) {
+        $rec_sessions = $adb->getSnapStatsByRecSeries($cams_csv, $timebegin, $timeend, $use_desc_order);
+    } else {
+        $rec_sessions = $adb->getSnapStatsByInterval($cams_csv, $timebegin, $timeend, $use_desc_order);
+    }
     if (!$rec_sessions) {
         print "<div style='padding: 10px;'>Нет сохранённых картинок (снапшотов) за этот период.<br>\n";
         print "<a href='javascript:window.history.back();' title='$strBack'>$strBack</a></div>\n";
         exit;
     }
-    $_SESSION[$recsess_sess_var_name] = $rec_sessions;
+    // tohtml($rec_sessions);
+    /* для свежих запросов не используем сохранённые сессии */
+    $use_session = true;
+    $now_sec = time();
+    if ($oims) {
+        if ($now_sec - $timebegin_unix < 3600) {
+            $use_session = false;
+        }
+    } else {
+        if ($timeend_unix > $now_sec) {
+            $use_session = false;
+        }
+    }
+    if ($use_session) {
+        $_SESSION[$recsess_session_name] = $rec_sessions;
+    }
 }
 session_write_close();
 
@@ -81,8 +99,8 @@ $pagi = new \Avreg\PdaPaginator(
         $cams_csv,
         $timebegin_unix,
         $timeend_unix,
-        empty($desc) ? '' : '&desc=1',
-        empty($oims) ? '' : '&oims=1'
+        @empty($desc) ? '' : '&desc=1',
+        @empty($oims) ? '' : '&oims=1'
     ),
     $conf,
     $conf['pda-links-per-page']
@@ -90,34 +108,43 @@ $pagi = new \Avreg\PdaPaginator(
 $pagi->printAbove();
 
 require_once('../lib/get_cams_params.inc.php');
-$cams_params = get_cams_params(array(
-    'work',
-    'text_left',
-    'geometry',
-    'Hx2'));
+$cams_params = get_cams_params(
+    array(
+        'work',
+        'text_left',
+        'geometry',
+        'Hx2'
+    ),
+    $cams
+);
 
 /* print record session info into page */
 print "<br>\n";
 foreach ($pagi as $row) {
-    $START = (int)$row[0];
-    $FINISH = (int)$row[1];
-    $CAM_NR = (int)$row[2];
-    $SER_NR = (int)$row[3];
-    $cam_conf = & $cams_params[$CAM_NR];
+    // tohtml($row);
+    $start = (int)$row[0];
+    $finish = (int)$row[1];
+    $cam_nr = (int)$row[2];
+    $rec_id = (int)$row[3];
+    $snap_nb = (int)$row[4];
+    $cam_conf = & $cams_params[$cam_nr];
     $cam_name = isset($cam_conf['text_left']['v']) ? $cam_conf['text_left']['v'] : '';
 
     print "<div style='margin: 1px 1px 10px 1px; pad: 2px 2px 2px 2px; border-bottom: 1px dotted;'>\n";
     printf(
-        '<a href="files.php?camera=%u&ser_nr=%u&s=%u&f=%u">%s</a>',
-        $CAM_NR,
-        $SER_NR,
-        $START,
-        empty($oims) ? 0 : $FINISH,
-        TimeRangeHuman($START, $FINISH)
+        '<a href="snaplist.php?camera=%u&ser_nr=%u&s=%u&f=%u&desc=%d&oims=%d">%s (%s)</a>',
+        $cam_nr,
+        $rec_id,
+        $start,
+        $finish,
+        !@empty($desc),
+        !@empty($oims),
+        TimeRangeHuman($start, $finish),
+        $snap_nb
     );
-    printf('<br>Продолжительность: %s', ETA($FINISH - $START));
+    printf('<br>Продолжительность: %s', ETA($finish - $start));
     if (!$one_cam) {
-        print "<br> $strCam: №$CAM_NR $cam_name";
+        print "<br> $strCam: №$cam_nr $cam_name";
     }
     print "</div>\n";
 }
