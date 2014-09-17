@@ -12,8 +12,6 @@ $audio_sources = array('alsa', 'http', 'rtsp');
 
 $rtsp_transport = array('udp', 'tcp', 'udp_multicast', 'http');
 
-$v4l_hacks = array('v4lver1', 'v4lver1+block');
-
 $str_audio_force_fmt = array(
     'pcm_mulaw',
     'pcm_alaw',
@@ -757,24 +755,6 @@ $PARAMS = array(
             (xawtv, tvtime, ...).
             </p>По умолчанию: <b>0</b>. Допустимые значения: обычно [0..3], редко [0..15].',
         'flags' => $F_RELOADED | $F_BASEPAR | $F_IN_DEF | $F_IN_CAM,
-        'cats' => '3.2',
-        'subcats' => null,
-        'mstatus' => 1,
-    ),
-    array(
-        'name' => 'v4l_hack',
-        'type' => $CHECK_VAL,
-        'def_val' => 0,
-        'desc' => '<p><b>&laquo;v4lver1&raquo;</b> - принудительное использование устаревшего API video4linux1
-            (версия 1). Может оказаться полезным при захвате с устройств (часто USB-камеры) с некачественными (сырыми)
-            драйверами video4linux2 (версия  2).</p>
-            <p><b>&laquo;v4lver1&#043;block&raquo;</b> дополнительно к &laquo;v4lver1&raquo; использовать
-            <b>блокирущий режим доступа</b> к устройству. Иногда помогает с сырыми драйверами USB-камер. Может
-            <b>серъёзно повредить захвату с других нормальных устройств</b>.
-            </p>
-            По умолчанию: <b>не установлено</b> - поддерживаемую версию API сообщает драйвер, работа с устройством
-            в неблокируещем режиме.',
-        'flags' => $F_RELOADED | $F_IN_DEF | $F_IN_CAM,
         'cats' => '3.2',
         'subcats' => null,
         'mstatus' => 1,

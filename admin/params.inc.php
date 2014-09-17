@@ -477,14 +477,6 @@ function checkParam($parname, $parval, $def_val = null)
               $ret = getSelectHtml('fields['.$parname.']', $GLOBALS['flip_type'], FALSE, 1, 1, $sel, TRUE, FALSE);
               break;
         */
-        case 'v4l_hack':
-            if ($parval == '' || is_null($parval) || $parval == '0') {
-                $sel = '';
-            } else {
-                $sel = $GLOBALS['v4l_hacks'][$parval - 1];
-            }
-            $ret = getSelectHtml('fields[' . $parname . ']', $GLOBALS['v4l_hacks'], false, 1, 1, $sel, true, false);
-            break;
 
         case 'events2db':
         case 'events2pipe':
