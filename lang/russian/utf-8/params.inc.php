@@ -11,6 +11,10 @@ $video_sources = array('video4linux', 'http', 'rtsp');
 $audio_sources = array('alsa', 'http', 'rtsp');
 
 $rtsp_transport = array('udp', 'tcp', 'udp_multicast', 'http');
+$rtsp_hack_groups = array(
+    'gen_missing_pts' => 'gen_missing_pts',
+    'use_wallclock_as_ts' => 'use_wallclock_as_ts',
+);
 
 $str_audio_force_fmt = array(
     'pcm_mulaw',
@@ -708,10 +712,35 @@ $PARAMS = array(
         'mstatus' => 1,
     ),
     array(
+        'name' => 'rtsp_hack_flags',
+        'type' => $CHECK_VAL,
+        'def_val' => 'dts_clipping',
+        'desc' => 'Непредусмотренные протоколом корректировки медиа-потоков,
+        предназначенные для сокращения количества сбросов rtsp-сеансов и количества реконнектов
+        из-за логических ошибок:
+        <ul>
+           <li><i>gen_missing_pts</i> - вычислять отсутствующие PTS, даже если это требует разбора будущих кадров.</li>
+           <li><i>use_wallclock_as_ts</i> - <b>если не помогает ничего</b>,
+            использовать время получения пакетов программой вместо RTP timestamp,
+            формируемых RTSP-сервером (камерой).
+            Отклонение такого времени от реального времени кадра на нагружных
+            системах может составлять до нескольких сек., что, например,
+            делает невозможным обеспечить точную синхронизацию аудио и видео в записи.
+            </li>
+        </ul>
+        По умолчанию: &quot;<b>dts_clipping</b>&quot;.',
+        'flags' => $F_RELOADED | $F_IN_DEF | $F_IN_CAM,
+        'cats' => '3.1.2',
+        'subcats' => null,
+        'mstatus' => 1,
+    ),
+    array(
         'name' => 'max_analize_duration',
         'type' => $INT_VAL,
         'def_val' => 3,
-        'desc' => 'Макс. время в секундах на анализ потока.<br />По умолчанию: <b>3</b> сек.',
+        'desc' => 'Макс. время в секундах на анализ потока после подключения.
+        В течении этого периода определяются разрешение видео, скорость (framerate) и много др. параметров.
+        <br />По умолчанию: <b>3</b> сек.',
         'flags' => $F_RELOADED | $F_IN_DEF | $F_IN_CAM,
         'cats' => '3.1.2',
         'subcats' => null,

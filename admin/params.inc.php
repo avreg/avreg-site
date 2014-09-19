@@ -386,6 +386,15 @@ function checkParam($parname, $parval, $def_val = null)
             );
             break;
 
+        case 'rtsp_hack_flags':
+            $ret = getChkbxByAssocAr(
+                'fields[' . $parname . ']',
+                $GLOBALS['rtsp_hack_groups'],
+                $parval,
+                false /* не работает select_all для имен содержащих []*/
+            );
+            break;
+
         case 'rec_mode':
             if ($parval == '' || is_null($parval)) {
                 $sel = '';
