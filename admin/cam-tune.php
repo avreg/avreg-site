@@ -247,7 +247,7 @@ if (isset($categories)) {
         } else {
             $VALUE = $CHANGED_BY = $CHANGED_TIME = null;
         }
-        print '<tr><td valign="middle" nowrap><div>' . "\n";
+        print '<tr style="vertical-align:top"><td nowrap><div>' . "\n";
 
         if ($FLAGS & $F_RELOADED) {
             print '<img src="' . $conf['prefix'] . '/img/hotsync.gif" alt="Reloaded" border="0">&nbsp;';
@@ -366,9 +366,9 @@ if (isset($categories)) {
         print '</div></div></td>' . "\n";
         print '<td>' . $COMMENT . '</td>' . "\n";
         if (empty($CHANGED_TIME)) {
-            print "<td align=\"center\">-</td>\n";
+            print "<td>-</td>\n";
         } else {
-            print '<td align="center" nowrap>' . $CHANGED_BY . '<br>'
+            print '<td nowrap>' . $CHANGED_BY . '<br>'
                 . (empty($CHANGED_TIME) ? '-' : $CHANGED_TIME) . "\n";
         }
         print '<input type="hidden" name="types[' . $parname1 . ']" value="' . $VAL_TYPE . '">' . "\n";
