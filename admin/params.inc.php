@@ -386,10 +386,26 @@ function checkParam($parname, $parval, $def_val = null)
             );
             break;
 
-        case 'rtsp_hack_flags':
+        case 'use_wallclock_as_ts':
+            if ($parval === '' || is_null($parval)) {
+                $sel = '';
+            } else {
+                $sel = $GLOBALS['use_wallclock_as_ts_a'][$parval];
+            }
+            $ret = getSelectHtml(
+                'fields[' . $parname . ']',
+                $GLOBALS['use_wallclock_as_ts_a'],
+                false,
+                1,
+                0,
+                $sel
+            );
+            break;
+
+        case 'rtsp_flags':
             $ret = getChkbxByAssocAr(
                 'fields[' . $parname . ']',
-                $GLOBALS['rtsp_hack_groups'],
+                $GLOBALS['rtsp_flags_group'],
                 $parval,
                 false /* не работает select_all для имен содержащих []*/
             );
