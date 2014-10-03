@@ -31,6 +31,7 @@ require('../head.inc.php');
 DENY($admin_status);
 require_once($params_module_name);
 require('./params.inc.php');
+require('../lib/get_cams_params.inc.php');
 
 if (!isset($cam_nr) || !settype($cam_nr, 'int')) {
     die ('Empty cameras number');
@@ -88,7 +89,15 @@ if (isset($cmd)) {
     }
 }
 
-$__cam_arr = getCamsArray($sip, true);
+$cams_params = get_cams_params('work, text_left');
+function cam_name_array($v, $k)
+{
+    return $k . ' ' . getCamName($v['text_left']['v']);
+}
+unset($cams_params[0]); // remove default template camera
+$__cam_arr = array_map('cam_name_array', $cams_params, array_keys($cams_params));
+$__cam_arr[0] = '0 ' . $GLOBALS['r_cam_defs3'];
+
 if (empty($__cam_arr)) {
     echo '<h3>' . sprintf($r_cam_tune, $cam_nr, $cam_name, $named) . '</h3>' . "\n";
 } else {

@@ -1042,42 +1042,6 @@ class Adb
 
     /**
      *
-     * Метод позволяет получить названия камер
-     * @param bool|string $cams_list Список камер
-     * @return array Список названий
-     */
-    public function getCamNames($cams_list = false)
-    {
-        $cams = array();
-        /* Performing new SQL query */
-        $query = 'SELECT c1.CAM_NR, c1.PARVAL as work , c2.PARVAL as text_left, ' .
-            'c1.CHANGE_HOST, c1.CHANGE_USER, c1.CHANGE_TIME ' .
-            'FROM CAMERAS c1 LEFT OUTER JOIN CAMERAS c2 ' .
-            'ON ( c1.CAM_NR = c2.CAM_NR AND c1.BIND_MAC=c2.BIND_MAC AND c2.PARNAME = \'text_left\' ) ' .
-            'WHERE c1.BIND_MAC=\'local\' AND';
-        if (empty($cams_list)) {
-            $query .= ' c1.CAM_NR > 0';
-        } else {
-            $query .= " c1.CAM_NR in ($cams_list)";
-        }
-
-        $query .= ' AND c1.PARNAME = \'work\' ' .
-            'ORDER BY c1.CAM_NR';
-        $res = $this->db->query($query);
-        $this->error($res);
-        while ($res->fetchInto($line, DB_FETCHMODE_ASSOC)) {
-            $cams[] = array(
-                'CAM_NR' => trim($line[$this->key('CAM_NR')]),
-                'work' => trim($line[$this->key('work')]),
-                'text_left' => trim($line[$this->key('text_left')]),
-            );
-        }
-        return $cams;
-
-    }
-
-    /**
-     *
      * Метод позволяет получить последний номер камеры
      * @param string $bind_mac 'local'
      * @return int номер камеры

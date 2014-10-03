@@ -389,8 +389,8 @@ $l_user_list = 'список пользователей';
 $l_user_addnew = 'добавить нового';
 $l_user_passwd = 'сменить свой пароль';
 
-$r_cam_tune = 'Параметры видеокамеры <font color="Red">N %d %s</font> на сервере &#171;
-<font color="Red">%s</font>&#187;.';
+$r_cam_tune = 'Параметры видеокамеры № <font color="Red">%d %s</font>'
+  . ' на сервере &#171<font color="Red">%s</font>&#187;.';
 $strParInvalid = 'Ошибка: &#171;%s&#187; - недопустимое значение параметра &#171;%s&#187;.';
 
 $r_cam_param_cat = 'Разделы параметров';

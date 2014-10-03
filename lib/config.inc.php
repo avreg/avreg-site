@@ -887,35 +887,6 @@ function is_empty_var($var)
     return ($var === null || (string)$var === '');
 }
 
-/**
- *
- * Функция получения камер
- * @param unknown_type $_sip
- * @param bool $first_defs
- * @return array
- */
-function getCamsArray($_sip, $first_defs = false)
-{
-    global $adb;
-    $result = $adb->getCamNames();
-    $num_rows = count($result);
-    if ($num_rows == 0) {
-        unset ($result);
-        return null;
-    }
-    $arr = array();
-    if ($first_defs) {
-        $arr[0] = $GLOBALS['r_cam_defs3'];
-    }
-    foreach ($result as $row) {
-        $_cam_name = getCamName($row['text_left']);
-        $_cam_nr = $row['CAM_NR'];
-        settype($_cam_nr, 'int');
-        $arr[$_cam_nr] = $_cam_name;
-    }
-    unset ($result);
-    return $arr;
-}
 
 /**
  *

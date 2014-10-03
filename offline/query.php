@@ -11,6 +11,7 @@ $lang_file = '_offline.php';
 $USE_JQUERY = true;
 $link_javascripts = array('lib/js/checkbox.js');
 require('../head.inc.php');
+require('../lib/get_cams_params.inc.php');
 DENY($arch_status);
 ?>
 
@@ -20,31 +21,18 @@ $tm1 = localtime(strtotime('-1 hours'));
 $min1 = $minute_array[0];
 $min2 = $minute_array[count($minute_array) - 1];
 
-if (is_array($allow_cams) && count($allow_cams) > 0) {
-    $cams_list_csv = implode(',', $allow_cams);
-} else {
-    $cams_list_csv = false;
+
+$cams_params = get_cams_params('work, text_left');
+function cam_name_array($v, $k)
+{
+    return getCamName($v['text_left']['v']) . ' (' . $k . ')';
 }
-$result = $adb->getCamNames($cams_list_csv);
-$num_rows = count($result);
+unset($cams_params[0]); // remove default template camera
+$rec_cams = array_map('cam_name_array', $cams_params, array_keys($cams_params));
 
-if ($num_rows > 0) {
-    $conf_cams_array = array();
-    foreach ($result as $row) {
-        if (empty($row['text_left'])) {
-            $_cam_short = "cam $row[CAM_NR]";
-        } else {
-            $_cam_short = "$row[text_left]($row[CAM_NR])";
-        }
-
-        $conf_cams_array[$row['CAM_NR']] = $_cam_short;
-    }
-    // tohtml($conf_cams_array);
-} else {
+if (empty($rec_cams)) {
     print '<p><b>' . $strNotCamsDef2 . '</b></p>' . "\n";
-
     require('../foot.inc.php');
-
     exit;
 }
 
@@ -140,7 +128,7 @@ if (isset($_COOKIE)) {
                 <td>
                     <?php
                     // формируем список чекбоксов
-                    print getChkbxByAssocAr('cams', $conf_cams_array, $cams_sel, 6);
+                    print getChkbxByAssocAr('cams', $rec_cams, $cams_sel, 6);
                     ?>
                 </td>
                 <td align="left">
