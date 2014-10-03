@@ -109,7 +109,7 @@ if ($is_local) {
     }
 
     $path_info = pathinfo($img_uri);
-    switch ($strtolower(path_info['extension'])) {
+    switch (strtolower($path_info['extension'])) {
         case 'jpeg':
         case 'jpg':
             $image_type = IMG_JPEG;
