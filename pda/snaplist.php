@@ -140,7 +140,7 @@ $pagi = new \Avreg\PdaPaginator(
 $pagi->printAbove();
 
 /* print objects <img> to page */
-$u = 'http://';
+$u = 'http://'; // FIXME https for local resizer and httpd ?
 if (strcasecmp(gethostname(), $_SERVER['SERVER_NAME']) === 0) {
     $u .= $_SERVER['SERVER_NAME'];
 } else {
@@ -149,7 +149,6 @@ if (strcasecmp(gethostname(), $_SERVER['SERVER_NAME']) === 0) {
 if ($_SERVER['SERVER_PORT'] != 80) {
     $u .= ':' . $_SERVER['SERVER_PORT'];
 }
-$u .= $conf['prefix'] . $conf['media-alias'] . '/';
 foreach ($pagi as $row) {
     $START = (int)$row[0];
     $FINISH = (int)$row[1];
@@ -158,18 +157,18 @@ foreach ($pagi as $row) {
     $FRAMES = (int)$row[4];
     $U16_1 = (int)$row[5];
     $U16_2 = (int)$row[6];
-    $orig_src = $u . $row[7];
+    $rel_path = $conf['prefix'] . $conf['media-alias'] . '/' . $row[7];
 
     print "<div style='margin: 0px 0px 10px 0px; pad: 0px 0px 0px 0px; border-bottom: 1px dotted;'>\n";
     print strftime('&nbsp;%h %d(%a) %T<br>', $START);
     if ($EVT_ID >= 15 && $EVT_ID <= 17 /* snapshot jpegs */) {
         $jpeg_info = "$FILESZ_KB kB, [$U16_1 x $U16_2]";
-        printf("<a href='$orig_src' title='Открыть оригинал $jpeg_info'>\n");
+        printf("<a href='$rel_path' title='Открыть оригинал $jpeg_info'>\n");
 
         printf(
             '<img class="cam_snapshot" src="' . $conf['prefix'] . '/lib/resize_img.php?prop=false&url=%s&w=%s&h=%s"
              alt="Ошибка загрузки">',
-            urlencode($orig_src),
+            urlencode($u . $rel_path),
             $width,
             $heigt
         );
