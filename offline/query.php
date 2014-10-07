@@ -23,12 +23,12 @@ $min2 = $minute_array[count($minute_array) - 1];
 
 
 $cams_params = get_cams_params('work, text_left');
-function cam_name_array($v, $k)
-{
-    return getCamName($v['text_left']['v']) . ' (' . $k . ')';
+$rec_cams = array();
+foreach ($cams_params as $key => $value) {
+    if ($key > 0) {
+        $rec_cams[$key] = getCamName($value['text_left']['v']) . ' (' . $key . ')';
+    }
 }
-unset($cams_params[0]); // remove default template camera
-$rec_cams = array_map('cam_name_array', $cams_params, array_keys($cams_params));
 
 if (empty($rec_cams)) {
     print '<p><b>' . $strNotCamsDef2 . '</b></p>' . "\n";
@@ -40,13 +40,13 @@ if (isset($_COOKIE)) {
     if (isset($_COOKIE['avreg_cams'])) {
         $cams_sel = str_replace('-', ',', $_COOKIE['avreg_cams'][0]);
     } else {
-        $cams_sel = '0,1,2,3';
+        $cams_sel = implode(',', array_slice(array_keys($rec_cams), 0, 3));
     }
     if (isset($_COOKIE['avreg_filter'])) {
         $filter_sel = str_replace('-', ',', $_COOKIE['avreg_filter'][0]);
     } else {
-        //     $filter_sel = implode(',', array_keys($env_id_ar));
-        $filter_sel = '';
+        // $filter_sel = implode(',', array_keys($env_id_ar));
+        $filter_sel = '23,32,16,3,1,17,15,12';
     }
     if (isset($_COOKIE['avreg_scale'])) {
         $_i = $_COOKIE['avreg_scale'];
