@@ -120,10 +120,9 @@ if ($width == 'FS') {
 ?>
 
 <script type="text/javascript">
-    var reload = <?php print $reload."\n"; ?>;
-    var scale =
-    <?php print $scale."\n"; ?>;
-    var SELF_ADR = <?php print "\"".$_SERVER['REQUEST_URI']."\"" ; ?>;
+    var reload = <?php print $reload; ?>;
+    var scale = <?php print $scale; ?>;
+    var SELF_ADR = <?php print '"' . $_SERVER['REQUEST_URI'] . '\"'; ?>;
     var TOTAL_SCLS = <?php print sizeof($tumb_sizes); ?>; //кол-во предопределенных значений масштаба
 </script>
 
@@ -141,6 +140,13 @@ $pagi = new \Avreg\PdaPaginator(
 $pagi->printAbove();
 
 /* print objects <img> to page */
+$u = 'http://';
+if (strcasecmp(gethostname(), $_SERVER['SERVER_NAME']) === 0) {
+    $u .= $_SERVER['SERVER_NAME'];
+} else {
+    $u .= $_SERVER['SERVER_ADDR'];
+}
+$u .= $_SERVER['SERVER_PORT'] . $conf['prefix'] . $conf['media-alias'] . '/';
 foreach ($pagi as $row) {
     $START = (int)$row[0];
     $FINISH = (int)$row[1];
@@ -149,7 +155,7 @@ foreach ($pagi as $row) {
     $FRAMES = (int)$row[4];
     $U16_1 = (int)$row[5];
     $U16_2 = (int)$row[6];
-    $orig_src = $conf['prefix'] . $conf['media-alias'] . '/' . $row[7];
+    $orig_src = $u . $row[7];
 
     print "<div style='margin: 0px 0px 10px 0px; pad: 0px 0px 0px 0px; border-bottom: 1px dotted;'>\n";
     print strftime('&nbsp;%h %d(%a) %T<br>', $START);
@@ -160,7 +166,7 @@ foreach ($pagi as $row) {
         printf(
             '<img class="cam_snapshot" src="' . $conf['prefix'] . '/lib/resize_img.php?prop=false&url=%s&w=%s&h=%s"
              alt="Ошибка загрузки">',
-            urlencode("http://" . $_SERVER["SERVER_NAME"] . $orig_src),
+            urlencode($orig_src),
             $width,
             $heigt
         );
