@@ -6,6 +6,7 @@
  *
  */
 require_once('../lib/config.inc.php');
+setlocale(LC_ALL, 'C');
 // TODO  rotate live image
 
 /// разрешить ресайз только локально
@@ -125,8 +126,11 @@ if ($is_local) {
     /* live camera image over http:// */
     $cam_nr = (int)$_REQUEST['camera'];
     require_once('../lib/get_cam_url.php');
-    $img_uri = get_avregd_cam_url($conf, $cam_nr, 'jpeg', true);
-    header('X-URL: ' . $img_uri);
+    $img_uri = preg_replace(
+        '%http(s)?://([^:/]+)([:/])%',
+        'http://127.0.0.1$3',
+        get_avregd_cam_url($conf, $cam_nr, 'jpeg', true)
+    );
     $jpeg_data = file_get_contents($img_uri, false);
     if ($jpeg_data === false) {
         $last_err = error_get_last();
