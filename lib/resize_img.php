@@ -4,11 +4,13 @@
 // FIXME почему не используется img_resize.php
 
 require('/etc/avreg/site-defaults.php');
+setlocale(LC_ALL, 'C');
+
 //Загрузка исходнгого изображения
 $src_jpeg_url = $_GET['url'];
 
 // пробуем открыть файл для чтения
-if (@fopen($src_jpeg_url, "r")) {
+if (fopen($src_jpeg_url, "r")) {
 
     $path_info = pathinfo($src_jpeg_url);
     switch (strtolower($path_info['extension'])) {
@@ -69,7 +71,7 @@ if (@fopen($src_jpeg_url, "r")) {
     ImageCopyResized($dst_gd, $src_gd, 0, 0, 0, 0, $new_width, $new_height, $im_width, $im_height);
 
     //output
-    header("Content-type: image/jpeg");
+    header("Content-Type: image/jpeg");
     Imagejpeg($dst_gd, null, 80); // quality 80
     ImageDestroy($src_gd);
     ImageDestroy($dst_gd);

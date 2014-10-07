@@ -146,7 +146,10 @@ if (strcasecmp(gethostname(), $_SERVER['SERVER_NAME']) === 0) {
 } else {
     $u .= $_SERVER['SERVER_ADDR'];
 }
-$u .= $_SERVER['SERVER_PORT'] . $conf['prefix'] . $conf['media-alias'] . '/';
+if ($_SERVER['SERVER_PORT'] != 80) {
+    $u .= ':' . $_SERVER['SERVER_PORT'];
+}
+$u .= $conf['prefix'] . $conf['media-alias'] . '/';
 foreach ($pagi as $row) {
     $START = (int)$row[0];
     $FINISH = (int)$row[1];
