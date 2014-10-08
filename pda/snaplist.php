@@ -54,7 +54,7 @@ if (isset($_SESSION[$spanlist_session_name])) {
     $files = $adb->getSnapshots($camera, $ser_nr, $timebegin, $timeend, $desc ? 'desc' : '');
 
     if (!$files) {
-        print "<div style='padding: 10px;'>Странно..., ничего не найдено :-0<br>\n";
+        print "<div style='padding: 10px;'>Сохранённых картинок не найдено :-0<br>\n";
         print "<a href='javascript:window.history.back();' title='$strBack'>$strBack</a></div>\n";
         exit;
     }
@@ -122,7 +122,7 @@ if ($width == 'FS') {
 <script type="text/javascript">
     var reload = <?php print $reload; ?>;
     var scale = <?php print $scale; ?>;
-    var SELF_ADR = <?php print '"' . $_SERVER['REQUEST_URI'] . '\"'; ?>;
+    var SELF_ADR = <?php print '"' . $_SERVER['REQUEST_URI'] . '"'; ?>;
     var TOTAL_SCLS = <?php print sizeof($tumb_sizes); ?>; //кол-во предопределенных значений масштаба
 </script>
 
