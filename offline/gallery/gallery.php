@@ -68,9 +68,8 @@ class Gallery
         $this->db = $adb;
 
         // Если существует запрашиваемый метод, то его выполняем с указанными параметрами
-        if (!empty($this->method) && method_exists($this, $this->method)) {
-            $this->{$this->method}($par_hash);
-        }
+        // if (!empty($this->method) && method_exists($this, $this->method)) {
+        $this->{$this->method}($par_hash);
     } /* __construct() */
 
     // Функция получения событий

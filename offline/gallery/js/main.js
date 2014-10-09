@@ -36,16 +36,40 @@ $(function () {
         dataType: 'json',
         cache: false,
         timeout: ajax_timeout * 1000, // 5000,
-        complete: function (XMLHttpRequest, textStatus) {
-            if (textStatus == 'timeout') {
-                alert(lang.ajax_timeout);
-                if (typeof( matrix.send_query ) != 'undefined') {
+        complete: function (jqXHR, textStatus) {
+            var e;
+            if (DEBUG == 1) {
+                console.log('gallery XHR complete, http status: ' + jqXHR.status +
+                        ', XHR status: ' + textStatus);
+            }
+            // "success", "notmodified", "error", "timeout", "abort", or "parsererror"
+            switch (textStatus) {
+                case 'timeout':
+                    e = lang.ajax_timeout;
+                    break;
+                case 'error':
+                    e = 'Server error: ' + jqXHR.status + ' ' + jqXHR.statusText + '\n\n' +
+                        'Response: ' + jqXHR.responseText;
+                    break;
+                case 'abort':
+                    e = 'Server error: ';
+                    break;
+                case 'parsererror':
+                    // server return non-JSON = php fatal error or Exception
+                    e = "Server error.\n\n" + jqXHR.responseText;
+                    break;
+                default:
+                    e = null;
+            }
+
+            if (e) {
+                alert(e);
+                if (typeof( matrix.send_query ) !== 'undefined') {
                     matrix.send_query = false;
                     $('#matrix_load').hide();
                 }
             }
         }
-
     });
 });
 
@@ -673,6 +697,7 @@ var gallery = {
             }
 
             // получаем данные о постройке дерева события
+            // обрабатывам только success, ошибки перехватываются выше в ajaxSetup->complete
             $.ajax({
                 type: "POST",
                 timeout: update_tree_timeout * 1000,
@@ -804,13 +829,15 @@ var gallery = {
                             message_box.close();
                         }
                         $('#matrix_load').hide();
-                        var message = "<h2 style='color: #000;'>Дерево событий заблокированно. Происходит обновление.</h2><br />"
-                            + "Каждые 5 секунд будет происходить попытка обновить дерево событий.<br />"
-                            + "<table>"
-                            + "<tr >"
+                        var message = "<h2 style='color: #000;'>Дерево событий заблокированно.</h2><br />"
+                            + 'Если это сообщение не исчезает в течении длительного времени<br />'
+                            + 'обратитесь к администратору системы.'
+                            + '<br /><br />'
+                            + '<table>'
+                            + '<tr >'
                             + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Выход'- </td>"
                             + "<td style='color:black;'>возврат на главную страницу<br /></td>"
-                            + "</tr>";
+                            + '</tr>';
                         +"</table>";
 
                         message_box.ok_delegate = function (event) {

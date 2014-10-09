@@ -502,8 +502,6 @@ class Adb
 
         $tree_events = array();
         while ($res->fetchInto($line, DB_FETCHMODE_ASSOC)) {
-
-
             //проверка на наличие дублирующих записей
             $evt_key = 'DT1=' . $line[$this->key('DT1')] . "&"
                 . 'DT2=' . $line[$this->key('DT2')] . "&"
@@ -523,7 +521,6 @@ class Adb
             }
             //записываем ключи в массив
             $tmp[$evt_key] = 1;
-
 
             $date = date('Y_m_d_H', strtotime($line[$this->key('DT1')]));
             $key = $date . '_' . $line[$this->key('CAM_NR')];

@@ -17,7 +17,7 @@
  * */
 
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
 
 if (!isset($_POST['method']) && !isset($_GET['method'])) {
     /// Загрузка главной страницы галереи
@@ -93,9 +93,14 @@ if (!isset($_POST['method']) && !isset($_GET['method'])) {
 
     require_once 'gallery/memcache.php';
     require_once('gallery/gallery.php');
+
     /// Инициализация класа галереи
     $params = !empty($_POST) ? $_POST : $_GET;
+    if ($conf['debug']) {
+        error_log('new \Avreg\Gallery(' . print_r($params, true) . ')');
+    }
     $gallery = new \Avreg\Gallery($params);
+
     // Возврат ответа запроса
     $gallery->printResult();
 }
