@@ -6,12 +6,10 @@
 
 $USE_JQUERY = true;
 
-$link_javascripts = array();
-
 $pageTitle = sprintf('Камера №%u', $_GET['camera']);
 // $body_onload='body_loaded();';
 require('head_pda.inc.php');
-require_once('../lib/get_cam_url.php');
+require('../lib/get_cam_url.php');
 require('../lib/get_cams_params.inc.php');
 
 if (!isset($camera) || !settype($camera, 'int')) {
@@ -40,38 +38,31 @@ if (isset($_COOKIE['scl'])) {
 if (isset($_GET['scl'])) {
     $scale = $_GET['scl'];
 }
-
-if (!isset($refresh)) {
-    $show_scale_cntrl = true;
-} else {
-    $show_scl = false;
-}
-
-include_once('scale.inc.php');
+require_once('scale.inc.php');
 
 if (!isset($_COOKIE['sort_by']) || $_COOKIE['sort_by'] != 'heigth') {
-    $tumb_sizes = get_resolutions($conf['pda_resolutions']);
+    $thumb_sizes = get_resolutions($conf['pda_resolutions']);
 } else {
-    $tumb_sizes = get_resolutions($conf['pda_resolutions'], false);
+    $thumb_sizes = get_resolutions($conf['pda_resolutions'], false);
 }
 
-if ($tumb_sizes == null || sizeof($tumb_sizes) == 0) {
+if (empty($thumb_sizes)) {
     //если ничего в конфиге не определено
-    $tumb_sizes = array(0 => array('w' => '160', 'h' => '80',));
+    $thumb_sizes = array(0 => array('w' => '160', 'h' => '80',));
 }
-if ($scale >= sizeof($tumb_sizes) - 1) {
-    $scale = sizeof($tumb_sizes) - 1;
+if ($scale >= sizeof($thumb_sizes) - 1) {
+    $scale = sizeof($thumb_sizes) - 1;
 }
 
-$width = $tumb_sizes[$scale]['w'];
-$height = $tumb_sizes[$scale]['h'];
+$img_scaled_width = $thumb_sizes[$scale]['w'];
+$img_scaled_height = $thumb_sizes[$scale]['h'];
 
 $isFs = 'false';
 $reload = 'false';
-if ($width == 'FS') {
-    $width = isset($_GET['aw']) ? $_GET['aw'] : 0;
-    $height = isset($_GET['ah']) ? $_GET['ah'] : 0;
-    if ($width == 0) {
+if ($img_scaled_width == 'FS') {
+    $img_scaled_width = isset($_GET['aw']) ? $_GET['aw'] : 0;
+    $img_scaled_height = isset($_GET['ah']) ? $_GET['ah'] : 0;
+    if ($img_scaled_width == 0) {
         $reload = 'true';
     }
     $isFs = 'true';
@@ -81,12 +72,10 @@ if ($width == 'FS') {
 
 <script type="text/javascript">
 //переменные масштаба изображений
-var isFs =
-    <?php print  $isFs."\n"; ?>;
-var reload = <?php print $reload."\n"; ?>;
-var scale = <?php print $scale."\n"; ?>;
-var SELF_ADR = <?php print "\"".$_SERVER['REQUEST_URI']."\"" ; ?>;
-var TOTAL_SCLS = <?php print sizeof($tumb_sizes); ?>; //кол-во предопределенных значений масштаба
+var isFs = <?php print  $isFs; ?>;
+var reload = <?php print $reload; ?>;
+var scale = <?php print $scale; ?>;
+var requst_uri = <?php print '"' . $_SERVER['REQUEST_URI'] . '"' ; ?>;
 
 function img_evt(e_id) {
     if ((typeof window.img_evt2).charAt(0) != 'u') {
@@ -100,13 +89,10 @@ function img_evt(e_id) {
 
 <?php
 if (!isset($refresh)) {
-
-
     //селект масштаба
     print "<div id='div_scl'>\n";
-    show_select_resolution($tumb_sizes, $scale, $strScale['scale']);
+    show_select_resolution($thumb_sizes, $scale, $strScale['scale']);
     print "</div>\n";
-
 
     $refresh_img_a = array(
         0 => 'вручную',
@@ -126,11 +112,11 @@ if (!isset($refresh)) {
     }
 
     printf(
-        '<IMG id="viewport" class="cam_snapshot" src="%s&width=%s&height=%s" style="border: 1px solid; %s"
+        '<img id="viewport" class="cam_snapshot" src="%s&width=%s&height=%s" style="border: 1px solid; %s"
         alt="%s снапшот" onerror="img_evt(1);"  />',
         $cam_url,
-        $width,
-        $height,
+        $img_scaled_width,
+        $img_scaled_height,
         ($reload != 'false') ? 'display:none;' : '',
         $cam_name
     );
@@ -171,12 +157,12 @@ if (!isset($refresh)) {
 
     /* смотрим детально и с обновлениями */
     $_SESSION['refresh'] = $refresh;
-    $cam_url .= "&width=$width&height=$height";
+    $cam_url .= "&width=$img_scaled_width&height=$img_scaled_height";
     if (@isset($_GET['scale'])) {
         $cam_url .= "&scl=$_GET[scale]";
     }
     printf(
-        '<IMG class="cam_snapshot" id="viewport" src="%s"
+        '<img class="cam_snapshot" id="viewport" src="%s"
         alt="Загружается изображение с %s ..."
         border="1px"
         onclick="refresh_img();" onload="img_evt(0);" onerror="img_evt(1);" oabort="img_evt(2);">',
@@ -195,14 +181,13 @@ if (!isset($refresh)) {
     </script>
 
     <?php
-
 }
 ?>
 
 <script type="text/javascript">
 var refresh_mode = <?php echo (!isset($refresh) ? '-1' : $refresh) ?>;
 var CAM_INFO = {
-'nr': <?php echo $camera; ?>,
+    'nr': <?php echo $camera; ?>,
     'name': '<?php echo $cam_name; ?>',
     'active': <?php echo ($cam_conf['work']['v'] && $cam_conf['allow_networks']['v']) ? 'true' : 'false' ?>,
     'width': <?php echo $w; ?>,
@@ -218,9 +203,8 @@ function refresh_img() {
     var now = new Date();
     var update_url = CAM_INFO['url'] + '&_=' + now.getTime(); // prevent local browser caching
     IMG.setAttribute('src', update_url);
-
-
 }
+
 function img_evt2(e_id) {
     if (typeof(tmr) != 'undefined') {
         clearTimeout(tmr);

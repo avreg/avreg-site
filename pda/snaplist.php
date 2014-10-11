@@ -85,8 +85,7 @@ if (isset($_COOKIE['scl'])) {
 if (isset($_GET['scl'])) {
     $scale = $_GET['scl'];
 }
-$show_scale_cntrl = true;
-include_once('scale.inc.php');
+require_once('scale.inc.php');
 
 if (!isset($_COOKIE['sort_by']) || $_COOKIE['sort_by'] != 'heigth') {
     $tumb_sizes = get_resolutions($conf['pda_resolutions']);
@@ -122,8 +121,7 @@ if ($width == 'FS') {
 <script type="text/javascript">
     var reload = <?php print $reload; ?>;
     var scale = <?php print $scale; ?>;
-    var SELF_ADR = <?php print '"' . $_SERVER['REQUEST_URI'] . '"'; ?>;
-    var TOTAL_SCLS = <?php print sizeof($tumb_sizes); ?>; //кол-во предопределенных значений масштаба
+    var requst_uri = <?php print '"' . $_SERVER['REQUEST_URI'] . '"'; ?>;
 </script>
 
 <?php

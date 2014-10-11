@@ -54,7 +54,6 @@ function show_select_resolution($resolutions, $select, $strName = "Resolutions")
         }
     }
     echo '</select>' . "\n";
-
 }
 
 ?>
@@ -74,11 +73,11 @@ function show_select_resolution($resolutions, $select, $strName = "Resolutions")
 
     $(function () {
         var expr = new RegExp('scl=\\d+', 'ig');
-        var isscl = expr.test(SELF_ADR);
+        var isscl = expr.test(requst_uri);
 
         //определяем текущий масштаб
         if (isscl) {
-            scale = SELF_ADR.match(expr)[0];
+            scale = requst_uri.match(expr)[0];
             scale = parseInt(scale.replace('scl=', ''));
         }
 
@@ -92,7 +91,7 @@ function show_select_resolution($resolutions, $select, $strName = "Resolutions")
 
         //Выбор новогого разрешения
         $('#resolution').change(function (e) {
-            var act = SELF_ADR;
+            var act = requst_uri;
             var toReload = true;
             scale = $('#resolution option:selected').val();
 
@@ -130,7 +129,7 @@ function show_select_resolution($resolutions, $select, $strName = "Resolutions")
             return;
         }
 
-        var act = SELF_ADR;
+        var act = requst_uri;
         var avail_h = parseInt(($.browser.msie) ? ietruebody().clientHeight : window.innerHeight) - corr_h;
         var avail_w = parseInt(($.browser.msie) ? ietruebody().clientWidth : window.innerWidth);
 
@@ -139,8 +138,8 @@ function show_select_resolution($resolutions, $select, $strName = "Resolutions")
 
         var ea_h = new RegExp('ah=\\d+', 'ig');
         var ea_w = new RegExp('aw=\\d+', 'ig');
-        var is_ea_h = ea_h.test(SELF_ADR);
-        var is_ea_w = ea_w.test(SELF_ADR);
+        var is_ea_h = ea_h.test(requst_uri);
+        var is_ea_w = ea_w.test(requst_uri);
 
         if (is_ea_h) {
             //если значение масштаба уже установлено
@@ -180,7 +179,6 @@ function show_select_resolution($resolutions, $select, $strName = "Resolutions")
         }
     };
 
-
     var cookie = {
         getCookie: function (c_name) {
             var i, x, y, ARRcookies = document.cookie.split(";");
@@ -207,6 +205,4 @@ function show_select_resolution($resolutions, $select, $strName = "Resolutions")
         return (document.compatMode &&
             document.compatMode != 'BackCompat') ? document.documentElement : document.body;
     }
-
-
 </script>
