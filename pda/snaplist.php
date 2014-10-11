@@ -137,12 +137,23 @@ $pagi = new \Avreg\PdaPaginator(
 );
 $pagi->printAbove();
 
+function is_ipv6($address)
+{
+    $ipv4_mapped_ipv6 = strpos($address, '::ffff:');
+    return (strpos($address, ':') !== false) &&
+           ($ipv4_mapped_ipv6 === false || $ipv4_mapped_ipv6 != 0);
+}
+
 /* print objects <img> to page */
 $u = 'http://'; // FIXME https for local resizer and httpd ?
 if (strcasecmp(gethostname(), $_SERVER['SERVER_NAME']) === 0) {
     $u .= $_SERVER['SERVER_NAME'];
 } else {
-    $u .= $_SERVER['SERVER_ADDR'];
+    if (is_ipv6($_SERVER['SERVER_ADDR'])) {
+        $u .= '[' . $_SERVER['SERVER_ADDR'] . ']';
+    } else {
+        $u .= $_SERVER['SERVER_ADDR'];
+    }
 }
 if ($_SERVER['SERVER_PORT'] != 80) {
     $u .= ':' . $_SERVER['SERVER_PORT'];

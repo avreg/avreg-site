@@ -127,7 +127,7 @@ if ($is_local) {
     $cam_nr = (int)$_REQUEST['camera'];
     require_once('../lib/get_cam_url.php');
     $img_uri = preg_replace(
-        '%http(s)?://([^:/]+)([:/])%',
+        '%http(s)?://([^:/]+)([:/])%', /* TODO ipv6 */
         'http://127.0.0.1$3',
         get_avregd_cam_url($conf, $cam_nr, 'jpeg', true)
     );
