@@ -134,17 +134,17 @@ class Gallery
         global $cams_params; // offline/gallery.php
         global $cams_array;  // offline/gallery.php
         $cameras = implode(',', $cams_array);
-        // TODO make 1 select
-        $count_event = $this->db->galleryGetCountEvent(array('cameras' => $cams_array));
-        $count_tree_event = $this->db->galleryGetCountTreeEvent(array('cameras' => $cams_array));
-        $last_event_date = $this->db->galleryGetLastEventDate(array('cameras' => $cams_array));
-        $last_tree_date = $this->db->galleryGetLastTreeEventDate(array('cameras' => $cams_array));
-        $oldest_event_date = $this->db->galleryGetOldestEventDate(array('cameras' => $cams_array));
-        $oldest_tree_date = $this->db->galleryGetOldestTreeEventDate(array('cameras' => $cams_array));
 
-        if ($count_event != $count_tree_event  ||
-            $last_tree_date < $last_event_date ||
-            $oldest_event_date > $oldest_tree_date) {
+        $params = array(
+            'cameras' => $cams_array
+        );
+
+        $events_stat = $this->db->galleryEventsGetStat($params);
+        $tree_events_stat = $this->db->galleryTreeEventsGetStat($params);
+
+        if ($events_stat['files'] != $tree_events_stat['files']  ||
+            $tree_events_stat['latest_update'] < $events_stat['latest'] ||
+            $events_stat['oldest'] > $tree_events_stat['oldest_update']) { // FIXME compare DateTime as string
             /* need update tree_events */
             $access_update_tree = in_array(
                 $GLOBALS['user_status'],
@@ -154,12 +154,12 @@ class Gallery
                     'status' => 'error',
                     'code' => '4',
                     'description' => 'Дерево не синхронизированно',
-                    'count_event' => $count_event,
-                    'count_tree_event' => $count_tree_event,
-                    'last_event_date' => $last_event_date,
-                    'last_tree_date' => $last_tree_date,
-                    'oldest_event_date' => $oldest_event_date,
-                    'oldest_tree_date' => $oldest_tree_date,
+                    'count_event' => $events_stat['files'],
+                    'count_tree_event' => $tree_events_stat['files'],
+                    'last_event_date' => $events_stat['latest'],
+                    'last_tree_date' => $tree_events_stat['latest_update'],
+                    'oldest_event_date' => $events_stat['oldest'],
+                    'oldest_tree_date' => $tree_events_stat['oldest_update'],
                     'access_update_tree' => $access_update_tree
             );
             return;
@@ -169,18 +169,17 @@ class Gallery
             // возвращаем без данных и не ошибку как признак того что данные не изменились
             $this->result = array(
                 'status' => 'success',
-                'last_tree_date' => $last_tree_date,
-                'count_event' => $count_event,
-                'count_tree_event' => $count_tree_event,
-                'last_event_date' => $last_event_date,
-                'last_tree_date' => $last_tree_date,
-                'oldest_event_date' => $oldest_event_date,
-                'oldest_tree_date' => $oldest_tree_date
+                'count_event' => $events_stat['files'],
+                'count_tree_event' => $tree_events_stat['files'],
+                'last_event_date' => $events_stat['latest'],
+                'last_tree_date' => $tree_events_stat['latest_update'],
+                'oldest_event_date' => $events_stat['oldest'],
+                'oldest_tree_date' => $tree_events_stat['oldest_update']
             );
             return;
         }
         // получаем дерево из кеша, если его нет, то из базы, результат помещаем в кеш.
-        $key = md5($cameras . '-' . $last_tree_date);
+        $key = md5($cameras . '-' . $tree_events_stat['latest_update']);
         $tree_events_result = $this->cache->get($key);
         if (empty($tree_events_result)) {
             $tree_events_result = $this->db->galleryGetTreeEvents(array('cameras' => $cams_array));
@@ -206,13 +205,12 @@ class Gallery
             'status' => 'success',
             'tree_events' => $tree_events_result,
             'cameras' => $cams_params,
-            'last_tree_date' => $last_tree_date,
-            'count_event' => $count_event,
-            'count_tree_event' => $count_tree_event,
-            'last_event_date' => $last_event_date,
-            'last_tree_date' => $last_tree_date,
-            'oldest_event_date' => $oldest_event_date,
-            'oldest_tree_date' => $oldest_tree_date
+            'count_event' => $events_stat['files'],
+            'count_tree_event' => $tree_events_stat['files'],
+            'last_event_date' => $events_stat['latest'],
+            'last_tree_date' => $tree_events_stat['latest_update'],
+            'oldest_event_date' => $events_stat['oldest'],
+            'oldest_tree_date' => $tree_events_stat['oldest_update']
         );
     } /* getTreeEvents() */
 
@@ -247,14 +245,14 @@ class Gallery
     public function cronUpdateTreeEvents()
     {
         // последенее событие
-        $last_event_date = $this->db->galleryGetLastEventDate();
+        $events_stat = $this->db->galleryEventsGetStat();
         // последнее событие в дереве
-        $last_tree_date = $this->db->galleryGetLastTreeEventDate();
+        $tree_events_stat = $this->db->galleryTreeEventsGetStat();
         // обновляем дерево если оно не полное
-        if ($last_tree_date < $last_event_date) {
+        if ($tree_events_stat['latest_update'] < $events_stat['latest']) {
             $par_hash = array(
-                'start' => $last_tree_date,
-                'end' => $last_event_date
+                'start' => $tree_events_stat['latest_update'],
+                'end' => $events_stat['latest']
             );
             return $this->updateTreeEvents($par_hash);
         }

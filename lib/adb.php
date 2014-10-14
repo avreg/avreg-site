@@ -304,120 +304,105 @@ class Adb
 
 
     /**
-     *  Метод позволяет получить количество событий
+     *  Метод позволяет получить статистику о файловых событиях в таблицe EVENTS
      *
      * @param array $param Параметры
-     * - $param['cameras']  список камер
-     *
-     * @return string дата последнего события
+     * - $params['cameras']  список камер
+     * - $params['from']     дата from (LAST_UPDATE)
+     * - $params['to']       дата to (LAST_UPDATE)
+     * @return array         with fields: files, latest and oldest
      */
-    public function galleryGetCountEvent($param = array())
+    public function galleryEventsGetStat($params = array())
     {
-        $count = 0;
-        $query = 'SELECT COUNT(*) FROM EVENTS WHERE EVT_ID in (12, 15,16,17, 23, 32)';
-        if (isset($param['cameras'])) {
-            $query .= ' AND EVENTS.CAM_NR in (' . implode(",", $param['cameras']) . ')';
-        }
-        if (isset($param['date'])) {
-            $query .= ' AND EVENTS.DT1 >="' . $param['date'] . '"';
+        $stat = array(
+            'files' => 0,
+            'latest' => '1970-01-01 00:00:00',
+            'oldest' => '1970-01-01 00:00:00'
+        );
+
+        $query = 'select COUNT(*) as files, MAX(DT1) as oldest, MIN(DT1) as latest from EVENTS';
+        $query .= ' where EVT_ID in (12, 15,16,17, 23, 32)';
+        if (!empty($params)) {
+            foreach ($params as $key => $value) {
+                switch ($key) {
+                    case 'cameras':
+                        $query .= ' and CAM_NR in (' . implode(',', $value) . ')';
+                        break;
+                    case 'from':
+                        $query .= ' and DT1 >="' . $value . '"';
+                        break;
+                    case 'to':
+                        $query .= ' and DT1 <="' . $value . '"';
+                        break;
+                    default:
+                        die("galleryEventsGetStat() failed: unknown param \"$value\"");
+                }
+            }
+            unset($key, $value);
         }
 
-        // групировать и сортировать по дате
         $res = $this->db->query($query);
         $this->error($res);
-        if ($res->fetchInto($line)) {
-            $count = (int)$line[0];
+        if ($res->fetchInto($line) && !empty($line[0])) {
+            $stat['files'] = (int)$line[0];
+            $stat['latest'] = $line[1];
+            $stat['oldest'] = $line[2];
         }
-        return $count;
-    }
-
+        unset($res, $line);
+        return $stat;
+    } /* galleryEventsGetStat() */
 
     /**
-     *  Метод позволяет получить последнюю дату события в дереве
-     *
-     *
-     * @param array $param Параметры
-     * - $param['cameras']  список камер
-     *
-     * @return string дата последнего события дерева
-     */
-    public function galleryGetLastTreeEventDate($param = array())
-    {
-        $event = '1970-01-01 00:00:00';
-
-        $query = "SELECT LAST_UPDATE";
-        $query .= ' FROM TREE_EVENTS';
-        if (isset($param['cameras'])) {
-            $query .= ' WHERE ';
-            $query .= ' TREE_EVENTS.CAM_NR in (' . implode(",", $param['cameras']) . ')';
-        }
-        $query .= ' ORDER BY LAST_UPDATE DESC LIMIT 1';
-        $res = $this->db->query($query);
-        $this->error($res);
-        if ($res->fetchInto($line)) {
-            $event = $line[0];
-        }
-        return $event;
-    }
-
-
-    /**
-     *  Метод позволяет получить первую дату события в дереве
-     *
+     *  Метод позволяет получить статистику о дереве событий
      *
      * @param array $param Параметры
-     * - $param['cameras']  список камер
-     *
-     * @return string дата первого события дерева
+     * - $params['cameras']  список камер
+     * - $params['from']     дата from (LAST_UPDATE)
+     * - $params['to']       дата to (LAST_UPDATE)
+     * @return array         with fields: files, latest_update and oldest_update
      */
-    public function galleryGetOldestTreeEventDate($param = array())
+    public function galleryTreeEventsGetStat($params = array())
     {
-        $event = '1970-01-01 00:00:00';
+        $stat = array(
+            'files' => 0,
+            'latest_update' => '1970-01-01 00:00:00',
+            'oldest_update' => '1970-01-01 00:00:00'
+        );
 
-        $query = "SELECT LAST_UPDATE";
-        $query .= ' FROM TREE_EVENTS';
-        if (isset($param['cameras'])) {
-            $query .= ' WHERE ';
-            $query .= ' TREE_EVENTS.CAM_NR in (' . implode(",", $param['cameras']) . ')';
-        }
-        $query .= ' ORDER BY LAST_UPDATE ASC LIMIT 1';
-        $res = $this->db->query($query);
-        $this->error($res);
-        if ($res->fetchInto($line)) {
-            $event = $line[0];
-        }
-        return $event;
-    }
+        $query = 'select SUM(IMAGE_COUNT+VIDEO_COUNT+AUDIO_COUNT) as files,';
+        $query .= ' MAX(LAST_UPDATE) as latest_update, MIN(LAST_UPDATE) as oldest_update';
+        $query .= ' from TREE_EVENTS';
+        if (!empty($params)) {
+            $query .= ' where ';
 
-    /**
-     *  Метод позволяет получить количество событий в дереве
-     *
-     *
-     * @param array $param Параметры
-     * - $param['cameras']  список камер
-     *
-     * @return string дата последнего события дерева
-     */
-    public function galleryGetCountTreeEvent($param = array())
-    {
-        $count = 0;
-        $query = "SELECT SUM(IMAGE_COUNT+VIDEO_COUNT+AUDIO_COUNT)";
-        $query .= ' FROM TREE_EVENTS';
-        if (isset($param['cameras'])) {
-            $query .= ' WHERE ';
-            $query .= ' TREE_EVENTS.CAM_NR in (' . implode(",", $param['cameras']) . ')';
-        }
-        if (isset($param['date'])) {
-            $query .= ' AND TREE_EVENTS.LAST_UPDATE >="' . $param['date'] . '"';
+            foreach ($params as $key => $value) {
+                switch ($key) {
+                    case 'cameras':
+                        $query .= ' CAM_NR in (' . implode(',', $value) . ')';
+                        break;
+                    case 'from':
+                        $query .= ' and LAST_UPDATE >="' . $value . '"';
+                        break;
+                    case 'to':
+                        $query .= ' and LAST_UPDATE <="' . $value . '"';
+                        break;
+                    default:
+                        die("galleryTreeEventGetStat() failed: unknown param \"$value\"");
+                }
+            }
+            unset($key, $value);
         }
 
         $res = $this->db->query($query);
         $this->error($res);
-        if ($res->fetchInto($line)) {
-            $count = (int)$line[0];
+        if ($res->fetchInto($line) && !empty($line[0])) {
+            $stat['files'] = (int)$line[0];
+            $stat['latest_update'] = $line[1];
+            $stat['oldest_update'] = $line[2];
         }
-        return $count;
-    }
+        unset($res, $line);
+        return $stat;
+    } /* galleryTreeEventGetStat() */
 
 
     /**
@@ -1940,3 +1925,4 @@ class Adb
         return $str;
     }
 }
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */
