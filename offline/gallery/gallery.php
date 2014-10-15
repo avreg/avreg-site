@@ -109,7 +109,7 @@ class Gallery
                 'offset' => $par_hash['sp'],
             );
             //$events = $this->db->galleryGetEvent($p);
-            if ($this->limit > 1) {
+            if ($this->limit > 1) { // FIXME что за limit такой?
                 $events = $this->db->galleryGetEvent($p);
                 // Сохранение результата
                 $this->result = array('events' => $events);
@@ -138,7 +138,12 @@ class Gallery
         $params = array(
             'cameras' => $cams_array
         );
-
+        if (!@empty($par_hash['start'])) {
+            $params['from'] = $par_hash['start'];
+        }
+        if (!@empty($par_hash['end'])) {
+            $params['to'] = $par_hash['end'];
+        }
         $events_stat = $this->db->galleryEventsGetStat($params);
         $tree_events_stat = $this->db->galleryTreeEventsGetStat($params);
 
@@ -182,7 +187,7 @@ class Gallery
         $key = md5($cameras . '-' . $tree_events_stat['latest_update']);
         $tree_events_result = $this->cache->get($key);
         if (empty($tree_events_result)) {
-            $tree_events_result = $this->db->galleryGetTreeEvents(array('cameras' => $cams_array));
+            $tree_events_result = $this->db->galleryGetTreeEvents($params);
             if (!$this->cache->check($key)) {
                 $this->cache->lock($key);
                 $tree_events_keys = $this->cache->get('tree_events_keys');
@@ -262,7 +267,15 @@ class Gallery
     public function reindexTreeEvents($par_hash)
     {
         global $cams_array; // offline/gallery.php
+        /* важно ограничить время сверху, т.к.
+         * между вызовами updateTreeEvents и getTreeEvents
+         * может пройти приличное время за которое в базу будут добавлены новые события
+         * и будет вечный цикл */
+        if (@empty($par_hash['end'])) {
+            $par_hash['end'] = date('Y-m-d H:i:s');
+        }
         $par_hash['cameras'] = implode(',', $cams_array);
+        // TODO объединить 2 вызова и сделать updateTreeEvents() сразу могла результат выдать
         $this->updateTreeEvents($par_hash);
         $par_hash['initially'] = 'yes'; // чтобы getTreeEvents() возвратил данные
         $this->getTreeEvents($par_hash);

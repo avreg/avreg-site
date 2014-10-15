@@ -52,19 +52,19 @@ class Adb
     /**
      *  Конструктор по умолчанию
      * Устанавливает соединение с БД
-     * @param array $param масив конфигурации класса
-     * @return \Avreg\Adb если соединение с баззой успешно, false если произошла ошибка.
+     * @params array $params масив конфигурации класса, передаётся авреговый $conf
+     * @return \Avreg\Adb если соединение с базой успешно, false если произошла ошибка.
      */
-    public function __construct($param)
+    public function __construct($params)
     {
-        $this->database = $param['db-name'];
-        $this->user = $param['db-user'];
-        $this->password = $param['db-passwd'];
-        if (isset($param['db-type']) && !empty($param['db-type'])) {
+        $this->database = $params['db-name'];
+        $this->user = $params['db-user'];
+        $this->password = $params['db-passwd'];
+        if (isset($params['db-type']) && !empty($params['db-type'])) {
             $this->dbtype = $param['db-type'];
         }
-        if (isset($param['db-host']) && !empty($param['db-host'])) {
-            $this->host = $param['db-host'];
+        if (isset($params['db-host']) && !empty($params['db-host'])) {
+            $this->host = $params['db-host'];
         }
 
         //$this->_host ='localhost';
@@ -275,10 +275,10 @@ class Adb
                         $query .= ' and CAM_NR in (' . implode(',', $value) . ')';
                         break;
                     case 'from':
-                        $query .= ' and DT1 >="' . $value . '"';
+                        $query .= " and DT1 >= '$value'";
                         break;
                     case 'to':
-                        $query .= ' and DT1 <="' . $value . '"';
+                        $query .= " and DT1 <= '$value'";
                         break;
                     default:
                         die("galleryEventsGetStat() failed: unknown param \"$value\"");
@@ -327,10 +327,10 @@ class Adb
                         $query .= ' CAM_NR in (' . implode(',', $value) . ')';
                         break;
                     case 'from':
-                        $query .= ' and LAST_UPDATE >="' . $value . '"';
+                        $query .= " and LAST_UPDATE >= '$value'";
                         break;
                     case 'to':
-                        $query .= ' and LAST_UPDATE <="' . $value . '"';
+                        $query .= " and LAST_UPDATE <= '$value'";
                         break;
                     default:
                         die("galleryTreeEventGetStat() failed: unknown param \"$value\"");
@@ -351,24 +351,41 @@ class Adb
     } /* galleryTreeEventGetStat() */
 
 
-    /**
+    /***
      *  Метод позволяет получить дерево событий
      *
-     *
      * @param array $param Параметры
-     * - $param['cameras']  список камер
-     *
+     * - $params['cameras']  список камер
+     * - $params['from']     дата from (LAST_UPDATE)
+     * - $params['to']       дата to (LAST_UPDATE)
      * @return array масив дерева событий со статистикой
      */
-
-    public function galleryGetTreeEvents($param)
+    public function galleryGetTreeEvents($params)
     {
         $tree_events_result = array();
 
-        $query = "SELECT *";
-        $query .= ' FROM TREE_EVENTS';
-        $query .= ' WHERE TREE_EVENTS.CAM_NR in (' . implode(",", $param['cameras']) . ')';
-        $query .= ' ORDER BY ' . $this->datePart('year', 'LAST_UPDATE') . ' DESC, LAST_UPDATE ASC';
+        $query = 'select * from TREE_EVENTS';
+        if (!empty($params)) {
+            $query .= ' where ';
+
+            foreach ($params as $key => $value) {
+                switch ($key) {
+                    case 'cameras':
+                        $query .= ' CAM_NR in (' . implode(',', $value) . ')';
+                        break;
+                    case 'from':
+                        $query .= " and LAST_UPDATE >= '$value'";
+                        break;
+                    case 'to':
+                        $query .= " and LAST_UPDATE <= '$value'";
+                        break;
+                    default:
+                        die("galleryGetTreeEvents() failed: unknown param \"$value\"");
+                }
+            }
+            unset($key, $value);
+        }
+        $query .= ' order by ' . $this->datePart('year', 'LAST_UPDATE') . ' desc, LAST_UPDATE asc';
         $res = $this->db->query($query);
         $this->error($res);
         while ($res->fetchInto($v, DB_FETCHMODE_ASSOC)) {
@@ -392,7 +409,7 @@ class Adb
             $tree_events_result[$date]['audio_' . $v[$this->key('CAM_NR')] . '_size'] = $v[$this->key('AUDIO_SIZE')];
         }
         return $tree_events_result;
-    }
+    } /* galleryGetTreeEvents() */
 
     /**
      *  Метод обновляет дерево событий

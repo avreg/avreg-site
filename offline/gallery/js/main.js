@@ -49,8 +49,8 @@ $(function () {
                     break;
                 case 'error':
                     // jqXHR.statusCode == 0 при уходе со страницы возникает
-                    if (jqXHR.statusCode > 0) {
-                        e = 'Server error: ' + jqXHR.statusCode + ' ' + jqXHR.statusText + '\n\n' +
+                    if (jqXHR.status > 0) {
+                        e = 'Server error: ' + jqXHR.status + ' ' + jqXHR.statusText + '\n\n' +
                             'Response: ' + jqXHR.responseText;
                     }
                     break;
@@ -370,7 +370,7 @@ var gallery = {
     tree_event: {
         holder: null,
         timeUpdateTree: false, // таймер, который показывает кнопку обновить дерево
-        build_err_counter : 0, // счётчик попыток построить дерево
+        first : true, // первая ли загрузка
 
         // функция обновления дерева
         reload: function () {
@@ -722,11 +722,10 @@ var gallery = {
                         } else {
                             $('#matrix_load').hide();
                         }
-                        self.build_err_counter = 0;
+                        self.first = false;
                         self.startUpdateTreeTimer();
                         $('#update_tree').hide();
                     } else if (data.status == 'error') {
-                        self.build_err_counter++;
                         if (data.code == '0') {
                             // принудительно очищаем события
                             matrix.tree_events = {};
@@ -856,7 +855,8 @@ var gallery = {
                         } else if (data.code == '4') {
                             /* рассинхронизация событий и дерева или если дерево не актуально */
                             $('#matrix_load').hide();
-                            if (self.build_err_counter == 1) {
+                            if (self.first) {
+                                self.first = false;
                                 $('#matrix_load').show();
                                 gallery.tree_event.init(holder,
                                         {'method': 'reindexTreeEvents', 'on_dbld_evt': 'inform_user'});
@@ -2733,11 +2733,13 @@ var matrix = {
 
             // делаем запрос
             $.post(WwwPrefix + '/offline/gallery.php',
-                {'method': 'getEvents',
+                {
+                    'method': 'getEvents',
                     'tree': matrix.tree,
                     'sp': get_sp,
                     'type': type,
-                    'cameras': cameras},
+                    'cameras': cameras
+                },
                 function (data) {
                     if (DEBUG == 1) {
                         console.log('xhr getEvents response:', data);
@@ -4368,7 +4370,8 @@ var scrollPopUp = {
         });
 
         $.post(WwwPrefix + '/offline/gallery.php',
-            {'method': 'getEvents',
+            {
+                'method': 'getEvents',
                 'tree': matrix.tree,
                 'sp': scrollPopUp.scrollPosition,
                 'limit': 1,
