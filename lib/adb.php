@@ -250,60 +250,6 @@ class Adb
     }
 
     /**
-     *  Метод позволяет получить последнюю дату события
-     *
-     * @param array $param Параметры
-     * - $param['cameras']  список камер
-     *
-     * @return string дата последнего события
-     */
-    public function galleryGetLastEventDate($param = array())
-    {
-        $event = '1970-01-01 00:00:00';
-
-        $query = 'SELECT DT1 FROM EVENTS WHERE EVT_ID in (12, 15,16,17, 23, 32)';
-        if (isset($param['cameras'])) {
-            $query .= ' AND EVENTS.CAM_NR in (' . implode(",", $param['cameras']) . ')';
-        }
-        // групировать и сортировать по дате
-        $query .= ' ORDER BY DT1 DESC LIMIT 1';
-        $res = $this->db->query($query);
-        $this->error($res);
-        if ($res->fetchInto($line)) {
-            $event = $line[0];
-        }
-        return $event;
-    }
-
-
-    /**
-     *  Метод позволяет получить первую дату события
-     *
-     * @param array $param Параметры
-     * - $param['cameras']  список камер
-     *
-     * @return string дата первого события
-     */
-    public function galleryGetOldestEventDate($param = array())
-    {
-        $event = '1970-01-01 00:00:00';
-
-        $query = 'SELECT DT1 FROM EVENTS WHERE EVT_ID in (12, 15,16,17, 23, 32)';
-        if (isset($param['cameras'])) {
-            $query .= ' AND EVENTS.CAM_NR in (' . implode(",", $param['cameras']) . ')';
-        }
-        // групировать и сортировать по дате
-        $query .= ' ORDER BY DT1 ASC LIMIT 1';
-        $res = $this->db->query($query);
-        $this->error($res);
-        if ($res->fetchInto($line)) {
-            $event = $line[0];
-        }
-        return $event;
-    }
-
-
-    /**
      *  Метод позволяет получить статистику о файловых событиях в таблицe EVENTS
      *
      * @param array $param Параметры
