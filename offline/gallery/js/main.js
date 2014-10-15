@@ -48,8 +48,11 @@ $(function () {
                     e = lang.ajax_timeout;
                     break;
                 case 'error':
-                    e = 'Server error: ' + jqXHR.status + ' ' + jqXHR.statusText + '\n\n' +
-                        'Response: ' + jqXHR.responseText;
+                    // jqXHR.statusCode == 0 при уходе со страницы возникает
+                    if (jqXHR.statusCode > 0) {
+                        e = 'Server error: ' + jqXHR.statusCode + ' ' + jqXHR.statusText + '\n\n' +
+                            'Response: ' + jqXHR.responseText;
+                    }
                     break;
                 case 'abort':
                     e = 'Server error: ';
@@ -367,7 +370,7 @@ var gallery = {
     tree_event: {
         holder: null,
         timeUpdateTree: false, // таймер, который показывает кнопку обновить дерево
-        first : true, // первая ли загрузка
+        build_err_counter : 0, // счётчик попыток построить дерево
 
         // функция обновления дерева
         reload: function () {
@@ -719,186 +722,184 @@ var gallery = {
                         } else {
                             $('#matrix_load').hide();
                         }
-                        self.first = false;
+                        self.build_err_counter = 0;
                         self.startUpdateTreeTimer();
                         $('#update_tree').hide();
-                    } else if (data.status == 'error' && data.code == '0') {
-                        // принудительно очищаем события
-                        matrix.tree_events = {};
-                        matrix.cameras = {};
-                        matrix.events = {};
-                        matrix.all_events = {};
-                        gallery.tree_event.reload();
-                        self.startUpdateTreeTimer();
-                        self.first = true;
-                        $('#update_tree').show();
-                        alert(lang.empty_tree);
-                    } else if (data.status == 'error' && data.code == '1') {
-                        //если вовремя заполнения EVENTS_TREE были обнаружены дублированные события
-                        $('#matrix_load').hide();
-
-                        var header = "Ошибка";
-
-                        var message = "<h2 style='color: #000;'>" + "В диапазоне [" + data.range_start + " : " + data.range_end
-                            + "] в базе данных обнаружено " + data.qtty
-                            + " записей о ссылках на файлы с одинаковым временем создания и номером камеры (дубли).</h2><br /><br />"
-                            + "<table>"
-                            + "<tr >"
-                            + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Удалить'- </td>"
-                            + "<td style='color:black;'>удаление дублирующих записей. <br />"
-                            + "В случае выбора этой опции, будут удалены из базы данных только записи-дубли, "
-                            + "при этом сами записи об этих событиях будут сохранены в единственном варианте "
-                            + "и будут доступны для дальнейшего использования.<br />"
-                            //+"Для дальнейшего анализа ситуации вам будут предоставлен список удаденных записей-дублей в виде текстового файла."
-                            + "</td></tr>"
-                            + "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>"
-                            + "<tr>"
-                            + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Игнорировать'- </td>"
-                            + "<td style='color:black;'>игнорировать дублирующие записи.<br />"
-                            + "В случае выбора этой опции, дублирующие записи остануться в базе данных, "
-                            + "но это никак не повлияет на дальнейшую работу, поскольку их наличие будет "
-                            + "учитываться. Однако, в случае обновления данных за период, который содержит "
-                            + "дублирующие записи, снова появится это уведомление."
-                            + "</td>"
-                            + "</tr>"
-                            + "</table>";
-
-                        message_box.yes_delegate = function (event) {
-                            $('#matrix_load').show();
-                            gallery.tree_event.init(holder, {'method': 'getTreeEvents', 'on_dbld_evt': 'clear'});
-                        };
-
-                        message_box.no_delegate = function (event) {
-                            $('#matrix_load').show();
-                            gallery.tree_event.init(holder, {'method': 'getTreeEvents', 'on_dbld_evt': 'ignore'});
-                        };
-
-                        message_box.buttons_name.No = "Игнорировать";
-                        message_box.buttons_name.Yes = "Удалить";
-
-                        message_box.show(message, header, message_box.message_type.error, message_box.button_type.YesNo);
-
-                    } else if (data.status == 'error' && data.code == '2') { //если вовремя очистки не были удалены все дубли
-                        $('#matrix_load').hide();
-
-                        var header = "Ошибка.";
-
-                        var message = "<h2 style='color: #000;'>" + "Не удалось удалить все дублирующие записи.</h2><br />"
-                            + "Было удалено " + data.qtty + "записей-дублей. <br />"
-                            + " В диапазоне [" + data.range_start + " : " + data.range_end
-                            + "]  "
-                            + "остались записи о ссылках на файлы с одинаковым временем создания и номером камеры (дубли).<br /><br />"
-                            + "<table>"
-                            + "<tr >"
-                            + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Удалить'- </td>"
-                            + "<td style='color:black;'>удаление дублирующих записей. <br />"
-                            + "В случае выбора этой опции, будут удалены из базы данных только записи-дубли, "
-                            + "при этом сами записи об этих событиях будут сохранены в единственном варианте "
-                            + "и будут доступны для дальнейшего использования.<br />"
-                            + "Для дальнейшего анализа ситуации вам будут предоставлен список удаденных записей-дублей в виде текстового файла."
-                            + "</td></tr>"
-                            + "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>"
-                            + "<tr>"
-                            + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Игнорировать'- </td>"
-                            + "<td style='color:black;'>игнорировать дублирующие записи.</h2><br />"
-                            + "В случае выбора этой опции, дублирующие записи остануться в базе данных, "
-                            + "но это никак не повлияет на дальнейшую работу, поскольку их наличие будет "
-                            + "учитываться. Однако, в случае обновления данных за период, который содержит "
-                            + "дублирующие записи, снова появится это уведомление."
-                            + "</td>"
-                            + "</tr>"
-                            + "</table>";
-
-                        message_box.yes_delegate = function (event) {
-                            $('#matrix_load').show();
-                            gallery.tree_event.init(holder, {'method': 'getTreeEvents', 'on_dbld_evt': 'clear'});
-                        };
-
-                        message_box.no_delegate = function (event) {
-                            $('#matrix_load').show();
-                            gallery.tree_event.init(holder, {'method': 'getTreeEvents', 'on_dbld_evt': 'ignore'});
-                        };
-
-                        message_box.buttons_name.No = "Игнорировать";
-                        message_box.buttons_name.Yes = "Удалить";
-
-                        message_box.show(message, header, message_box.message_type.error, message_box.button_type.YesNo);
-
-                    } else if (data.status == 'error' && data.code == '3') { //если дерево заблокированно
-                        if ( message_box.isShow ) {
-                            message_box.close();
-                        }
-                        $('#matrix_load').hide();
-                        var message = "<h2 style='color: #000;'>Дерево событий заблокированно.</h2><br />"
-                            + 'Если это сообщение не исчезает в течении длительного времени<br />'
-                            + 'обратитесь к администратору системы.'
-                            + '<br /><br />'
-                            + '<table>'
-                            + '<tr >'
-                            + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Выход'- </td>"
-                            + "<td style='color:black;'>возврат на главную страницу<br /></td>"
-                            + '</tr>';
-                        +"</table>";
-
-                        message_box.ok_delegate = function (event) {
-                            location = "../index.php";
-                        };
-                        message_box.buttons_name.OK = "Выход";
-
-                        message_box.show(message, header)
-
-                        setTimeout(function () {
-                            gallery.tree_event.init(holder);
-                        }, 5000);
-
-                    } else if (data.status == 'error' && data.code == '4') {
-                        /* рассинхронизация событий и дерева или если дерево не актуально */
-                        $('#matrix_load').hide();
-                        if (self.first) {
-                            self.first = false;
-                            $('#matrix_load').show();
-                            gallery.tree_event.init(holder,
-                                    {'method': 'reindexTreeEvents', 'on_dbld_evt': 'inform_user'});
-                            return;
-                        } else if (gallery.cookie.get('dontBlockUpdTree')) {
-                            /* просто отображаем кнопку обновить */
+                    } else if (data.status == 'error') {
+                        self.build_err_counter++;
+                        if (data.code == '0') {
+                            // принудительно очищаем события
+                            matrix.tree_events = {};
+                            matrix.cameras = {};
+                            matrix.events = {};
+                            matrix.all_events = {};
+                            gallery.tree_event.reload();
+                            self.startUpdateTreeTimer();
                             $('#update_tree').show();
-                            return;
+                            alert(lang.empty_tree);
+                        } else if (data.code == '1') {
+                            //если вовремя заполнения EVENTS_TREE были обнаружены дублированные события
+                            $('#matrix_load').hide();
+
+                            var header = "Ошибка";
+
+                            var message = "<h2 style='color: #000;'>" + "В диапазоне [" + data.range_start + " : " + data.range_end
+                                + "] в базе данных обнаружено " + data.qtty
+                                + " записей о ссылках на файлы с одинаковым временем создания и номером камеры (дубли).</h2><br /><br />"
+                                + "<table>"
+                                + "<tr >"
+                                + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Удалить'- </td>"
+                                + "<td style='color:black;'>удаление дублирующих записей. <br />"
+                                + "В случае выбора этой опции, будут удалены из базы данных только записи-дубли, "
+                                + "при этом сами записи об этих событиях будут сохранены в единственном варианте "
+                                + "и будут доступны для дальнейшего использования.<br />"
+                                //+"Для дальнейшего анализа ситуации вам будут предоставлен список удаденных записей-дублей в виде текстового файла."
+                                + "</td></tr>"
+                                + "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>"
+                                + "<tr>"
+                                + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Игнорировать'- </td>"
+                                + "<td style='color:black;'>игнорировать дублирующие записи.<br />"
+                                + "В случае выбора этой опции, дублирующие записи остануться в базе данных, "
+                                + "но это никак не повлияет на дальнейшую работу, поскольку их наличие будет "
+                                + "учитываться. Однако, в случае обновления данных за период, который содержит "
+                                + "дублирующие записи, снова появится это уведомление."
+                                + "</td>"
+                                + "</tr>"
+                                + "</table>";
+
+                            message_box.yes_delegate = function (event) {
+                                $('#matrix_load').show();
+                                gallery.tree_event.init(holder, {'method': 'getTreeEvents', 'on_dbld_evt': 'clear'});
+                            };
+
+                            message_box.no_delegate = function (event) {
+                                $('#matrix_load').show();
+                                gallery.tree_event.init(holder, {'method': 'getTreeEvents', 'on_dbld_evt': 'ignore'});
+                            };
+
+                            message_box.buttons_name.No = "Игнорировать";
+                            message_box.buttons_name.Yes = "Удалить";
+
+                            message_box.show(message, header, message_box.message_type.error, message_box.button_type.YesNo);
+                        } else if (data.code == '2') { //если вовремя очистки не были удалены все дубли
+                            $('#matrix_load').hide();
+
+                            var header = "Ошибка.";
+
+                            var message = "<h2 style='color: #000;'>" + "Не удалось удалить все дублирующие записи.</h2><br />"
+                                + "Было удалено " + data.qtty + "записей-дублей. <br />"
+                                + " В диапазоне [" + data.range_start + " : " + data.range_end
+                                + "]  "
+                                + "остались записи о ссылках на файлы с одинаковым временем создания и номером камеры (дубли).<br /><br />"
+                                + "<table>"
+                                + "<tr >"
+                                + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Удалить'- </td>"
+                                + "<td style='color:black;'>удаление дублирующих записей. <br />"
+                                + "В случае выбора этой опции, будут удалены из базы данных только записи-дубли, "
+                                + "при этом сами записи об этих событиях будут сохранены в единственном варианте "
+                                + "и будут доступны для дальнейшего использования.<br />"
+                                + "Для дальнейшего анализа ситуации вам будут предоставлен список удаденных записей-дублей в виде текстового файла."
+                                + "</td></tr>"
+                                + "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>"
+                                + "<tr>"
+                                + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Игнорировать'- </td>"
+                                + "<td style='color:black;'>игнорировать дублирующие записи.</h2><br />"
+                                + "В случае выбора этой опции, дублирующие записи остануться в базе данных, "
+                                + "но это никак не повлияет на дальнейшую работу, поскольку их наличие будет "
+                                + "учитываться. Однако, в случае обновления данных за период, который содержит "
+                                + "дублирующие записи, снова появится это уведомление."
+                                + "</td>"
+                                + "</tr>"
+                                + "</table>";
+
+                            message_box.yes_delegate = function (event) {
+                                $('#matrix_load').show();
+                                gallery.tree_event.init(holder, {'method': 'getTreeEvents', 'on_dbld_evt': 'clear'});
+                            };
+
+                            message_box.no_delegate = function (event) {
+                                $('#matrix_load').show();
+                                gallery.tree_event.init(holder, {'method': 'getTreeEvents', 'on_dbld_evt': 'ignore'});
+                            };
+
+                            message_box.buttons_name.No = "Игнорировать";
+                            message_box.buttons_name.Yes = "Удалить";
+
+                            message_box.show(message, header, message_box.message_type.error, message_box.button_type.YesNo);
+
+                        } else if (data.code == '3') { //если дерево заблокированно
+                            if ( message_box.isShow ) {
+                                message_box.close();
+                            }
+                            $('#matrix_load').hide();
+                            var message = "<h2 style='color: #000;'>Дерево событий заблокированно.</h2><br />"
+                                + 'Если это сообщение не исчезает в течении длительного времени<br />'
+                                + 'обратитесь к администратору системы.'
+                                + '<br /><br />'
+                                + '<table>'
+                                + '<tr >'
+                                + "<td style='padding-left:10px; padding-right:10px; color:black; font-weight:bold;'>'Выход'- </td>"
+                                + "<td style='color:black;'>возврат на главную страницу<br /></td>"
+                                + '</tr>';
+                            +"</table>";
+
+                            message_box.ok_delegate = function (event) {
+                                location = "../index.php";
+                            };
+                            message_box.buttons_name.OK = "Выход";
+
+                            message_box.show(message, header)
+
+                            setTimeout(function () {
+                                    gallery.tree_event.init(holder);
+                                }, 5000); // FIXME why 5000
+                        } else if (data.code == '4') {
+                            /* рассинхронизация событий и дерева или если дерево не актуально */
+                            $('#matrix_load').hide();
+                            if (self.build_err_counter == 1) {
+                                $('#matrix_load').show();
+                                gallery.tree_event.init(holder,
+                                        {'method': 'reindexTreeEvents', 'on_dbld_evt': 'inform_user'});
+                                return;
+                            } else if (gallery.cookie.get('dontBlockUpdTree')) {
+                                /* просто отображаем кнопку обновить и по таймеру продолжаем попытки */
+                                $('#update_tree').show();
+                                return;
+                            }
+                            var header = "Ошибка.";
+
+                            var message = "<h2 style='color: #000;'>" + "Обнаружено изменение данных.</h2><br />\n";
+                            message += 'Обычно это бывает после записи новых медиафайлов на диск или,<br />';
+                            message += "наоборот, удаления старых (автоматическая очистка архива).<br /><br />\n";
+                            message += 'Вы можете продолжить работать или обновить интерфейс,<br />';
+                            message += "если вам необходимо увидеть самые последние изменения.<br /><br />\n";
+                            message += '<label>Больше не беспокоить: ';
+                            message += '<input type="checkbox" id="popup_desync_form" class="niceCheck" value="t"';
+                            message += "/></label>\n";
+
+                            message_box.yes_delegate = function (event) {
+                                if ($('#popup_desync_form').attr('checked')) {
+                                    gallery.cookie.set('dontBlockUpdTree', 1);
+                                } else {
+                                    gallery.cookie.set('dontBlockUpdTree', 0);
+                                }
+                                $('#matrix_load').show();
+                                gallery.tree_event.init(holder, {'method': 'reindexTreeEvents', 'on_dbld_evt': 'inform_user'});
+                            };
+
+                            message_box.no_delegate = function (event) {
+                                if ($('#popup_desync_form').attr('checked')) {
+                                    gallery.cookie.set('dontBlockUpdTree', 1);
+                                } else {
+                                    gallery.cookie.set('dontBlockUpdTree', 0);
+                                }
+                                $('#update_tree').show();
+                            };
+                            message_box.buttons_name.No = "Выход";
+                            message_box.buttons_name.Yes = "Обновить";
+
+                            message_box.show(message, header, message_box.message_type.error,  message_box.button_type.YesNo);
                         }
-                        self.first = false;
-                        var header = "Ошибка.";
-
-                        var message = "<h2 style='color: #000;'>" + "Обнаружено изменение данных.</h2><br />\n";
-                        message += 'Обычно это бывает после записи новых медиафайлов на диск или,<br />';
-                        message += "наоборот, удаления старых (автоматическая очистка архива).<br /><br />\n";
-                        message += 'Вы можете продолжить работать или обновить интерфейс,<br />';
-                        message += "если вам необходимо увидеть самые последние изменения.<br /><br />\n";
-                        message += '<label>Больше не беспокоить: ';
-                        message += '<input type="checkbox" id="popup_desync_form" class="niceCheck" value="t"';
-                        message += "/></label>\n";
-
-                        message_box.yes_delegate = function (event) {
-                            if ($('#popup_desync_form').attr('checked')) {
-                                gallery.cookie.set('dontBlockUpdTree', 1);
-                            } else {
-                                gallery.cookie.set('dontBlockUpdTree', 0);
-                            }
-                            $('#matrix_load').show();
-                            gallery.tree_event.init(holder, {'method': 'reindexTreeEvents', 'on_dbld_evt': 'inform_user'});
-                        };
-
-                        message_box.no_delegate = function (event) {
-                            if ($('#popup_desync_form').attr('checked')) {
-                                gallery.cookie.set('dontBlockUpdTree', 1);
-                            } else {
-                                gallery.cookie.set('dontBlockUpdTree', 0);
-                            }
-                            $('#update_tree').show();
-                        };
-                        message_box.buttons_name.No = "Выход";
-                        message_box.buttons_name.Yes = "Обновить";
-
-                        message_box.show(message, header, message_box.message_type.error,  message_box.button_type.YesNo);
                     }
                 }
             }); /* tree_event.init() */
