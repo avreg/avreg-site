@@ -191,6 +191,7 @@ class Adb
             }
 
             // формирование уникального индекса, для работы кэша в браузере пользователя
+            // TODO слишком длинный ключ
             $events[str_replace(array('/', '.'), '_', $line[5] . '_' . $line[2] . '_' . $line[0])] = $line;
         }
 
@@ -417,14 +418,9 @@ class Adb
      * @param string $start Дата начала обновления дерева
      * @param string $end Дата окончания обновления дерева
      * @param bool|string $cameras Список камер
-     * @param string $on_dbld_evnts действие при обнаружении дублированных событий
-     * values:
-     * 'inform_user' - информировать пользователя,
-     * 'ignore' - корректно заполнть TREE_EVENTS без удаления дублей из EVENTS,
-     * 'clear' - удалить дублирующие записи из EVENTS и, после этого, заполнить TREE_EVENTS
      * @return array
      */
-    public function galleryUpdateTreeEvents($start, $end, $cameras = false, $on_dbld_evnts = 'ignore')
+    public function galleryUpdateTreeEvents($start, $end, $cameras = false)
     {
         $query = 'SELECT * FROM EVENTS WHERE EVT_ID in (12, 15,16,17, 23, 32)';
         if ($start) {
@@ -443,35 +439,15 @@ class Adb
         $res = $this->db->query($query);
         $this->error($res);
 
-
-        $evt_key = '';
-        $tmp = array();
-        $dbl_events = array();
-
         $tree_events = array();
         while ($res->fetchInto($line, DB_FETCHMODE_ASSOC)) {
-            //проверка на наличие дублирующих записей
-            $evt_key = 'DT1=' . $line[$this->key('DT1')] . "&"
-                . 'DT2=' . $line[$this->key('DT2')] . "&"
-                . 'CAM_NR=' . $line[$this->key('CAM_NR')] . '&'
-                . 'EVT_ID=' . $line[$this->key('EVT_ID')] . '&'
-                . 'SESS_NR=' . $line[$this->key('SESS_NR')] . '&'
-                . 'FILESZ_KB=' . $line[$this->key('FILESZ_KB')] . "&"
-                . 'FRAMES=' . $line[$this->key('FRAMES')] . "&"
-                . 'ALT1=' . $line[$this->key('ALT1')] . "&"
-                . 'ALT2=' . $line[$this->key('ALT2')] . "&"
-                . 'EVT_CONT=' . $line[$this->key('EVT_CONT')];
-            //проверяем уникальность ключей
-            if (isset($tmp[$evt_key])) {
-                //сохраняем дублированое значение
-                array_push($dbl_events, $line);
-                continue;
-            }
-            //записываем ключи в массив
-            $tmp[$evt_key] = 1;
 
+/*          XXX date() + strtotime() - very slow
             $date = date('Y_m_d_H', strtotime($line[$this->key('DT1')]));
+*/
+            $date = strtr(substr($line[$this->key('DT1')], 0, 13), '- ', '__');
             $key = $date . '_' . $line[$this->key('CAM_NR')];
+
             if (!isset($tree_events[$key])) {
                 $tree_events[$key] = array(
                     'DATE' => $date,
@@ -485,56 +461,26 @@ class Adb
                     'LAST_UPDATE' => $line[$this->key('DT1')],
                 );
             }
-
-            if (in_array($line[$this->key('EVT_ID')], array(15, 16, 17))) {
-                $tree_events[$key]['IMAGE_COUNT']++;
-                $tree_events[$key]['IMAGE_SIZE'] += $line[$this->key('FILESZ_KB')];
-
-            } elseif (in_array($line[$this->key('EVT_ID')], array(23, 12))) {
-                $tree_events[$key]['VIDEO_COUNT']++;
-                $tree_events[$key]['VIDEO_SIZE'] += $line[$this->key('FILESZ_KB')];
-            } elseif (in_array($line[$this->key('EVT_ID')], array(32))) {
-
-                $tree_events[$key]['AUDIO_COUNT']++;
-                $tree_events[$key]['AUDIO_SIZE'] += $line[$this->key('FILESZ_KB')];
+            $a = &$tree_events[$key];
+            $evt_id = (int)$line[$this->key('EVT_ID')];
+            switch ($evt_id) {
+                case 15:
+                case 16:
+                case 17:
+                    $a['IMAGE_COUNT']++;
+                    $a['IMAGE_SIZE'] += (int)$line[$this->key('FILESZ_KB')];
+                    break;
+                case 12:
+                case 23:
+                    $a['VIDEO_COUNT']++;
+                    $a['VIDEO_SIZE'] += (int)$line[$this->key('FILESZ_KB')];
+                    break;
+                case 32:
+                    $a['AUDIO_COUNT']++;
+                    $a['AUDIO_SIZE'] += (int)$line[$this->key('FILESZ_KB')];
+                    break;
             }
-            $tree_events[$key]['LAST_UPDATE'] = $line[$this->key('DT1')];
-        }
-
-        //если обнаружены дублированые события
-        if (sizeof($dbl_events) > 0) {
-            if ($on_dbld_evnts == 'inform_user') {
-                //Собщаем пользователю
-                return array(
-                    'status' => 'error',
-                    'code' => '1',
-                    'description' => 'Doubled events detected',
-                    'qtty' => sizeof($dbl_events),
-                    // 'dbl_rows'=> $dbl_events,
-                    'range_start' => $dbl_events[0][$this->key('DT1')],
-                    'range_end' => $dbl_events[sizeof($dbl_events) - 1][$this->key('DT1')]
-                );
-            } elseif ($on_dbld_evnts == 'clear') {
-                //устраиваем чистку таблицы EVENTS от дублирующих записей
-                $cor_nr = $this->clearDoubledEvents($dbl_events);
-
-                if ($cor_nr < sizeof($dbl_events)) {
-                    $rst_dbl_events = array_slice($dbl_events, $cor_nr);
-                    return array(
-                        'status' => 'error',
-                        'code' => '2',
-                        'description' => 'Error during cleaning',
-                        'qtty' => $cor_nr,
-                        //'dbl_rows'=>$rst_dbl_events
-                        'range_start' => $rst_dbl_events[0][$this->key('DT1')],
-                        'range_end' => $rst_dbl_events[sizeof($rst_dbl_events) - 1][$this->key('DT1')]
-                    );
-                }
-
-            } elseif ($on_dbld_evnts == 'ignore') {
-                //Игнорируем
-                //при проверке ключей дубли будут игнорироваться при заполнении TREE_EVENTS
-            }
+            $a['LAST_UPDATE'] = $line[$this->key('DT1')];
         }
 
         $query = 'DELETE FROM TREE_EVENTS';
@@ -554,10 +500,11 @@ class Adb
 
         $res = $this->db->query($query);
         $this->error($res);
+
         foreach ($tree_events as $row) {
             $query = 'INSERT INTO TREE_EVENTS ';
-            $query .= '(BYHOUR, CAM_NR, IMAGE_COUNT, IMAGE_SIZE, VIDEO_COUNT, ' .
-                'VIDEO_SIZE, AUDIO_COUNT, AUDIO_SIZE, LAST_UPDATE)';
+            $query .= '(BYHOUR, CAM_NR, IMAGE_COUNT, IMAGE_SIZE, VIDEO_COUNT, ';
+            $query .= 'VIDEO_SIZE, AUDIO_COUNT, AUDIO_SIZE, LAST_UPDATE)';
             $query .= " VALUES ('" . $row['DATE'] . "'," . $row['CAM_NR'] . ',' . $row['IMAGE_COUNT'] . ','
                 . $row['IMAGE_SIZE'] . ',' . $row['VIDEO_COUNT'] . ',' . $row['VIDEO_SIZE'] . ','
                 . $row['AUDIO_COUNT'] . ',' . $row['AUDIO_SIZE'] . ",'" . $row['LAST_UPDATE'] . "')";
@@ -565,60 +512,6 @@ class Adb
             $this->error($res);
         }
         return array('status' => 'success');
-    }
-
-    /**
-     *
-     * Метод для удаления дублированных записей из EVENTS
-     * @param array $dbl_evts параметры для удаления и востановления записей
-     * @return int кол-во исправленных записей
-     */
-    private function clearDoubledEvents($dbl_evts)
-    {
-        $cntr = 0;
-        foreach ($dbl_evts as $key => $val) {
-            //Удаляем дубли
-            $query = "DELETE FROM EVENTS WHERE"
-                . " DT1='" . $val['DT1']
-                . "' AND DT2='" . $val['DT2']
-                . "' AND CAM_NR=" . $val['CAM_NR']
-                . " AND EVT_ID=" . $val['EVT_ID']
-                . " AND SESS_NR=" . $val['SESS_NR']
-                . " AND FILESZ_KB=" . $val['FILESZ_KB']
-                . " AND FRAMES=" . $val['FRAMES']
-                . " AND ALT1=" . $val['ALT1']
-                . " AND ALT2=" . $val['ALT2']
-                . " AND EVT_CONT='" . $val['EVT_CONT'] . "'; ";
-
-            try {
-                $res = $this->db->query($query);
-                $this->error($res);
-            } catch (Exception $err) {
-                return $cntr;
-            }
-            //востанавливаем запись
-            $query = "INSERT INTO EVENTS (DT1, DT2, CAM_NR, EVT_ID, SESS_NR, FILESZ_KB, FRAMES, ALT1, ALT2, EVT_CONT) "
-                . " VALUES("
-                . "'" . $val['DT1']
-                . "', '" . $val['DT2']
-                . "', " . $val['CAM_NR']
-                . ", " . $val['EVT_ID']
-                . ", " . $val['SESS_NR']
-                . ", " . $val['FILESZ_KB']
-                . ", " . $val['FRAMES']
-                . ", " . $val['ALT1']
-                . ", " . $val['ALT2']
-                . ", '" . $val['EVT_CONT'] . "'); ";
-
-            try {
-                $res = $this->db->query($query);
-                $this->error($res);
-            } catch (Exception $err) {
-                return $cntr;
-            }
-            $cntr++;
-        }
-        return $cntr;
     }
 
     /**
