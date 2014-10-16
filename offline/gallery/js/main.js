@@ -681,7 +681,7 @@ var gallery = {
             if (upTimeTree > 0) {
                 self.timeUpdateTree = setTimeout(function () {
                     gallery.tree_event.init(self.holder, {'method': 'getTreeEvents'});
-                },  DEBUG ? 10000 /* 10 sec. */ : (upTimeTree * 1000));
+                },  upTimeTree * 1000);
             }
 
         }, /* tree_event.startUpdateTreeTimer() */

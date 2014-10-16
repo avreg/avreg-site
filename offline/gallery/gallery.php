@@ -275,11 +275,10 @@ class Gallery
             $par_hash['end'] = date('Y-m-d H:i:s');
         }
         $par_hash['cameras'] = implode(',', $cams_array);
-        // TODO объединить 2 вызова и сделать updateTreeEvents() сразу могла результат выдать
         $this->updateTreeEvents($par_hash);
         $par_hash['initially'] = 'yes'; // чтобы getTreeEvents() возвратил данные
         $this->getTreeEvents($par_hash);
-    } /* updateTreeEvents() */
+    } /* reindexTreeEvents() */
 
     // отдача результата клиенту
     public function printResult()
