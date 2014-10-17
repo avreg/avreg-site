@@ -107,9 +107,10 @@ class Gallery
                 'date' => $par_hash['tree'] !== 'all' ? explode('_', $par_hash['tree']) : array(),
                 'limit' => $this->limit,
                 'offset' => $par_hash['sp'],
+                'to' => $par_hash['to']
             );
             //$events = $this->db->galleryGetEvent($p);
-            if ($this->limit > 1) { // FIXME что за limit такой?
+            if ($this->limit > 1) { // FIXME limit = 1 при навигации по скролу вроде, для всплываюшего ока
                 $events = $this->db->galleryGetEvent($p);
                 // Сохранение результата
                 $this->result = array('events' => $events);
@@ -122,9 +123,9 @@ class Gallery
     } /* getEvents() */
 
     // Функция построения дерева события
-    public function getTreeEvents($par_hash)
+    public function getTreeEvents($params)
     {
-        $initially = isset($par_hash['initially']);
+        $initially = isset($params['initially']);
         //если древо заблокировано, то возвращаем ошибку
         if ($this->cache->get('gallery_update')) {
             $this->result = array('status' => 'error', 'code' => '3', 'description' => 'Дерево заблокированно');
@@ -135,15 +136,8 @@ class Gallery
         global $cams_array;  // offline/gallery.php
         $cameras = implode(',', $cams_array);
 
-        $params = array(
-            'cameras' => $cams_array
-        );
-        if (!@empty($par_hash['start'])) {
-            $params['from'] = $par_hash['start'];
-        }
-        if (!@empty($par_hash['end'])) {
-            $params['to'] = $par_hash['end'];
-        }
+        $params['cameras'] = $cams_array; // FIXME FIXME getTreeEvents() только со всеми камерами работает?
+
         $events_stat = $this->db->galleryEventsGetStat($params);
         $tree_events_stat = $this->db->galleryTreeEventsGetStat($params);
 
@@ -158,14 +152,15 @@ class Gallery
             $this->result = array(
                     'status' => 'error',
                     'code' => '4',
-                    'description' => 'Дерево не синхронизированно',
+                    'description' => 'Not sync',
                     'count_event' => $events_stat['files'],
                     'count_tree_event' => $tree_events_stat['files'],
                     'last_event_date' => $events_stat['latest'],
                     'last_tree_date' => $tree_events_stat['latest_update'],
                     'oldest_event_date' => $events_stat['oldest'],
                     'oldest_tree_date' => $tree_events_stat['oldest_update'],
-                    'access_update_tree' => $access_update_tree
+                    'access_update_tree' => $access_update_tree,
+                    'to' => $params['to']
             );
             return;
         }
@@ -179,7 +174,8 @@ class Gallery
                 'last_event_date' => $events_stat['latest'],
                 'last_tree_date' => $tree_events_stat['latest_update'],
                 'oldest_event_date' => $events_stat['oldest'],
-                'oldest_tree_date' => $tree_events_stat['oldest_update']
+                'oldest_tree_date' => $tree_events_stat['oldest_update'],
+                'to' => $params['to']
             );
             return;
         }
@@ -202,20 +198,27 @@ class Gallery
 
         // возвращаем результат
         if (empty($tree_events_result)) {
-            $this->result = array('status' => 'error', 'code' => '0', 'description' => 'No events.', 'qtty' => 0);
+            $this->result = array(
+                'status' => 'error',
+                'code' => '0',
+                'description' => 'No events.',
+                'qtty' => 0,
+                'to' => $params['to']
+            );
             return;
         }
 
         $this->result = array(
             'status' => 'success',
-            'tree_events' => $tree_events_result,
-            'cameras' => $cams_params,
             'count_event' => $events_stat['files'],
             'count_tree_event' => $tree_events_stat['files'],
             'last_event_date' => $events_stat['latest'],
             'last_tree_date' => $tree_events_stat['latest_update'],
             'oldest_event_date' => $events_stat['oldest'],
-            'oldest_tree_date' => $tree_events_stat['oldest_update']
+            'oldest_tree_date' => $tree_events_stat['oldest_update'],
+            'to' => $params['to'],
+            'tree_events' => $tree_events_result,
+            'cameras' => $cams_params
         );
     } /* getTreeEvents() */
 
@@ -267,13 +270,6 @@ class Gallery
     public function reindexTreeEvents($par_hash)
     {
         global $cams_array; // offline/gallery.php
-        /* важно ограничить время сверху, т.к.
-         * между вызовами updateTreeEvents и getTreeEvents
-         * может пройти приличное время за которое в базу будут добавлены новые события
-         * и будет вечный цикл */
-        if (@empty($par_hash['end'])) {
-            $par_hash['end'] = date('Y-m-d H:i:s');
-        }
         $par_hash['cameras'] = implode(',', $cams_array);
         $this->updateTreeEvents($par_hash);
         $par_hash['initially'] = 'yes'; // чтобы getTreeEvents() возвратил данные

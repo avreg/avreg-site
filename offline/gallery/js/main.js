@@ -25,6 +25,15 @@ Enum.prototype.set = function (element) {
     }
     return this.currentValue;
 };
+Date.prototype.toSql = function () {
+    return this.getFullYear() + '-' +
+    ('00' + (this.getMonth()+1)).slice(-2) + '-' +
+    ('00' + this.getDate()).slice(-2) + ' ' +
+    ('00' + this.getHours()).slice(-2) + ':' +
+    ('00' + this.getMinutes()).slice(-2) + ':' +
+    ('00' + this.getSeconds()).slice(-2);
+    // this.toISOString().slice(0, 19).replace('T', ' ');
+};
 
 $(function () {
 // глобальные настройки аякс запроса
@@ -217,7 +226,7 @@ var gallery = {
         if (count > 0) {
             gallery.cookie.set('type_event', cook);
             // обновляем дерево
-            gallery.tree_event.reload();
+            gallery.tree_events.reload();
 
             if (MSIE) {
                 //Устанавливаем матрицу на начало диапазона
@@ -253,7 +262,7 @@ var gallery = {
         });
         gallery.cookie.set('cameras', cook);
         // обновляем дерево
-        gallery.tree_event.reload();
+        gallery.tree_events.reload();
 
         if (MSIE) {
             //устанавливаем на начало диапазона
@@ -367,15 +376,25 @@ var gallery = {
     }, /* gallery.cookie */
 
     // объект построения дерева событий
-    tree_event: {
+    tree_events: {
         holder: null,
         timeUpdateTree: false, // таймер, который показывает кнопку обновить дерево
-        first : true, // первая ли загрузка
+        first: true, // первая ли загрузка
+
+        /**
+         * Ограничитель макс. времени DT1 события,
+         * который используется для медодов getTreeEvents, getEvents и reindexTreeEvents
+         * во избежании зацикливания на рассихронизации вызванной постоянным добавлением файлов в EVENTS
+         * Обновляется при нажатии кнопки #update_tree (Обновить/Синхронизация)
+         * В периодических запросах по таймеру (для контроля синхронизации) вместо него используется
+         * текущее время.
+         */
+        to: new Date().toSql(),
 
         // функция обновления дерева
         reload: function () {
             if (DEBUG == 1) {
-                console.log('tree_event.reload()');
+                console.log('tree_events.reload()');
             }
             var self = this;
             // получения настроек формирование дерева
@@ -666,11 +685,11 @@ var gallery = {
                 }).show();
             gallery.treeObject = $(self.holder);
             matrix.build();
-        }, /* tree_event.reload() */
+        }, /* tree_events.reload() */
 
         startUpdateTreeTimer: function() {
             if (DEBUG == 1) {
-                console.log('tree_event.startUpdateTreeTimer()');
+                console.log('tree_events.startUpdateTreeTimer()');
             }
             var self = this;
             //запускаем таймер проверки рассинхронизации дерева
@@ -680,11 +699,11 @@ var gallery = {
             var upTimeTree = gallery.cookie.get('upTimeTree');
             if (upTimeTree > 0) {
                 self.timeUpdateTree = setTimeout(function () {
-                    gallery.tree_event.init(self.holder, {'method': 'getTreeEvents'});
+                    gallery.tree_events.init(self.holder, {'method': 'getTreeEvents', 'to': new Date().toSql()});
                 },  upTimeTree * 1000);
             }
 
-        }, /* tree_event.startUpdateTreeTimer() */
+        }, /* tree_events.startUpdateTreeTimer() */
 
         // инициалзация дерева
         init: function (holder, ajax_params) {
@@ -692,11 +711,11 @@ var gallery = {
             self.holder = holder;
 
             if (ajax_params == null) {
-                ajax_params = {'method': 'getTreeEvents', 'initially': 'yes'};
+                ajax_params = {'method': 'getTreeEvents', 'initially': 'yes', 'to': self.to};
             }
 
             if (DEBUG == 1) {
-                console.log('tree_event.init()', holder, ajax_params);
+                console.log('tree_events.init()', holder, ajax_params);
             }
 
             // получаем данные о постройке дерева события
@@ -718,7 +737,7 @@ var gallery = {
                             matrix.cameras = data.cameras;
                             matrix.events = {};
                             matrix.all_events = {}; // FIXME FIXME
-                            gallery.tree_event.reload();
+                            gallery.tree_events.reload();
                         } else {
                             $('#matrix_load').hide();
                         }
@@ -732,7 +751,7 @@ var gallery = {
                             matrix.cameras = {};
                             matrix.events = {};
                             matrix.all_events = {};
-                            gallery.tree_event.reload();
+                            gallery.tree_events.reload();
                             self.startUpdateTreeTimer();
                             $('#update_tree').show();
                             alert(lang.empty_tree);
@@ -761,7 +780,7 @@ var gallery = {
                             message_box.show(message, header)
 
                             setTimeout(function () {
-                                    gallery.tree_event.init(holder);
+                                    gallery.tree_events.init(holder);
                                 }, 5000); // FIXME why 5000
                         } else if (data.code == '4') {
                             /* рассинхронизация событий и дерева или если дерево не актуально */
@@ -769,8 +788,8 @@ var gallery = {
                             if (self.first) {
                                 self.first = false;
                                 $('#matrix_load').show();
-                                gallery.tree_event.init(holder,
-                                        {'method': 'reindexTreeEvents'});
+                                gallery.tree_events.init(holder,
+                                        {'method': 'reindexTreeEvents', 'to': self.to});
                                 return;
                             } else if (gallery.cookie.get('dontBlockUpdTree')) {
                                 /* просто отображаем кнопку обновить и по таймеру продолжаем попытки */
@@ -795,7 +814,9 @@ var gallery = {
                                     gallery.cookie.set('dontBlockUpdTree', 0);
                                 }
                                 $('#matrix_load').show();
-                                gallery.tree_event.init(holder, {'method': 'reindexTreeEvents'});
+                                /* update "to" datetime limit */
+                                gallery.tree_events.to = new Date().toSql();
+                                gallery.tree_events.init(holder, {'method': 'reindexTreeEvents', 'to': gallery.tree_events.to});
                             };
 
                             message_box.no_delegate = function (event) {
@@ -813,7 +834,7 @@ var gallery = {
                         }
                     }
                 }
-            }); /* tree_event.init() */
+            }); /* tree_events.init() */
         }
     },
 
@@ -1151,7 +1172,7 @@ var gallery = {
         matrix.init(self.config.matrix);
 
         // инициализация дерева событий
-        self.tree_event.init('#tree_new');
+        self.tree_events.init('#tree_new');
 
         // инициализация выбора цвета камеры
         self.cameras_color.init();
@@ -1225,7 +1246,9 @@ var gallery = {
         $('#update_tree').bind('click', function (e) {
             e.preventDefault();
             $('#matrix_load').show();
-            gallery.tree_event.init(gallery.tree_event.holder, {'method': 'reindexTreeEvents'});
+            /* update "to" datetime limit */
+            gallery.tree_events.to = new Date().toSql();
+            gallery.tree_events.init(gallery.tree_events.holder, {'method': 'reindexTreeEvents', 'to': gallery.tree_events.to});
             return false;
         });
 
@@ -1281,7 +1304,7 @@ var gallery = {
                 }
                 if (gallery.cookie.get('upTimeTree') != $('#update_time_settings').val()) {
                     gallery.cookie.set('upTimeTree', $('#update_time_settings').val());
-                    gallery.tree_event.startUpdateTreeTimer();
+                    gallery.tree_events.startUpdateTreeTimer();
                 }
             };
 
@@ -2646,6 +2669,7 @@ var matrix = {
             $.post(WwwPrefix + '/offline/gallery.php',
                 {
                     'method': 'getEvents',
+                    'to': gallery.tree_events.to,
                     'tree': matrix.tree,
                     'sp': get_sp,
                     'type': type,
@@ -4283,6 +4307,7 @@ var scrollPopUp = {
         $.post(WwwPrefix + '/offline/gallery.php',
             {
                 'method': 'getEvents',
+                'to': gallery.tree_events.to,
                 'tree': matrix.tree,
                 'sp': scrollPopUp.scrollPosition,
                 'limit': 1,

@@ -140,7 +140,9 @@ class Adb
      * @param array $param Параметры
      * - $param['events'] тип событий событий (изображения, аудио, видео)
      * - $param['cameras']  список камер
-     * - $param['date'] дата событий
+     * - $param['date'] дата событий c часовой градацией
+     * - $param['to']   точные ограничители DT1
+     * - $param['from']
      * - $param['limit']
      * - $param['offset']
      *
@@ -150,30 +152,37 @@ class Adb
     public function galleryGetEvent($param)
     {
         $events = array();
-        $query = "SELECT " . $this->dateFormat('DT1') . ", DT1, EVT_CONT, ALT2, ALT1, CAM_NR, FILESZ_KB, EVT_ID, " .
+        $query = "select " . $this->dateFormat('DT1') . ", DT1, EVT_CONT, ALT2, ALT1, CAM_NR, FILESZ_KB, EVT_ID, " .
             $this->timediff('DT1', 'DT2') . ", DT2";
-        $query .= ' FROM EVENTS';
-        $query .= ' WHERE EVT_ID in (' . implode(",", $param['events']) . ')';
-        $query .= ' AND EVENTS.CAM_NR in (' . implode(",", $param['cameras']) . ')';
+        $query .= ' from EVENTS';
+        $query .= ' where EVT_ID in (' . implode(",", $param['events']) . ')';
+        $query .= ' and CAM_NR in (' . implode(",", $param['cameras']) . ')';
+
+        if (isset($param['from'])) {
+            $query .= " and DT1 >= '" . $param['from'] . "'";
+        }
+        if (isset($param['to'])) {
+            $query .= " and DT1 <= '" . $param['to'] . "'";
+        }
 
         if (isset($param['date'][0])) {
-            $query .= ' AND ' . $this->datePart('year', 'DT1') . '= ' . $param['date'][0];
+            $query .= ' and ' . $this->datePart('year', 'DT1') . '= ' . $param['date'][0];
         }
 
         if (isset($param['date'][1])) {
-            $query .= ' AND ' . $this->datePart('month', 'DT1') . '= ' . $param['date'][1];
+            $query .= ' and ' . $this->datePart('month', 'DT1') . '= ' . $param['date'][1];
         }
 
         if (isset($param['date'][2])) {
-            $query .= ' AND ' . $this->datePart('day', 'DT1') . '= ' . $param['date'][2];
+            $query .= ' and ' . $this->datePart('day', 'DT1') . '= ' . $param['date'][2];
         }
 
         if (isset($param['date'][3])) {
-            $query .= ' AND ' . $this->datePart('hour', 'DT1') . '= ' . $param['date'][3];
+            $query .= ' and ' . $this->datePart('hour', 'DT1') . '= ' . $param['date'][3];
         }
 
         // сортировать по дате, от текущей позиции с лимитом заданный в конфиге
-        $query .= ' ORDER BY DT1 ASC LIMIT ' . $param['limit'] . ' OFFSET ' . $param['offset'];
+        $query .= ' order by DT1 asc limit ' . $param['limit'] . ' offset ' . $param['offset'];
 
         $res = $this->db->query($query);
 
@@ -200,7 +209,7 @@ class Adb
 
     /**
      *  Метод позволяет получить дату текущего события
-     *
+     *  FIXME вроде исп. для навигации по скролу (всплывающее окно)
      *
      * @param array $param Параметры
      * - $param['events'] тип событий событий (изображения, аудио, видео)
@@ -215,29 +224,35 @@ class Adb
     public function galleryGetEventDate($param)
     {
         $events = array();
-        $query = "SELECT " . $this->dateFormat('DT2') . ", DT2";
-        $query .= ' FROM EVENTS';
-        $query .= ' WHERE EVT_ID in (' . implode(",", $param['events']) . ')';
-        $query .= ' AND EVENTS.CAM_NR in (' . implode(",", $param['cameras']) . ')';
+        $query = "select " . $this->dateFormat('DT2') . ", DT2";
+        $query .= ' from EVENTS';
+        $query .= ' where EVT_ID in (' . implode(",", $param['events']) . ')';
+        $query .= ' and CAM_NR in (' . implode(",", $param['cameras']) . ')';
 
+        if (isset($param['from'])) {
+            $query .= " and DT1 >= '" . $param['from'] . "'";
+        }
+        if (isset($param['to'])) {
+            $query .= " and DT1 <= '" . $param['to'] . "'";
+        }
         if (isset($param['date'][0])) {
-            $query .= ' AND ' . $this->datePart('year', 'DT1') . '= ' . $param['date'][0];
+            $query .= ' and ' . $this->datePart('year', 'DT1') . '= ' . $param['date'][0];
         }
 
         if (isset($param['date'][1])) {
-            $query .= ' AND ' . $this->datePart('month', 'DT1') . '= ' . $param['date'][1];
+            $query .= ' and ' . $this->datePart('month', 'DT1') . '= ' . $param['date'][1];
         }
 
         if (isset($param['date'][2])) {
-            $query .= ' AND ' . $this->datePart('day', 'DT1') . '= ' . $param['date'][2];
+            $query .= ' and ' . $this->datePart('day', 'DT1') . '= ' . $param['date'][2];
         }
 
         if (isset($param['date'][3])) {
-            $query .= ' AND ' . $this->datePart('hour', 'DT1') . '= ' . $param['date'][3];
+            $query .= ' and ' . $this->datePart('hour', 'DT1') . '= ' . $param['date'][3];
         }
 
         // сортировать по дате, от текущей позиции с лимитом заданный в конфиге
-        $query .= ' ORDER BY DT1 ASC LIMIT ' . $param['limit'] . ' OFFSET ' . $param['offset'];
+        $query .= ' order by DT1 asc limit ' . $param['limit'] . ' offset ' . $param['offset'];
 
         $res = $this->db->query($query);
 
@@ -281,8 +296,11 @@ class Adb
                     case 'to':
                         $query .= " and DT1 <= '$value'";
                         break;
+                    case 'method':
+                    case 'initially':
+                        break;
                     default:
-                        die("galleryEventsGetStat() failed: unknown param \"$value\"");
+                        die("galleryEventsGetStat() failed: unknown param \"$key\" = \"$value\"");
                 }
             }
             unset($key, $value);
@@ -320,12 +338,12 @@ class Adb
         $query .= ' MAX(LAST_UPDATE) as latest_update, MIN(LAST_UPDATE) as oldest_update';
         $query .= ' from TREE_EVENTS';
         if (!empty($params)) {
-            $query .= ' where ';
+            $query .= ' where 1=1';
 
             foreach ($params as $key => $value) {
                 switch ($key) {
                     case 'cameras':
-                        $query .= ' CAM_NR in (' . implode(',', $value) . ')';
+                        $query .= ' and CAM_NR in (' . implode(',', $value) . ')';
                         break;
                     case 'from':
                         $query .= " and LAST_UPDATE >= '$value'";
@@ -333,8 +351,11 @@ class Adb
                     case 'to':
                         $query .= " and LAST_UPDATE <= '$value'";
                         break;
+                    case 'method':
+                    case 'initially':
+                        break;
                     default:
-                        die("galleryTreeEventGetStat() failed: unknown param \"$value\"");
+                        die("galleryTreeEventGetStat() failed: unknown param \"$key\" = \"$value\"");
                 }
             }
             unset($key, $value);
@@ -367,12 +388,12 @@ class Adb
 
         $query = 'select * from TREE_EVENTS';
         if (!empty($params)) {
-            $query .= ' where ';
+            $query .= ' where 1=1';
 
             foreach ($params as $key => $value) {
                 switch ($key) {
                     case 'cameras':
-                        $query .= ' CAM_NR in (' . implode(',', $value) . ')';
+                        $query .= ' and CAM_NR in (' . implode(',', $value) . ')';
                         break;
                     case 'from':
                         $query .= " and LAST_UPDATE >= '$value'";
@@ -380,8 +401,11 @@ class Adb
                     case 'to':
                         $query .= " and LAST_UPDATE <= '$value'";
                         break;
+                    case 'method':
+                    case 'initially':
+                        break;
                     default:
-                        die("galleryGetTreeEvents() failed: unknown param \"$value\"");
+                        die("galleryGetTreeEvents() failed: unknown param \"$key\" = \"$value\"");
                 }
             }
             unset($key, $value);
