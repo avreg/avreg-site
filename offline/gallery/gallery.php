@@ -113,7 +113,7 @@ class Gallery
             if ($this->limit > 1) { // FIXME limit = 1 при навигации по скролу вроде, для всплываюшего ока
                 $events = $this->db->galleryGetEvent($p);
                 // Сохранение результата
-                $this->result = array('events' => $events);
+                $this->result = array('events' => $events, 'to' => $par_hash['to']);
             } else {
                 $date = $this->db->galleryGetEventDate($p);
                 // Сохранение результата
@@ -126,9 +126,16 @@ class Gallery
     public function getTreeEvents($params)
     {
         $initially = isset($params['initially']);
+        if (@empty($params['to'])) {
+            $params['to'] = date("Y-m-d H:i:s");
+        }
         //если древо заблокировано, то возвращаем ошибку
         if ($this->cache->get('gallery_update')) {
-            $this->result = array('status' => 'error', 'code' => '3', 'description' => 'Дерево заблокированно');
+            $this->result = array(
+                'status' => 'error',
+                'code' => '3',
+                'description' => 'getTreeEvents() is locked by "gallery_update" lock'
+            );
             return;
         }
 
@@ -280,6 +287,9 @@ class Gallery
     public function printResult()
     {
         if ($this->limit > 1) {
+            if (is_array($this->result)) {
+                $this->result['server_time'] = date("Y-m-d H:i:s");
+            }
             echo json_encode($this->result);
         } else {
             if (is_array($this->result)) {

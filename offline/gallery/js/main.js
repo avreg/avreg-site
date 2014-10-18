@@ -35,6 +35,15 @@ Date.prototype.toSql = function () {
     // this.toISOString().slice(0, 19).replace('T', ' ');
 };
 
+Date.prototype.addMs = function (ms) {
+    this.setTime(this.getTime() + ms);
+    return this;
+};
+Date.prototype.subMs = function (ms) {
+    this.setTime(this.getTime() - ms);
+    return this;
+};
+
 $(function () {
 // глобальные настройки аякс запроса
     /**
@@ -385,11 +394,11 @@ var gallery = {
          * Ограничитель макс. времени DT1 события,
          * который используется для медодов getTreeEvents, getEvents и reindexTreeEvents
          * во избежании зацикливания на рассихронизации вызванной постоянным добавлением файлов в EVENTS
-         * Обновляется при нажатии кнопки #update_tree (Обновить/Синхронизация)
+         * Заполняется серверным временем - 1 сек. при вызове getTreeEvents()
          * В периодических запросах по таймеру (для контроля синхронизации) вместо него используется
-         * текущее время.
+         * серверное время + интервал таймера.
          */
-        to: new Date().toSql(),
+        to: '', // XXX именно пустым значением а не null
 
         // функция обновления дерева
         reload: function () {
@@ -699,13 +708,15 @@ var gallery = {
             var upTimeTree = gallery.cookie.get('upTimeTree');
             if (upTimeTree > 0) {
                 self.timeUpdateTree = setTimeout(function () {
-                    gallery.tree_events.init(self.holder, {'method': 'getTreeEvents', 'to': new Date().toSql()});
+                    var sd = new Date(gallery.tree_events.to).addMs((upTimeTree - 1) * 1000);
+                    gallery.tree_events.to = "";
+                    gallery.tree_events.init(self.holder, {'method': 'getTreeEvents', 'to': sd.toSql()});
                 },  upTimeTree * 1000);
             }
 
         }, /* tree_events.startUpdateTreeTimer() */
 
-        // инициалзация дерева
+        // инициализация дерева
         init: function (holder, ajax_params) {
             var self = this;
             self.holder = holder;
@@ -728,6 +739,10 @@ var gallery = {
                 success: function (data) {
                     if (DEBUG == 1) {
                         console.log('xhr response:', data);
+                    }
+                    if (data.server_time && self.to === "") {
+                        var sd = new Date(data.server_time).subMs(1000 /* 1 sec. */);
+                        self.to = sd.toSql();
                     }
                     if (data.status == 'success') {
                         // если пришли обновления, то обновляем дерево и запускаем перестройку матрицы
@@ -816,7 +831,7 @@ var gallery = {
                                 $('#matrix_load').show();
                                 /* update "to" datetime limit */
                                 gallery.tree_events.to = new Date().toSql();
-                                gallery.tree_events.init(holder, {'method': 'reindexTreeEvents', 'to': gallery.tree_events.to});
+                                gallery.tree_events.init(holder, {'method': 'reindexTreeEvents', 'to': self.to});
                             };
 
                             message_box.no_delegate = function (event) {

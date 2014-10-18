@@ -158,10 +158,10 @@ class Adb
         $query .= ' where EVT_ID in (' . implode(",", $param['events']) . ')';
         $query .= ' and CAM_NR in (' . implode(",", $param['cameras']) . ')';
 
-        if (isset($param['from'])) {
+        if (!@empty($param['from'])) {
             $query .= " and DT1 >= '" . $param['from'] . "'";
         }
-        if (isset($param['to'])) {
+        if (!@empty($param['to'])) {
             $query .= " and DT1 <= '" . $param['to'] . "'";
         }
 
@@ -229,10 +229,10 @@ class Adb
         $query .= ' where EVT_ID in (' . implode(",", $param['events']) . ')';
         $query .= ' and CAM_NR in (' . implode(",", $param['cameras']) . ')';
 
-        if (isset($param['from'])) {
+        if (!@empty($param['from'])) {
             $query .= " and DT1 >= '" . $param['from'] . "'";
         }
-        if (isset($param['to'])) {
+        if (!@empty($param['to'])) {
             $query .= " and DT1 <= '" . $param['to'] . "'";
         }
         if (isset($param['date'][0])) {
@@ -286,6 +286,9 @@ class Adb
         $query .= ' where EVT_ID in (12, 15,16,17, 23, 32)';
         if (!empty($params)) {
             foreach ($params as $key => $value) {
+                if (empty($value)) {
+                    continue;
+                }
                 switch ($key) {
                     case 'cameras':
                         $query .= ' and CAM_NR in (' . implode(',', $value) . ')';
@@ -341,6 +344,9 @@ class Adb
             $query .= ' where 1=1';
 
             foreach ($params as $key => $value) {
+                if (empty($value)) {
+                    continue;
+                }
                 switch ($key) {
                     case 'cameras':
                         $query .= ' and CAM_NR in (' . implode(',', $value) . ')';
@@ -391,6 +397,9 @@ class Adb
             $query .= ' where 1=1';
 
             foreach ($params as $key => $value) {
+                if (empty($value)) {
+                    continue;
+                }
                 switch ($key) {
                     case 'cameras':
                         $query .= ' and CAM_NR in (' . implode(',', $value) . ')';
