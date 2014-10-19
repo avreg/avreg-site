@@ -36,6 +36,7 @@ header('Content-Type: text/html; charset=' . $chset);
     }
     print '</title>' . "\n";
     print '<meta http-equiv="Content-Type" content="text/html; charset=' . $chset . '">' . "\n";
+    print '<meta name="viewport" content="width=device-width, initial-scale=1.0">' . "\n";
     print '<meta name="author" content="Andrey Nikitin &lt;nik-a at mail dot ru&gt;">' . "\n";
     if (isset($BaseTarget)) {
         print '<base target="' . $BaseTarget . '">' . "\n";
