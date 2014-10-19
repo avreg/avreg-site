@@ -195,6 +195,10 @@ var CAM_INFO = {
     'url': '<?php echo $cam_url; ?>'
 };
 
+var IMG = document.getElementById('viewport');
+var BTSUBMIT = document.getElementById('btSubmit');
+var REFRESH = document.getElementById('refresh');
+
 function refresh_img() {
     var now = new Date();
     var update_url = CAM_INFO['url'] + '&_=' + now.getTime(); // prevent local browser caching
@@ -228,17 +232,10 @@ function img_evt2(e_id) {
     }
 }
 
-$( document ).ready(function() {
-    var IMG = document.getElementById('viewport');
-    var BTSUBMIT = document.getElementById('btSubmit');
-    var REFRESH = document.getElementById('refresh');
-
-    /* если img_evt() успел сработать до загрузки страницы FIXME правильней исп. ready или хотя бы body_onload */
-    if ((typeof IMG_EVT_OCCURED).charAt(0) != 'u') {
-        img_evt2(IMG_EVT_OCCURED);
-    }
-});
-
+/* если img_evt() успел сработать до загрузки страницы FIXME правильней исп. ready или хотя бы body_onload */
+if ((typeof IMG_EVT_OCCURED).charAt(0) != 'u') {
+    img_evt2(IMG_EVT_OCCURED);
+}
 </script>
 
 <?php
