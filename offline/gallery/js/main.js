@@ -44,6 +44,18 @@ Date.prototype.subMs = function (ms) {
     return this;
 };
 
+Date.createFromSql = function(sql_timestamp)
+{
+   if (typeof sql_timestamp === 'string') {
+      var t = sql_timestamp.split(/[- :]/);
+
+      //when t[3], t[4] and t[5] are missing they defaults to zero
+      return new Date(t[0], t[1] - 1, t[2], t[3] || 0, t[4] || 0, t[5] || 0);
+   }
+
+   return null;
+}
+
 $(function () {
 // глобальные настройки аякс запроса
     /**
@@ -708,7 +720,7 @@ var gallery = {
             var upTimeTree = gallery.cookie.get('upTimeTree');
             if (upTimeTree > 0) {
                 self.timeUpdateTree = setTimeout(function () {
-                    var sd = new Date(gallery.tree_events.to).addMs((upTimeTree - 1) * 1000);
+                    var sd = Date.createFromSql(gallery.tree_events.to).addMs((upTimeTree - 1) * 1000);
                     gallery.tree_events.to = "";
                     gallery.tree_events.init(self.holder, {'method': 'getTreeEvents', 'to': sd.toSql()});
                 },  upTimeTree * 1000);
@@ -741,7 +753,7 @@ var gallery = {
                         console.log('xhr response:', data);
                     }
                     if (data.server_time && self.to === "") {
-                        var sd = new Date(data.server_time).subMs(1000 /* 1 sec. */);
+                        var sd = Date.createFromSql(data.server_time).subMs(1000 /* 1 sec. */);
                         self.to = sd.toSql();
                     }
                     if (data.status == 'success') {
