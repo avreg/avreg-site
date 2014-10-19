@@ -561,7 +561,7 @@ $wide_28_28_wins = array(
     array(2, 1, 1, 1),
     array(2, 2, 1, 1),
     array(2, 3, 1, 1),
-    array(1, 4, 1, 1),
+    array(2, 4, 1, 1),
     array(2, 5, 1, 1),
     array(2, 6, 1, 1),
     array(3, 0, 1, 1),
