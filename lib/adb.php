@@ -61,7 +61,7 @@ class Adb
         $this->user = $params['db-user'];
         $this->password = $params['db-passwd'];
         if (isset($params['db-type']) && !empty($params['db-type'])) {
-            $this->dbtype = $param['db-type'];
+            $this->dbtype = $params['db-type'];
         }
         if (isset($params['db-host']) && !empty($params['db-host'])) {
             $this->host = $params['db-host'];
@@ -474,10 +474,7 @@ class Adb
 
         $tree_events = array();
         while ($res->fetchInto($line, DB_FETCHMODE_ASSOC)) {
-
-/*          XXX date() + strtotime() - very slow
-            $date = date('Y_m_d_H', strtotime($line[$this->key('DT1')]));
-*/
+            /* XXX date() + strtotime() - very slow */
             $date = strtr(substr($line[$this->key('DT1')], 0, 13), '- ', '__');
             $key = $date . '_' . $line[$this->key('CAM_NR')];
 
