@@ -720,9 +720,7 @@ var gallery = {
             var upTimeTree = gallery.cookie.get('upTimeTree');
             if (upTimeTree > 0) {
                 self.timeUpdateTree = setTimeout(function () {
-                    var sd = Date.createFromSql(gallery.tree_events.to).addMs((upTimeTree - 1) * 1000);
-                    gallery.tree_events.to = "";
-                    gallery.tree_events.init(self.holder, {'method': 'getTreeEvents', 'to': sd.toSql()});
+                    gallery.tree_events.init(self.holder, {'method': 'getTreeEvents', 'to': ''});
                 },  upTimeTree * 1000);
             }
 
@@ -752,9 +750,8 @@ var gallery = {
                     if (DEBUG == 1) {
                         console.log('xhr response:', data);
                     }
-                    if (data.server_time && self.to === "") {
-                        var sd = Date.createFromSql(data.server_time).subMs(1000 /* 1 sec. */);
-                        self.to = sd.toSql();
+                    if (data.to && data.to !== "") {
+                        self.to = data.to;
                     }
                     if (data.status == 'success') {
                         // если пришли обновления, то обновляем дерево и запускаем перестройку матрицы
@@ -766,6 +763,7 @@ var gallery = {
                             matrix.all_events = {}; // FIXME FIXME
                             gallery.tree_events.reload();
                         } else {
+                            /* дерево не изменилось */
                             $('#matrix_load').hide();
                         }
                         self.first = false;
@@ -813,6 +811,7 @@ var gallery = {
                             /* рассинхронизация событий и дерева или если дерево не актуально */
                             $('#matrix_load').hide();
                             if (self.first) {
+                                /* если сразу после загрузки страницы - немедленно пробуем синхронизовать дерево */
                                 self.first = false;
                                 $('#matrix_load').show();
                                 gallery.tree_events.init(holder,
@@ -842,8 +841,7 @@ var gallery = {
                                 }
                                 $('#matrix_load').show();
                                 /* update "to" datetime limit */
-                                gallery.tree_events.to = new Date().toSql();
-                                gallery.tree_events.init(holder, {'method': 'reindexTreeEvents', 'to': self.to});
+                                gallery.tree_events.init(holder, {'method': 'reindexTreeEvents', 'to': ""});
                             };
 
                             message_box.no_delegate = function (event) {
@@ -1273,8 +1271,8 @@ var gallery = {
         $('#update_tree').bind('click', function (e) {
             e.preventDefault();
             $('#matrix_load').show();
-            /* update "to" datetime limit */
-            gallery.tree_events.to = new Date().toSql();
+            /* reset "to" datetime limit */
+            gallery.tree_events.to = "";
             gallery.tree_events.init(gallery.tree_events.holder, {'method': 'reindexTreeEvents', 'to': gallery.tree_events.to});
             return false;
         });

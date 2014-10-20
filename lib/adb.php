@@ -115,17 +115,16 @@ class Adb
     {
         // if (PEAR::isError($r)) {
         if ($this->pear->isError($r)) {
-            @header('Content-Type: text/html; charset=' . $GLOBALS['chset']);
+            $ui = $r->getUserInfo();
+            @header('Content-Type: text/text; charset=' . $GLOBALS['chset']);
 
-            echo 'Standard Message: ' . $r->getMessage() . "<br>";
-            echo 'Standard Code: ' . $r->getCode() . "<br>";
-            echo 'DBMS/User Message: ' . $r->getUserInfo() . "<br>";
-            echo 'DBMS/Debug Message: ' . $r->getDebugInfo() . "<br>";
+            echo 'DBMS/User Message: ' . $ui;
 
             // echo $r->getDebugInfo();
 
             if ($die) {
-                die($r->getMessage());
+                trigger_error($ui);
+                die();
             }
 
             return true;
@@ -447,27 +446,31 @@ class Adb
 
     /**
      *  Метод обновляет дерево событий
-     *
-     * @param string $start Дата начала обновления дерева
-     * @param string $end Дата окончания обновления дерева
+     * @param string $start_hb Дата начала обновления дерева, выровненное по часу
+     * @param string $end_hb Дата окончания обновления дерева, выровненное по часу
+     * @param string $to Ограничитель DT1 для предотвращения зацикливания
+     *                    при постоянном добавлении в EVENTS и при этом неопр. $start_hb и $end_hb
      * @param bool|string $cameras Список камер
      * @return array
      */
-    public function galleryUpdateTreeEvents($start, $end, $cameras = false)
+    public function galleryUpdateTreeEvents($start_hb, $end_hb, $to = false, $cameras = false)
     {
-        $query = 'SELECT * FROM EVENTS WHERE EVT_ID in (12, 15,16,17, 23, 32)';
-        if ($start) {
-            $tstart = date('Y-m-d H:00:00', strtotime($start));
-            $query .= " AND DT1 >= '" . $tstart . "'";
+        $query = 'select DT1, CAM_NR, EVT_ID, FILESZ_KB from EVENTS where EVT_ID in (12, 15,16,17, 23, 32)';
+        if ($start_hb) {
+            $tstart = date('Y-m-d H:00:00', strtotime($start_hb));
+            $query .= " and DT1 >= '$tstart'";
         }
-        if ($end) {
-            $tend = date('Y-m-d H:59:59', strtotime($end));
-            $query .= " AND DT1 <= '" . $tend . "'";
+        if ($end_hb) {
+            $tend = date('Y-m-d H:59:59', strtotime($end_hb));
+            $query .= " and DT1 <= '$tend'";
+        }
+        if ($to) {
+            $query .= " and DT1 <= '$to'";
         }
         if ($cameras) {
-            $query .= ' AND CAM_NR in (' . $cameras . ')';
+            $query .= " and CAM_NR in ($cameras)";
         }
-        $query .= ' ORDER BY DT1 ASC';
+        $query .= ' order by DT1 asc';
 
         $res = $this->db->query($query);
         $this->error($res);
@@ -513,29 +516,27 @@ class Adb
             $a['LAST_UPDATE'] = $line[$this->key('DT1')];
         }
 
-        $query = 'DELETE FROM TREE_EVENTS';
-        $query .= ' WHERE 1=1';
-
-        if ($start) {
-            $query .= " AND BYHOUR >= '" . date('Y_m_d_H', strtotime($start)) . "'";
+        $query = 'delete from TREE_EVENTS where 1=1';
+        if ($start_hb) {
+            $query .= " and BYHOUR >= '" . date('Y_m_d_H', strtotime($start_hb)) . "'";
         }
 
-        if ($end) {
-            $query .= " AND BYHOUR <= '" . date('Y_m_d_H', strtotime($end)) . "'";
+        if ($end_hb) {
+            $query .= " and BYHOUR <= '" . date('Y_m_d_H', strtotime($end_hb)) . "'";
         }
 
         if ($cameras) {
-            $query .= ' AND CAM_NR in (' . $cameras . ')';
+            $query .= ' and CAM_NR in (' . $cameras . ')';
         }
 
         $res = $this->db->query($query);
         $this->error($res);
 
         foreach ($tree_events as $row) {
-            $query = 'INSERT INTO TREE_EVENTS ';
+            $query = 'insert into TREE_EVENTS ';
             $query .= '(BYHOUR, CAM_NR, IMAGE_COUNT, IMAGE_SIZE, VIDEO_COUNT, ';
             $query .= 'VIDEO_SIZE, AUDIO_COUNT, AUDIO_SIZE, LAST_UPDATE)';
-            $query .= " VALUES ('" . $row['DATE'] . "'," . $row['CAM_NR'] . ',' . $row['IMAGE_COUNT'] . ','
+            $query .= " values ('" . $row['DATE'] . "'," . $row['CAM_NR'] . ',' . $row['IMAGE_COUNT'] . ','
                 . $row['IMAGE_SIZE'] . ',' . $row['VIDEO_COUNT'] . ',' . $row['VIDEO_SIZE'] . ','
                 . $row['AUDIO_COUNT'] . ',' . $row['AUDIO_SIZE'] . ",'" . $row['LAST_UPDATE'] . "')";
             $res = $this->db->query($query);

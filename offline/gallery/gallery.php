@@ -127,7 +127,7 @@ class Gallery
     {
         $initially = isset($params['initially']);
         if (@empty($params['to'])) {
-            $params['to'] = date("Y-m-d H:i:s");
+            $params['to'] = date("Y-m-d H:i:s", time() - 1);
         }
         //если древо заблокировано, то возвращаем ошибку
         if ($this->cache->get('gallery_update')) {
@@ -239,10 +239,13 @@ class Gallery
         $start = isset($par_hash['start']) ? $par_hash['start'] : false;
         $end = isset($par_hash['end']) ? $par_hash['end'] : false;
         $cameras = isset($par_hash['cameras']) ? $par_hash['cameras'] : false;
+        if (@empty($par_hash['to'])) {
+            $par_hash['to'] = date("Y-m-d H:i:s", time() - 1);
+        }
         // устанавливаем блокировку
         $this->cache->set('gallery_update', true);
         // обновляем
-        $this->db->galleryUpdateTreeEvents($start, $end, $cameras);
+        $this->db->galleryUpdateTreeEvents($start, $end, $par_hash['to'], $cameras);
 
         // удаляем сохраненный в мемкеше деревья
         $tree_events_keys = $this->cache->get('tree_events_keys');
@@ -259,10 +262,11 @@ class Gallery
     // функция запускается по крону, чтобы обновить последние события в дереве
     public function cronUpdateTreeEvents()
     {
+        $par_hash['to'] = date("Y-m-d H:i:s", time() - 1);
         // последенее событие
-        $events_stat = $this->db->galleryEventsGetStat();
+        $events_stat = $this->db->galleryEventsGetStat($par_hash);
         // последнее событие в дереве
-        $tree_events_stat = $this->db->galleryTreeEventsGetStat();
+        $tree_events_stat = $this->db->galleryTreeEventsGetStat($par_hash);
         // обновляем дерево если оно не полное
         if ($tree_events_stat['latest_update'] < $events_stat['latest']) {
             $par_hash = array(
@@ -278,6 +282,7 @@ class Gallery
     {
         global $cams_array; // offline/gallery.php
         $par_hash['cameras'] = implode(',', $cams_array);
+        $par_hash['to'] = date("Y-m-d H:i:s", time() - 1);
         $this->updateTreeEvents($par_hash);
         $par_hash['initially'] = 'yes'; // чтобы getTreeEvents() возвратил данные
         $this->getTreeEvents($par_hash);
@@ -287,9 +292,6 @@ class Gallery
     public function printResult()
     {
         if ($this->limit > 1) {
-            if (is_array($this->result)) {
-                $this->result['server_time'] = date("Y-m-d H:i:s");
-            }
             echo json_encode($this->result);
         } else {
             if (is_array($this->result)) {
