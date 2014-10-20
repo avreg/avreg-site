@@ -1577,6 +1577,27 @@ avregd HTTP CGI-интерфейс</a>).</li>
         'mstatus' => 2,
     ),
     array(
+        'name' => 'allow_pda',
+        'type' => $BOOL_VAL,
+        'def_val' => true,
+        'desc' => '<div>Отображать камеру в <b>PDA</b>-оптимизированном интерфейсе или нет.</div>
+        <div>PDA-интерфейс представляет собой 100% кроссбраузерный лёгкий способ
+        просмотра картинок (спапшотов) JPEG c возможностью масштабирования на строне сервера:</div>
+        <ul>
+        <li><i>снапшотов реального времени</i>: нужно вкл. {allow_networks} (см. выше);</li>
+        <li><i>снапшотов из архива</i>: нужно включить {paranoid_snap} и/или {extra_snap_period[1/2]}
+        (раздел Запись - Видео).</li>
+        </ul>
+        <div>В обоих случаях, если исходный поток не jpeg/mjpeg, нужно также вкл. {decode_video} (раздел Захват).</div>
+        <div>Использования PDA-интерфейс в целом можно разрешить или запретить в настройках пользователя.</div>
+        По умолчанию: <b>Вкл</b>.',
+        'flags' => $F_RELOADED | $F_BASEPAR | $F_IN_DEF | $F_IN_CAM,
+        'cats' => '15',
+        'subcats' => null,
+        'mstatus' => 2,
+    ),
+
+    array(
         'name' => 'v4l_pipe',
         'type' => $CHECK_VAL,
         'def_val' => null,
@@ -1768,6 +1789,7 @@ http://<b>этот_сервер</b>/avreg-cgi/mjpg/video.cgi?camera=143</span>;<
         'subcats' => null,
         'mstatus' => 1,
     ),
+
     /* EVENTS */
     array(
         'name' => 'events2db',

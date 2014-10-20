@@ -34,6 +34,7 @@ $__cams_params = get_cams_params(array(
     'work',
     'video_src',
     'allow_networks',
+    'allow_pda',
     'text_left',
     'geometry',
     'Hx2'));
@@ -43,7 +44,8 @@ foreach ($__cams_params as $__cam_nr => $__cam_opt) {
     if ($__cam_nr >= 0) {
         if (empty($__cam_opt['work']['v']) ||
             empty($__cam_opt['video_src']['v']) ||
-            empty($__cam_opt['allow_networks']['v'])) {
+            empty($__cam_opt['allow_networks']['v']) ||
+            empty($__cam_opt['allow_pda']['v'])) {
             continue;
         }
         $cams_nbr++;
@@ -80,6 +82,10 @@ $show_colums = array(
     'RESOLUTION' => false,
 );
 
+/* TODO если быть точным то стоит разделить камеры:
+ *   allow_networks && allow_pda - ссылка на online,
+ *   allow_pda без allow_networks - только архив
+ */
 foreach ($cams_params as $__cam_nr => $cam_detail) {
     if ($__cam_nr <= 0) {
         continue;
