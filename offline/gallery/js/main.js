@@ -421,6 +421,10 @@ var gallery = {
             // получения настроек формирование дерева
             var variable = {};
 
+            //если включен режим детального просмотра - включаем режим превью
+            if (matrix.mode == 'detail') {
+                matrix.preview();
+            }
             $('input[name="type_event"]').each(function () {
                 if ($(this).attr('checked')) {
                     // по типу (изображения, видео, аудио)
@@ -3685,29 +3689,32 @@ var scale2 = {
     //сохранить текущую позицию элемента
     save_content_position: function () {
         var value = matrix.events[matrix.num];
-        //реализуем только для картинок
-        if (value[7] == 'image') { //Если картинка
-            var aplayer_id = $('.aplayer', '#cell_' + matrix.num).attr('id');
-            scale2.content_position = $.aplayer.getCurrentMediaEltPosition(aplayer_id);
-        } else if ($('.active .refBox').aplayerIsEmbededObject() || value[7] == 'audio') {
-            //Если внедренный объект или  аудио
-        } else {
-            // HTML5-player
+        if (typeof(value) !== "undefined") {
+            //реализуем только для картинок
+            if (value[7] == 'image') { //Если картинка
+                var aplayer_id = $('.aplayer', '#cell_' + matrix.num).attr('id');
+                scale2.content_position = $.aplayer.getCurrentMediaEltPosition(aplayer_id);
+            } else if ($('.active .refBox').aplayerIsEmbededObject() || value[7] == 'audio') {
+                //Если внедренный объект или  аудио
+            } else {
+                // HTML5-player
+            }
         }
     },
 
     //установить позицию элемента
     restore_content_position: function () {
         var value = matrix.events[matrix.num];
-        //реализуем только для картинок
-        if (value[7] == 'image') { //Если картинка
-            var aplayer_id = $('.aplayer', '#cell_' + matrix.num).attr('id');
-            $.aplayer.setMediaEltPosition(aplayer_id, scale2.content_position);
-        } else if ($('.active .refBox').aplayerIsEmbededObject() || value[7] == 'audio') { //Если внедренный объект или  аудио
-        } else { // HTML5-player
+        if (typeof(value) !== "undefined") {
+            //реализуем только для картинок
+            if (value[7] == 'image') { //Если картинка
+                var aplayer_id = $('.aplayer', '#cell_' + matrix.num).attr('id');
+                $.aplayer.setMediaEltPosition(aplayer_id, scale2.content_position);
+            } else if ($('.active .refBox').aplayerIsEmbededObject() || value[7] == 'audio') { //Если внедренный объект или  аудио
+            } else { // HTML5-player
+            }
         }
     }
-
 };
 
 var keyBoard = {
