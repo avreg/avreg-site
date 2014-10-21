@@ -14,21 +14,21 @@
                 ?>
                 <span class="niceCheck">
                     <input type="checkbox" id="image_type" name="type_event" value="image"
-                           checked="<?= (empty($type) || in_array('i', $type)) ? 'checked' : '' ?>"/>
+                           <?= (@empty($type) || in_array('i', $type)) ? ' checked' : '' ?>/>
                 </span>
                 <label for="image_type"><?php print $strimagetype; ?></label><br/>
 
                 <div class="borderBot"></div>
                 <span class="niceCheck">
                     <input type="checkbox" id="video_type" name="type_event" value="video"
-                           checked="<?= (empty($type) || in_array('v', $type)) ? 'checked' : '' ?>"/>
+                           <?= (@empty($type) || in_array('v', $type)) ? ' checked' : '' ?>/>
                 </span>
                 <label for="video_type"><?php print $strvideotype; ?></label><br/>
 
                 <div class="borderBot"></div>
                 <span class="niceCheck">
                     <input type="checkbox" id="audio_type" name="type_event" value="audio"
-                           checked="<?= (empty($type) || in_array('a', $type)) ? 'checked' : '' ?>"/>
+                           <?= (@empty($type) || in_array('a', $type)) ? ' checked' : '' ?>/>
                 </span>
                 <label for="audio_type"><?php print $straudiotype; ?></label>
             </div>
@@ -78,12 +78,17 @@
                         ?>
                         <?php
                         reset($cams_params);
-                        each($cams_params);
-                        while (list($CAM_NR, $PARAM) = each($cams_params)) : ?>
+                        while (list($CAM_NR, $PARAM) = each($cams_params)) :
+                            // @codingStandardsIgnoreStart
+                            if ($CAM_NR <= 0) {
+                                continue;
+                            }
+                            // @codingStandardsIgnoreEnd
+                            ?>
                             <span class="new_Check" style="white-space: nowrap; ">
                             <span class="niceCheck"><input type="checkbox" id="camera_<?= $CAM_NR; ?>" name="cameras"
                                 value="<?= $CAM_NR; ?>"
-                                checked="<?= (empty($cameras) || in_array($CAM_NR, $cameras)) ? 'checked' : '' ?>"/>
+                                <?= (@empty($cameras) || in_array($CAM_NR, $cameras)) ? ' checked' : '' ?>/>
                             </span>
                                 <?php
                                 $name = $name_orig = $PARAM['text_left']['v'];
@@ -100,9 +105,7 @@
                                 <label style="float: none !important;" for="camera_<?= $CAM_NR; ?>">
                                     <a href="#<?= $CAM_NR; ?>"
                                        class="set_camera_color<?= $camColor ?>"
-                                       title="<?= ($name != $name_orig) ? $name_orig : '' ?>">
-                                        <?= $name ?>
-                                    </a>
+                                       title="<?= ($name != $name_orig) ? $name_orig : '' ?>"><?= $name ?></a>
                                 </label>
                             </span>
                         <?php
@@ -142,9 +145,8 @@
                         <span class="niceCheck">
                             <input
                                 type="checkbox" id="proportion" name="proportion" value="1"
-                                checked="<?= (isset($cookies['proportion']) && $cookies['proportion'] == 'checked') ?
-                                    'checked' : '' ?>"
-                            />
+                                <?= (isset($cookies['proportion']) && $cookies['proportion'] == 'checked') ?
+                                    ' checked' : '' ?>/>
                         </span>
                         <label for="proportion"><?php print $strproportion; ?></label>
                     </div>
@@ -152,9 +154,8 @@
                         <span class="niceCheck">
                             <input
                                 type="checkbox" id="info" name="info" value="1"
-                                checked="<?= (!isset($cookies['info']) || $cookies['info'] == 'checked') ?
-                                    'checked' : '' ?>"
-                            />
+                                <?= (!isset($cookies['info']) || $cookies['info'] == 'checked') ?
+                                    ' checked' : '' ?>/>
                         </span>
                         <label for="info"><?php print $strinfo; ?></label>
                     </div>
@@ -302,3 +303,4 @@
         }
     });
 </script>
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */
