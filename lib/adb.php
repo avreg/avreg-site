@@ -154,8 +154,8 @@ class Adb
         $query = "select " . $this->dateFormat('DT1') . ", DT1, EVT_CONT, ALT2, ALT1, CAM_NR, FILESZ_KB, EVT_ID, " .
             $this->timediff('DT1', 'DT2') . ", DT2";
         $query .= ' from EVENTS';
-        $query .= ' where EVT_ID in (' . implode(",", $param['events']) . ')';
-        $query .= ' and CAM_NR in (' . implode(",", $param['cameras']) . ')';
+        $query .= ' where ' . $this->whereIntColumnValue("EVT_ID", $param['events']);
+        $query .= ' and ' . $this->whereIntColumnValue("CAM_NR", $param['cameras']);
 
         if (!@empty($param['from'])) {
             $query .= " and DT1 >= '" . $param['from'] . "'";
@@ -225,8 +225,8 @@ class Adb
         $events = array();
         $query = "select " . $this->dateFormat('DT2') . ", DT2";
         $query .= ' from EVENTS';
-        $query .= ' where EVT_ID in (' . implode(",", $param['events']) . ')';
-        $query .= ' and CAM_NR in (' . implode(",", $param['cameras']) . ')';
+        $query .= ' where ' . $this->whereIntColumnValue("EVT_ID", $param['events']);
+        $query .= ' and ' . $this->whereIntColumnValue("CAM_NR", $param['cameras']);
 
         if (!@empty($param['from'])) {
             $query .= " and DT1 >= '" . $param['from'] . "'";
@@ -290,7 +290,7 @@ class Adb
                 }
                 switch ($key) {
                     case 'cameras':
-                        $query .= ' and CAM_NR in (' . implode(',', $value) . ')';
+                        $query .= ' and ' . $this->whereIntColumnValue("CAM_NR", $value);
                         break;
                     case 'from':
                         $query .= " and DT1 >= '$value'";
@@ -348,7 +348,7 @@ class Adb
                 }
                 switch ($key) {
                     case 'cameras':
-                        $query .= ' and CAM_NR in (' . implode(',', $value) . ')';
+                        $query .= ' and ' . $this->whereIntColumnValue("CAM_NR", $value);
                         break;
                     case 'from':
                         $query .= " and LAST_UPDATE >= '$value'";
@@ -401,7 +401,7 @@ class Adb
                 }
                 switch ($key) {
                     case 'cameras':
-                        $query .= ' and CAM_NR in (' . implode(',', $value) . ')';
+                        $query .= ' and ' . $this->whereIntColumnValue("CAM_NR", $value);
                         break;
                     case 'from':
                         $query .= " and LAST_UPDATE >= '$value'";
@@ -468,7 +468,7 @@ class Adb
             $query .= " and DT1 <= '$to'";
         }
         if ($cameras) {
-            $query .= " and CAM_NR in ($cameras)";
+            $query .= " and " . $this->whereIntColumnValue("CAM_NR", $cameras);
         }
         $query .= ' order by DT1 asc';
 
@@ -526,7 +526,7 @@ class Adb
         }
 
         if ($cameras) {
-            $query .= ' and CAM_NR in (' . $cameras . ')';
+            $query .= ' and ' . $this->whereIntColumnValue("CAM_NR", $cameras);
         }
 
         $res = $this->db->query($query);
@@ -1810,6 +1810,29 @@ class Adb
         }
         $str = str_replace('%%', $value, $str);
         return $str;
+    }
+
+    protected function whereIntColumnValue($col_name, $col_value = "")
+    {
+        if (@empty($col_name)) {
+            throw new InvalidArgumentException("empty column name");
+        }
+        if (@empty($col_value)) {
+            throw new InvalidArgumentException("empty '$col_name' column value");
+        }
+        switch (gettype($col_value)) {
+            case 'array':
+                return "$col_name in (" . implode(",", $col_value) . ")";
+            case "string":
+                if (false !== strpos($col_value, ",")) {
+                    return "$col_name in (" . $col_value  . ")";
+                }
+                // else (non CSV) - no break, use as signle number
+            case "integer":
+                return "$col_name = $col_value";
+            default:
+                throw new InvalidArgumentException("invalid '$col_name' value");
+        }
     }
 }
 /* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */

@@ -252,22 +252,63 @@ class Gallery
             return 1;
         }
 
+        $start = isset($par_hash['start']) ? $par_hash['start'] : false;
+        $end = isset($par_hash['end']) ? $par_hash['end'] : false;
+        $cameras = isset($par_hash['cameras']) ? $par_hash['cameras'] : false;
+        if (@empty($par_hash['to'])) {
+            $par_hash['to'] = date("Y-m-d H:i:s", time() - 1);
+        }
+
+        $update_invoke_db_nb = 0;
         try {
-            $start = isset($par_hash['start']) ? $par_hash['start'] : false;
-            $end = isset($par_hash['end']) ? $par_hash['end'] : false;
-            $cameras = isset($par_hash['cameras']) ? $par_hash['cameras'] : false;
-            if (@empty($par_hash['to'])) {
-                $par_hash['to'] = date("Y-m-d H:i:s", time() - 1);
+            if ($start || $end) {
+                // вызов из CLI || avreg-unlink, обновляем без вариантов
+                $this->db->galleryUpdateTreeEvents($start, $end, $par_hash['to'], $cameras);
+                $update_invoke_db_nb++;
+            } else {
+                // вызов запросом браузера || cron
+                // будем использовать умную индексацию
+                // FIXME FIXME остаётся один неохваченный вариант, редкий но возможный
+                // когда удалили одно и тоже количество в EVENTS: не последнюю
+                // (или несколько в одной самой старой секунде было в конце)
+                // и добавили в ту же секунду новые
+                // тогда времена и количество не изменятся, однако будет рассинхрон
+                $max_reindex_score = 3; /* head(1), tail(2), total(3) */
+
+                $sync_done = false;
+                $reindex_type = 555;
+                for ($i = 0; $i < $max_reindex_score; $i += $reindex_type) {
+                    $events_stat = $this->db->galleryEventsGetStat($par_hash);
+                    $tree_events_stat = $this->db->galleryTreeEventsGetStat($par_hash);
+
+                    if ($events_stat['latest'] != $tree_events_stat['latest_update']) {
+                        $reindex_type = 1;
+                        $start = $this->sqlTimestampMin($events_stat['latest'], $tree_events_stat['latest_update']);
+                        $end = false;
+                    } elseif ($events_stat['oldest'] != $tree_events_stat['oldest_update']) {
+                        $reindex_type = 2;
+                        $end = $this->sqlTimestampMax($events_stat['oldest'], $tree_events_stat['oldest_update']);
+                        $start = false;
+                    } elseif ($events_stat['files'] != $tree_events_stat['files']) {
+                        $reindex_type = 3;
+                        $start = $end = false;
+                    } else {
+                        // синхронизировано!!!
+                        break;
+                    }
+                    // обновляем
+                    $this->db->galleryUpdateTreeEvents($start, $end, $par_hash['to'], $cameras);
+                    $update_invoke_db_nb++;
+                }
             }
 
-            // обновляем
-            $this->db->galleryUpdateTreeEvents($start, $end, $par_hash['to'], $cameras);
-
-            // удаляем сохраненный в мемкеше деревья
-            $tree_events_keys = $this->cache->get('tree_events_keys');
-            if (!empty($tree_events_keys)) {
-                foreach ($tree_events_keys as $key) {
-                    $this->cache->delete($key);
+            if ($update_invoke_db_nb > 0) {
+                // удаляем сохраненные в мемкеше деревья FIXME FIXME а ecли не синхронизировано?
+                $tree_events_keys = $this->cache->get('tree_events_keys');
+                if (!empty($tree_events_keys)) {
+                    foreach ($tree_events_keys as $key) {
+                        $this->cache->delete($key);
+                    }
                 }
             }
         } catch (\Exception $e) {
@@ -281,6 +322,7 @@ class Gallery
     } /* updateTreeEvents() */
 
     // функция запускается по крону, чтобы обновить последние события в дереве
+    // TODO FIXME FIXME use "gallery_update" lock
     public function cronUpdateTreeEvents()
     {
         $par_hash['to'] = date("Y-m-d H:i:s", time() - 1);
@@ -322,5 +364,22 @@ class Gallery
             }
         }
     } /* printResult() */
+
+    public function sqlTimestampMin($ts1, $ts2)
+    {
+        if (min(strtotime($ts1), strtotime($ts2))) {
+            return $ts1;
+        } else {
+            return $ts2;
+        }
+    }
+    public function sqlTimestampMax($ts1, $ts2)
+    {
+        if (max(strtotime($ts1), strtotime($ts2))) {
+            return $ts1;
+        } else {
+            return $ts2;
+        }
+    }
 }
 /* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */
