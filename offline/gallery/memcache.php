@@ -4,6 +4,8 @@ namespace Avreg;
 
 class Cache
 {
+    const DEF_LOCK_EXPIRE = 60; // 1 minute
+
     private $memcache;
     private $cache_id = '';
     private $locked = ':lock';
@@ -98,12 +100,12 @@ class Cache
         return (bool)$this->memcache->get($key_lock);
     }
 
-    public function delete($key, $time = 0)
+    public function delete($key)
     {
         $_key = $this->keyName($key);
-        $ret = $this->memcache->delete($_key, $time);
+        $ret = $this->memcache->delete($_key);
         if ($this->debug) {
-            error_log(sprintf('%s("%s, %d") -> %s', __METHOD__, $_key, $time, $ret));
+            error_log(sprintf('%s("%s") -> %s', __METHOD__, $_key, $ret));
         }
         return $ret;
     }
@@ -113,6 +115,23 @@ class Cache
         $ret = $this->memcache->flush();
         if ($this->debug) {
             error_log(sprintf('%s("") -> %s', __METHOD__, $ret));
+        }
+        return $ret;
+    }
+
+    public function lockAtomicWait ($key, $wait_timeout = 5)
+    {
+        $_key = $this->keyName($key);
+        while (true) {
+            $ret = $this->memcache->add($_key, time(), 0, self::DEF_LOCK_EXPIRE);
+            $wait_timeout--;
+            if ($ret || $wait_timeout < 0) {
+                break;
+            }
+            sleep(1);
+        }
+        if ($this->debug) {
+            error_log(sprintf('%s("%s,") -> %s', __METHOD__, $_key, $ret));
         }
         return $ret;
     }
