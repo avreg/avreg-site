@@ -154,8 +154,9 @@ class Gallery
             $tree_events_stat = $this->db->galleryTreeEventsGetStat($params);
 
             if ($events_stat['files'] != $tree_events_stat['files']  ||
-                $tree_events_stat['latest_update'] < $events_stat['latest'] ||
-                $events_stat['oldest'] > $tree_events_stat['oldest_update']) { // FIXME compare DateTime as string
+                $tree_events_stat['latest_update'] != $events_stat['latest'] ||
+                $events_stat['oldest'] > $tree_events_stat['oldest_update']) {
+                // FIXME по oldest > oldest_update см. FIXME ниже в updateTreeEvents()
                 /* need update tree_events */
                 $access_update_tree = in_array(
                     $GLOBALS['user_status'],
@@ -273,7 +274,12 @@ class Gallery
                 // (или несколько в одной самой старой секунде было в конце)
                 // и добавили в ту же секунду новые
                 // тогда времена и количество не изменятся, однако будет рассинхрон
-                $max_reindex_score = 3; /* head(1), tail(2), total(3) */
+
+                /* head(1), tail(2), total(3)
+                 * head(1) + 3 x tail(2) = 7
+                 * head(1) + tail(2) + total(3) = 6
+                 */
+                $max_reindex_score = 6;
 
                 $sync_done = false;
                 $reindex_type = 555;
@@ -285,7 +291,11 @@ class Gallery
                         $reindex_type = 1;
                         $start = $this->sqlTimestampMin($events_stat['latest'], $tree_events_stat['latest_update']);
                         $end = false;
-                    } elseif ($events_stat['oldest'] != $tree_events_stat['oldest_update']) {
+                    } elseif ($events_stat['oldest'] > $tree_events_stat['oldest_update']) {
+                        /* FIXME нечёткое сравнение, в теории если удалить ровно столько снизу TREE_EVENTS
+                         * и добавить в одну секунду столько же в EVENTS, удалённые записи не будут
+                         * показаны в галерее, хотя ....
+                         * TODO TREE_EVENTS->LAST_UPDATE разбить на 2 DT1_OLDEST и DT1_LATEST(= LAST_UPDATE сейчас) */
                         $reindex_type = 2;
                         $end = $this->sqlTimestampMax($events_stat['oldest'], $tree_events_stat['oldest_update']);
                         $start = false;
@@ -296,6 +306,7 @@ class Gallery
                         // синхронизировано!!!
                         break;
                     }
+                    error_log("i=$i, reindex_type = $reindex_type");
                     // обновляем
                     $this->db->galleryUpdateTreeEvents($start, $end, $par_hash['to'], $cameras);
                     $update_invoke_db_nb++;
@@ -367,7 +378,7 @@ class Gallery
 
     public function sqlTimestampMin($ts1, $ts2)
     {
-        if (min(strtotime($ts1), strtotime($ts2))) {
+        if (strtotime($ts1) < strtotime($ts2)) {
             return $ts1;
         } else {
             return $ts2;
@@ -375,7 +386,7 @@ class Gallery
     }
     public function sqlTimestampMax($ts1, $ts2)
     {
-        if (max(strtotime($ts1), strtotime($ts2))) {
+        if (strtotime($ts1) > strtotime($ts2)) {
             return $ts1;
         } else {
             return $ts2;

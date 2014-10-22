@@ -124,7 +124,7 @@ class Adb
 
             if ($die) {
                 trigger_error($ui);
-                die();
+                throw new \Exception($ui);
             }
 
             return true;
@@ -457,12 +457,12 @@ class Adb
     {
         $query = 'select DT1, CAM_NR, EVT_ID, FILESZ_KB from EVENTS where EVT_ID in (12, 15,16,17, 23, 32)';
         if ($start_hb) {
-            $tstart = date('Y-m-d H:00:00', strtotime($start_hb));
-            $query .= " and DT1 >= '$tstart'";
+            $hour_start = date('Y-m-d H:00:00', strtotime($start_hb));
+            $query .= " and DT1 >= '$hour_start'";
         }
         if ($end_hb) {
-            $tend = date('Y-m-d H:59:59', strtotime($end_hb));
-            $query .= " and DT1 <= '$tend'";
+            $hour_end = date('Y-m-d H:59:59', strtotime($end_hb));
+            $query .= " and DT1 <= '$hour_end'";
         }
         if ($to) {
             $query .= " and DT1 <= '$to'";
@@ -472,6 +472,7 @@ class Adb
         }
         $query .= ' order by DT1 asc';
 
+        error_log($query);
         $res = $this->db->query($query);
         $this->error($res);
 
@@ -513,6 +514,11 @@ class Adb
                     $a['AUDIO_SIZE'] += (int)$line[$this->key('FILESZ_KB')];
                     break;
             }
+
+            // FIXME FIXME TODO LAST_UPDATE заменить на DT1_OLDEST и DT1_LATEST
+            //  и тогда можно исп. чёткое сравнение
+            //  $events_stat['oldest'] > $tree_events_stat['oldest_update']
+            //  где $tree_events_stat['oldest_update'] - это MIN(DT1_OLDEST)
             $a['LAST_UPDATE'] = $line[$this->key('DT1')];
         }
 
@@ -520,15 +526,17 @@ class Adb
         if ($start_hb) {
             $query .= " and BYHOUR >= '" . date('Y_m_d_H', strtotime($start_hb)) . "'";
         }
-
         if ($end_hb) {
             $query .= " and BYHOUR <= '" . date('Y_m_d_H', strtotime($end_hb)) . "'";
         }
-
+        if ($to) {
+            $query .= " and LAST_UPDATE <= '$to'";
+        }
         if ($cameras) {
             $query .= ' and ' . $this->whereIntColumnValue("CAM_NR", $cameras);
         }
 
+        error_log($query);
         $res = $this->db->query($query);
         $this->error($res);
 
