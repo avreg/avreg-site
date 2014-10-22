@@ -1316,9 +1316,9 @@ var gallery = {
             if (gallery.cookie.get('dontBlockUpdTree')) {
                 message += ' style="background-position: 0px -14px"';
             }
-            message += '><input type="checkbox" id="popup_desync_form" value="t"' + "\n";
-            if (!gallery.cookie.get('dontBlockUpdTree')) {
-                message += ' checked="checked"';
+            message += '><input type="checkbox" id="popup_desync_form" value="t"';
+            if (gallery.cookie.get('dontBlockUpdTree')) {
+                message += ' checked';
             }
             message += '/></label></span>' + "\n";
 
