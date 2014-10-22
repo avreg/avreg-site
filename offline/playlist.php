@@ -22,10 +22,10 @@ DENY($arch_status);
     var t = null;
 
     function switch_timemode() {
-        if (typeof($('#timemode').attr('checked')) != 'undefined') {
-            $("#id_main_dayofweek input[type=checkbox]").attr('disabled', true);
+        if (!$('#timemode').is(':checked')) {
+            $("#id_main_dayofweek input[type=checkbox]").prop('disabled', true);
         } else {
-            $("#id_main_dayofweek input[type=checkbox]").attr('disabled', false);
+            $("#id_main_dayofweek input[type=checkbox]").prop('disabled', false);
         }
     }
 

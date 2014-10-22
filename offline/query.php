@@ -264,10 +264,10 @@ if (isset($_COOKIE)) {
     var play_direction = 0;
 
     function switch_timemode() {
-        if (typeof($('#timemode').attr('checked')) != 'undefined') {
-            $("#id_main_dayofweek input[type=checkbox]").attr('disabled', true);
+        if (!$('#timemode').is(':checked')) {
+            $("#id_main_dayofweek input[type=checkbox]").prop('disabled', true);
         } else {
-            $("#id_main_dayofweek input[type=checkbox]").attr('disabled', false);
+            $("#id_main_dayofweek input[type=checkbox]").prop('disabled', false);
         }
     }
 
