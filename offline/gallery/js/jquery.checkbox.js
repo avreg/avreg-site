@@ -26,14 +26,14 @@ jQuery(document).ready(function () {
  * @returns {boolean}
  */
 function changeCheck(el) {
-    var input = el.find("input").eq(0);
+    var $input = el.find("input").eq(0);
 
-    if (!input.attr("checked")) {
+    if (!$input.is(":checked")) {
         el.css("background-position", "0 -14px");
-        input.attr("checked", true)
+        $input.prop('checked', true)
     } else {
         el.css("background-position", "0 0");
-        input.attr("checked", false)
+        $input.prop('checked', false)
     }
     return true;
 }
@@ -44,9 +44,9 @@ function changeCheck(el) {
  * @returns {boolean}
  */
 function changeCheckStart(el) {
-    var input = el.find("input").eq(0);
+    var $input = el.find("input").eq(0);
 
-    if (input.attr("checked")) {
+    if ($input.is(":checked")) {
         el.css("background-position", "0 -14px");
     }
     return true;

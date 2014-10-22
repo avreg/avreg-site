@@ -238,7 +238,7 @@ var gallery = {
         }
 
         $('input[name="type_event"]').each(function () {
-            if ($(this).attr('checked')) {
+            if ($(this).is(':checked')) {
                 count++;
                 v = $(this).val();
                 cook += v.substr(0, 1) + ',';
@@ -257,7 +257,7 @@ var gallery = {
 
         } else {
             // не дадим пользователю снять последний чекбокс
-            //$(this).attr('checked', 'checked');
+            //$(this).prop('checked', true);
             $('#matrix_load').hide();
             alert(lang.empty_event);
             return false;
@@ -276,7 +276,7 @@ var gallery = {
 
         $('input[name="cameras"]').each(function () {
             cam_cnt++;
-            if ($(this).attr('checked')) {
+            if ($(this).is(':checked')) {
                 count++;
                 cook += $(this).val() + ',';
             }
@@ -293,7 +293,7 @@ var gallery = {
 
         if (count > 0) {
             //переключаем чекбокс всех камер в 'Отменить выбор всех камер'
-            $('#cam_selector').attr('checked', true).parent().attr('style', 'background-position: 0px -14px');
+            $('#cam_selector').prop('checked', true).parent().attr('style', 'background-position: 0px -14px');
             $('#lbl_cam_selector').html('Отменить выбор всех камер');
 
             if (count == cam_cnt) {
@@ -303,7 +303,7 @@ var gallery = {
             }
         } else {
             //переключаем чекбокс всех камер в 'Выбрать все камеры'
-            $('#cam_selector').attr('checked', false).parent().attr('style', 'background-position: 0px 0px');
+            $('#cam_selector').prop('checked', false).parent().attr('style', 'background-position: 0px 0px');
             $('#lbl_cam_selector').html('Выбрать все камеры');
             $('#select_all_cam>.new_Check').css('opacity', '1');
         }
@@ -426,12 +426,12 @@ var gallery = {
                 matrix.preview();
             }
             $('input[name="type_event"]').each(function () {
-                if ($(this).attr('checked')) {
+                if ($(this).is(':checked')) {
                     // по типу (изображения, видео, аудио)
                     var type = $(this).val();
                     // какие камеры выбраны
                     $('input[name="cameras"]').each(function () {
-                        if ($(this).attr('checked')) {
+                        if ($(this).is(':checked')) {
                             var k = type + '_' + $(this).val();
                             variable[k] = 1;
                         }
@@ -838,7 +838,7 @@ var gallery = {
                             message += "/></label>\n";
 
                             message_box.yes_delegate = function (event) {
-                                if ($('#popup_desync_form').attr('checked')) {
+                                if ($('#popup_desync_form').is(':checked')) {
                                     gallery.cookie.set('dontBlockUpdTree', 1);
                                 } else {
                                     gallery.cookie.set('dontBlockUpdTree', 0);
@@ -849,7 +849,7 @@ var gallery = {
                             };
 
                             message_box.no_delegate = function (event) {
-                                if ($('#popup_desync_form').attr('checked')) {
+                                if ($('#popup_desync_form').is(':checked')) {
                                     gallery.cookie.set('dontBlockUpdTree', 1);
                                 } else {
                                     gallery.cookie.set('dontBlockUpdTree', 0);
@@ -956,7 +956,7 @@ var gallery = {
         select: function () {
             var self = this;
             // запомнить выбор если выбрана галочка
-            if ($('#checknextwindow').attr('checked')) {
+            if ($('#checknextwindow').is(':checked')) {
                 gallery.cookie.set('checknextwindow', 'yes');
             }
 
@@ -994,7 +994,7 @@ var gallery = {
             });
             // обработка события если пользователь нажал нет
             $('#nextwindow .no').click(function () {
-                if ($('#checknextwindow').attr('checked')) {
+                if ($('#checknextwindow').is(':checked')) {
                     gallery.cookie.set('checknextwindow', 'no');
                 }
                 self.close();
@@ -1059,10 +1059,10 @@ var gallery = {
         $('input[name="cameras"]').change(function () {
             var rez = gallery.reload_cams();
             if (!rez) {
-                $(this).attr('checked', 'checked');
+                $(this).prop('checked', true);
             }
 
-            if ($(this).attr('checked')) {
+            if ($(this).is(':checked')) {
                 $(this).parent().attr('style', 'background-position: 0px -14px');
             } else {
                 $(this).parent().attr('style', 'background-position: 0px -0px');
@@ -1073,7 +1073,7 @@ var gallery = {
             var rez = gallery.reload_cams();
             if (!rez) {
                 $(this).attr('style', 'background-position: 0px -14px');
-                $(this).children().attr('checked', 'checked');
+                $(this).children().prop('checked', true);
             }
         });
 
@@ -1081,11 +1081,11 @@ var gallery = {
         $('#type_event input[name="type_event"]').change(function () {
             var rez = gallery.reload_events();
             if (!rez) {
-                $(this).attr('checked', 'checked');
+                $(this).prop('checked', true);
 
             }
 
-            if ($(this).attr('checked')) {
+            if ($(this).is(':checked')) {
                 $(this).parent().attr('style', 'background-position: 0px -14px');
             } else {
                 $(this).parent().attr('style', 'background-position: 0px -0px');
@@ -1096,15 +1096,15 @@ var gallery = {
             var rez = gallery.reload_events();
             if (!rez) {
                 $(this).attr('style', 'background-position: 0px -14px');
-                $(this).children().attr('checked', 'checked');
+                $(this).children().prop('checked', true);
             }
         });
         $('#message_box .niceCheck').live('click',function () {
-            if ( $(this).children().attr('checked')) {
-                $(this).children().attr('checked', false);
+            if ($(this).children().is(':checked')) {
+                $(this).children().prop('checked', false);
                 $(this).attr('style', 'background-position: 0px -0px');
             } else {
-                $(this).children().attr('checked', 'checked');
+                $(this).children().prop('checked', true);
                 $(this).attr('style', 'background-position: 0px -14px');
             }
         });
@@ -1221,17 +1221,17 @@ var gallery = {
         //Установка начального состояния чекбокса "выбрать/отменить все камеры"
         var cntr = 0;
         var col_cams = $('#cameras_selector .niceCheck').each(function (i, val) {
-            if ($('input:checkbox', this).attr('checked') != 'checked') {
+            if (!$('input:checkbox', this).is(':checked')) {
                 cntr++;
             }
         });
 
         if (cntr == col_cams.length) {
-            $('#cam_selector').attr('checked', false).parent().attr('style', 'background-position: 0px 0px');
+            $('#cam_selector').prop('checked', false).parent().attr('style', 'background-position: 0px 0px');
             $('#lbl_cam_selector').html('Выбрать все камеры');
             $('#select_all_cam>.new_Check').css('opacity', 1);
         } else {
-            $('#cam_selector').attr('checked', true).parent().attr('style', 'background-position: 0px -14px');
+            $('#cam_selector').prop('checked', true).parent().attr('style', 'background-position: 0px -14px');
             $('#lbl_cam_selector').html('Отменить выбор всех камер');
             if (cntr != 0) {
                 $('#select_all_cam>.new_Check').css('opacity', 0.5);
@@ -1243,13 +1243,13 @@ var gallery = {
         //установка обработчика чекбокса "Выбрать/отменить все камеры"
         $('#select_all_cam').bind('click', function (e) {
             $('#cameras_selector .niceCheck').each(function (i, val) {
-                if ($('#cam_selector').attr('checked') == 'checked') {
+                if ($('#cam_selector').is(':checked')) {
                     $(this).attr('style', 'background-position: 0px -14px');
-                    $(this).children().attr('checked', true);
+                    $(this).children().prop('checked', true);
                     $('#lbl_cam_selector').html('Отменить выбор всех камер');
                 } else {
                     $(this).attr('style', 'background-position: 0px 0px');
-                    $(this).children().attr('checked', false);
+                    $(this).children().prop('checked', false);
                     $('#lbl_cam_selector').html('Выбрать все камеры');
                     //Устанавливаем матрицу на начало диапазона
                     matrix.num = 0;
@@ -1260,14 +1260,14 @@ var gallery = {
             gallery.reload_cams();
         })
             .find('label').bind('click', function (e) {
-                if ($('#cam_selector').attr('checked') == 'checked') {
+                if ($('#cam_selector').is(':checked')) {
                     $('#cam_selector')
-                        .attr('checked', false)
+                        .prop('checked', false)
                         .parent().attr('style', 'background-position: 0px 0px');
 
                 } else {
                     $('#cam_selector')
-                        .attr('checked', true)
+                        .prop('checked', true)
                         .parent().attr('style', 'background-position: 0px -14px');
                 }
             });
@@ -1326,7 +1326,7 @@ var gallery = {
             };
 
             message_box.no_delegate = function (event) {
-                if ($('#popup_desync_form').attr('checked')) {
+                if ($('#popup_desync_form').is(':checked')) {
                     gallery.cookie.set('dontBlockUpdTree', 1);
                 } else {
                     gallery.cookie.set('dontBlockUpdTree', 0);
@@ -1566,7 +1566,7 @@ var matrix = {
         $('#proportion').click(function () {
             matrix.doProportion();
 
-            if ($(this).attr('checked')) {
+            if ($(this).is(':checked')) {
                 $(this).parent().attr('style', 'background-position: 0px -14px');
             } else {
                 $(this).parent().attr('style', 'background-position: 0px -0px');
@@ -1580,7 +1580,7 @@ var matrix = {
         $('#info').click(function () {
             matrix.doShowInfo();
 
-            if ($(this).attr('checked')) {
+            if ($(this).is(':checked')) {
                 $(this).parent().attr('style', 'background-position: 0px -14px');
             } else {
                 $(this).parent().attr('style', 'background-position: 0px -0px');
@@ -1643,7 +1643,7 @@ var matrix = {
             scale.updateposition(scale.position);
         }
 
-        if ($('#proportion').attr('checked')) {
+        if ($('#proportion').is(':checked')) {
             gallery.cookie.set('proportion', 'checked');
         } else {
             gallery.cookie.set('proportion', '');
@@ -1651,7 +1651,7 @@ var matrix = {
     },
     // обновление чекбокса информации
     doShowInfo: function () {
-        if ($('#info').attr('checked')) {
+        if ($('#info').is(':checked')) {
             gallery.cookie.set('info', 'checked');
             matrix.thumb_height -= 24;
             $('.content_item .info_block').show();
@@ -1824,7 +1824,7 @@ var matrix = {
         }
 
         // показываем или скрываем информацию о событии
-        if ($('#info').attr('checked')) {
+        if ($('#info').is(':checked')) {
             matrix.thumb_height -= 24;
             $('.content_item .info_block').show();
         } else {
@@ -2042,7 +2042,7 @@ var matrix = {
             html += '<div class="img_block"><a class="refBox" ' + matrix.reference + '="#cell_' + el_num + '"></a></div>';
 
             html += '<a ' + matrix.reference + '="#cell_' + el_num + '"><div class="info_block"';
-            if ($('#info').attr('checked')) {
+            if ($('#info').is(':checked')) {
                 html += ' style="display:block;"';
             } else {
                 html += ' style="display:none;"';
@@ -2104,7 +2104,7 @@ var matrix = {
                 img_width = width;
 
                 //если включен режим пропорций
-                if ($('#proportion').attr('checked') == 'checked') {
+                if ($('#proportion').is(':checked')) {
                     var img_height = value[3];
                     var img_width = value[4];
                     var origin_proportion = img_width / img_height;
@@ -2140,7 +2140,7 @@ var matrix = {
             var thumb_width = matrix.thumb_width;
             var thumb_height = matrix.thumb_height;
 
-            if ($('#proportion').attr('checked') && matrix.events[el][7] == 'image') {
+            if ($('#proportion').is(':checked') && matrix.events[el][7] == 'image') {
                 // если выбран чекбокс сохранять пропорции
                 var w = thumb_width;
                 var h = Math.floor(matrix.events[el][3] * w / matrix.events[el][4]);
@@ -2263,7 +2263,7 @@ var matrix = {
             //вычисляем размеры изображения
             var width = matrix.thumb_width;
             var height = matrix.thumb_height;
-            if ($('#proportion').attr('checked')) {
+            if ($('#proportion').is(':checked')) {
                 // если выбран чекбокс сохранять пропорции
                 var w = width;
                 var h = Math.floor(matrix.events[el][3] * w / matrix.events[el][4]);
@@ -2370,7 +2370,7 @@ var matrix = {
                         }
 
                         html += '<a ' + matrix.reference + '="#cell_' + i + '"><div class="info_block"';
-                        if ($('#info').attr('checked')) {
+                        if ($('#info').is(':checked')) {
                             html += ' style="display:block;"';
                         } else {
                             html += ' style="display:none;"';
@@ -2460,7 +2460,7 @@ var matrix = {
                             img_width = width;
 
                             //если включен режим пропорций
-                            if ($('#proportion').attr('checked') == 'checked') {
+                            if ($('#proportion').is(':checked')) {
                                 var img_height = value[3];
                                 var img_width = value[4];
                                 var origin_proportion = img_width / img_height;
@@ -2557,7 +2557,7 @@ var matrix = {
                             img_width = width;
 
                             //если включен режим пропорций
-                            if ($('#proportion').attr('checked') == 'checked') {
+                            if ($('#proportion').is(':checked')) {
                                 var img_height = value[3];
                                 var img_width = value[4];
                                 var origin_proportion = img_width / img_height;
@@ -2672,12 +2672,12 @@ var matrix = {
             var variable = [];
             var i = 0;
             $('input[name="type_event"]').each(function () {
-                if ($(this).attr('checked')) {
+                if ($(this).is(':checked')) {
                     type += $(this).val() + ',';
                 }
             });
             $('input[name="cameras"]').each(function () {
-                if ($(this).attr('checked')) {
+                if ($(this).is(':checked')) {
                     cameras += $(this).val() + ',';
                     variable[i] = $(this).val();
                     i++;
@@ -2798,14 +2798,14 @@ var matrix = {
         var type = [];
         var i = 0;
         $('input[name="type_event"]').each(function () {
-            if ($(this).attr('checked')) {
+            if ($(this).is(':checked')) {
                 type[i] = $(this).val();
                 i++;
             }
         });
         var i = 0;
         $('input[name="cameras"]').each(function () {
-            if ($(this).attr('checked')) {
+            if ($(this).is(':checked')) {
                 variable[i] = $(this).val();
                 i++;
             }
@@ -2878,7 +2878,7 @@ var matrix = {
         var ResizedImgSrc = WwwPrefix + '/lib/resize_img.php?url=' + location.protocol + '//' + location.hostname + port + MediaUrlPref + matrix.events[cell_num][2];
         ResizedImgSrc += '&h=' + height;
         ResizedImgSrc += '&w=' + width;
-        ResizedImgSrc += ($('#proportion').attr('checked') == 'checked') ? '&prop=true' : '&prop=false';
+        ResizedImgSrc += $('#proportion').is(':checked') ? '&prop=true' : '&prop=false';
         return ResizedImgSrc;
     }
 
@@ -3529,7 +3529,7 @@ var scale2 = {
             var img_width = width;
 
             //если включен режим пропорций
-            if ($('#proportion').attr('checked') == 'checked') {
+            if ($('#proportion').is(':checked')) {
                 var img_height = matrix.events[matrix.num][3];
                 var img_width = matrix.events[matrix.num][4];
                 var origin_proportion = img_width / img_height;
@@ -3586,7 +3586,7 @@ var scale2 = {
             // максимальный размер увеличения
             var wm = width * 2;
             var hm = height * 2;
-            if ($('#proportion').attr('checked') || value[7] == 'video') {
+            if ($('#proportion').is(':checked') || value[7] == 'video') {
 
                 // если выбран режим сохранять пропорции
                 if (value[3] < matrix.height - _dh && value[4] < matrix.width) {
@@ -3897,57 +3897,57 @@ var keyBoard = {
                     keyBoard.checkSelecBox();
                 }
             } else if (e.which == keyBoard.keys.i) { //i
-                $('#image_type').attr('checked', !$('#image_type').attr('checked'));
+                $('#image_type').prop('checked', !$('#image_type').is(':checked'));
                 var r1 = gallery.reload_events();
                 if (!r1) {
-                    $('#image_type').attr('checked', 'checked');
+                    $('#image_type').prop('checked', true);
                 }
 
-                if ($('#image_type').attr('checked')) {
+                if ($('#image_type').is(':checked')) {
                     $('#image_type').parent().attr('style', 'background-position: 0px -14px');
                 } else {
                     $('#image_type').parent().attr('style', 'background-position: 0px -0px');
                 }
 
             } else if (e.which == keyBoard.keys.a) { //a
-                $('#audio_type').attr('checked', !$('#audio_type').attr('checked'));
+                $('#audio_type').prop('checked', !$('#audio_type').is(':checked'));
                 var r3 = gallery.reload_events();
                 if (!r3) {
-                    $('#audio_type').attr('checked', 'checked');
+                    $('#audio_type').prop('checked', true);
                 }
 
-                if ($('#audio_type').attr('checked')) {
+                if ($('#audio_type').is(':checked')) {
                     $('#audio_type').parent().attr('style', 'background-position: 0px -14px');
                 } else {
                     $('#audio_type').parent().attr('style', 'background-position: 0px -0px');
                 }
 
             } else if (e.which == keyBoard.keys.v) { //v
-                $('#video_type').attr('checked', !$('#video_type').attr('checked'));
+                $('#video_type').prop('checked', !$('#video_type').is(':checked'));
                 var r2 = gallery.reload_events();
                 if (!r2) {
-                    $('#video_type').attr('checked', 'checked');
+                    $('#video_type').prop('checked', true);
                 }
-                if ($('#video_type').attr('checked')) {
+                if ($('#video_type').is(':checked')) {
                     $('#video_type').parent().attr('style', 'background-position: 0px -14px');
                 } else {
                     $('#video_type').parent().attr('style', 'background-position: 0px -0px');
                 }
             } else if (e.which == keyBoard.keys.p) {
-                $('#proportion').attr('checked', !$('#proportion').attr('checked'));
+                $('#proportion').prop('checked', !$('#proportion').is(':checked'));
                 matrix.doProportion();
 
-                if ($('#proportion').attr('checked')) {
+                if ($('#proportion').is(':checked')) {
                     $('#proportion').parent().attr('style', 'background-position: 0px -14px');
                 } else {
                     $('#proportion').parent().attr('style', 'background-position: 0px -0px');
                 }
 
             } else if (e.which == keyBoard.keys.s) {
-                $('#info').attr('checked', !$('#info').attr('checked'));
+                $('#info').prop('checked', !$('#info').is(':checked'));
                 matrix.doShowInfo();
 
-                if ($('#info').attr('checked')) {
+                if ($('#info').is(':checked')) {
                     $('#info').parent().attr('style', 'background-position: 0px -14px');
                 } else {
                     $('#info').parent().attr('style', 'background-position: 0px -0px');
@@ -4067,8 +4067,8 @@ var keyBoard = {
                     }
                     gallery.nextwindow.close();
                 } else if (e.which == keyBoard.keys.space) {
-                    $('#checknextwindow').attr('checked', !$('#checknextwindow').attr('checked'));
-                    if ($('#checknextwindow').attr('checked')) {
+                    $('#checknextwindow').prop('checked', !$('#checknextwindow').is(':checked'));
+                    if ($('#checknextwindow').is(':checked')) {
                         $('#checknextwindow').parent().attr('style', 'background-position: 0px -14px');
                     } else {
                         $('#checknextwindow').parent().attr('style', 'background-position: 0px -0px');
@@ -4102,13 +4102,13 @@ var keyBoard = {
                         keyBoard.selectElem(keyBoard.currentSelectorChild + 1);
                     } else if (e.which == keyBoard.keys.space) {
                         var camId = keyBoard.getCam().find('input').attr('id');
-                        $('#' + camId).attr('checked', !$('#' + camId).attr('checked'));
+                        $('#' + camId).prop('checked', !$('#' + camId).is(':checked'));
                         var rez = gallery.reload_cams();
                         if (!rez) {
-                            $('#' + camId).attr('checked', 'checked');
+                            $('#' + camId).prop('checked', true);
                         }
 
-                        if ($('#' + camId).attr('checked')) {
+                        if ($('#' + camId).is(':checked')) {
                             $('#' + camId).parent().attr('style', 'background-position: 0px -14px');
                         } else {
                             $('#' + camId).parent().attr('style', 'background-position: 0px -0px');
@@ -4326,12 +4326,12 @@ var scrollPopUp = {
         var type = '';
         var cameras = '';
         $('input[name="type_event"]').each(function () {
-            if ($(this).attr('checked')) {
+            if ($(this).is(':checked')) {
                 type += $(this).val() + ',';
             }
         });
         $('input[name="cameras"]').each(function () {
-            if ($(this).attr('checked')) {
+            if ($(this).is(':checked')) {
                 cameras += $(this).val() + ',';
             }
         });
