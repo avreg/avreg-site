@@ -1,10 +1,11 @@
 <?php
 
-$F_IN_DEF = 0x0001;
-$F_IN_CAM = 0x0002;
-$F_RELOADED = 0x0004;
+$F_IN_DEF    = 0x0001;
+$F_IN_CAM    = 0x0002;
+$F_RELOADED  = 0x0004; ///< need reload avregd after change this param value
+$F_RESTARTED = 0x0008; ///< need restart
 
-$F_BASEPAR = 0x0100;
+$F_BASEPAR   = 0x0100;
 
 $vid_standarts = array('PAL (цв.в/к)', 'NTSC (цв.в/к)', 'SECAM (не для в/к)', 'PAL NC (ч/б в/к)');
 $video_sources = array('video4linux', 'http', 'rtsp');
@@ -311,7 +312,7 @@ $PARAMS = array(
         'def_val' => 0,
         'desc' => 'Вкл./Выкл. <b>видеозахват</b>а с видеокамеры (читай: <b>работать с этой камерой или нет</b>).' .
         '<br><br>По умолчанию: <b>Выкл</b>.',
-        'flags' => $F_BASEPAR | $F_IN_CAM,
+        'flags' => $F_RESTARTED | $F_BASEPAR | $F_IN_CAM,
         'cats' => '1',
         'subcats' => null,
         'mstatus' => 2,
@@ -347,7 +348,7 @@ $PARAMS = array(
         'desc' => "<p><b>Источник видео</b> (способ видеозахвата).</p>
       <p>$source_absent_warn</p>
       По умолчанию: &quot;пусто&quot; - не захватывать видео.",
-        'flags' => $F_BASEPAR | $F_IN_DEF | $F_IN_CAM,
+        'flags' => $F_RESTARTED | $F_BASEPAR | $F_IN_DEF | $F_IN_CAM,
         'cats' => '3',
         'subcats' => '3.1;3.2',
         'mstatus' => 1,
@@ -359,7 +360,7 @@ $PARAMS = array(
         'desc' => "<p><b>Источник аудио</b> (способ аудиозахвата).</p>
       <p>$source_absent_warn</p>
       По умолчанию: &quot;пусто&quot; - не захватывать аудио.",
-        'flags' => $F_BASEPAR | $F_IN_DEF | $F_IN_CAM,
+        'flags' => $F_RESTARTED | $F_BASEPAR | $F_IN_DEF | $F_IN_CAM,
         'cats' => '3',
         'subcats' => '3.1;3.2',
         'mstatus' => 1,
@@ -389,7 +390,7 @@ $PARAMS = array(
  <a href="http://avreg.net/manual_applications_multi-stream.html" target="_blank">эффективные решения</a>.<p>
 По умолчанию: &quot;пусто&quot; - декодировать.
 ',
-        'flags' => $F_BASEPAR | $F_IN_DEF | $F_IN_CAM,
+        'flags' => $F_RESTARTED | $F_BASEPAR | $F_IN_DEF | $F_IN_CAM,
         'cats' => '3',
         'subcats' => '3.1;3.2',
         'mstatus' => 1,
@@ -402,7 +403,7 @@ $PARAMS = array(
       <p>Декодирование необходимо если необходимо перекодирование для записи, когда кодек записи, заданный явно ' .
         '(см. {rec_acodec}) или стандартный для выбранного формата (см. {rec_format}), не совпадает с кодеком' .
         ' исходного входящего аудиопотока.</p> По умолчанию: &quot;пусто&quot; - декодировать.',
-        'flags' => $F_BASEPAR | $F_IN_DEF | $F_IN_CAM,
+        'flags' => $F_RESTARTED | $F_BASEPAR | $F_IN_DEF | $F_IN_CAM,
         'cats' => '3',
         'subcats' => '3.1;3.2',
         'mstatus' => 1,
@@ -424,7 +425,7 @@ $PARAMS = array(
       720x540<sup>*</sup>, 720x576 (макс.&nbsp;saa713x), 768x576<sup>*</sup> (макс.&nbsp;bt878a).
       Прим:. для ВСЕХ каналов ОДНОГО устройства видеозахвата (одного {v4l_dev}) должно быть ОДНО значение</li>
       </ul>По умолчанию: <b>640x480</b>.',
-        'flags' => $F_BASEPAR | $F_IN_DEF | $F_IN_CAM,
+        'flags' => $F_RESTARTED | $F_BASEPAR | $F_IN_DEF | $F_IN_CAM,
         'cats' => '3',
         'subcats' => '3.1;3.2',
         'mstatus' => 1,
@@ -595,7 +596,7 @@ $PARAMS = array(
         'desc' => '<b>Только для шлюзов Aviosys 9100 (B/RK/A) в режиме roundrobin</b>.<br><br><b>Номер камеры/канала
             [0,1,2,3]</b> на шлюзе при захвате в режиме roundrobin.<br><br>По умолчанию: <b>не установлено</b> -
             не Aviosys 9100 в roundrobin.',
-        'flags' => $F_IN_CAM,
+        'flags' => $F_RESTARTED | $F_IN_CAM,
         'cats' => '3.1.1.1',
         'subcats' => null,
         'mstatus' => 1,
@@ -1254,7 +1255,7 @@ $PARAMS = array(
             для мультиплексируемых аналоговых каналов (камер);</li>
             <li><b>Вкл.</b> или <b>Выкл.</b> - безусловное включение или отключение фильтра.</li>
             </ul>По умолчанию: <b>не установлено</b>, т.е. &#171;авто&#187;.',
-        'flags' => $F_IN_DEF | $F_IN_CAM,
+        'flags' => $F_RESTARTED | $F_IN_DEF | $F_IN_CAM,
         'cats' => '5.1.3',
         'subcats' => null,
         'mstatus' => 1,
@@ -1374,7 +1375,7 @@ avregd HTTP CGI-интерфейс</a>).</li>
         'def_val' => 3,
         'desc' => '<b>Буфер предзаписи в секундах.</b><p><b>Серьёзно увеличивает требование к объёму
             оперативной памяти</b></p>Допустимые значения: [1..5]. По умолчанию: <b>1 сек.</b>.',
-        'flags' => $F_IN_DEF | $F_BASEPAR | $F_IN_CAM,
+        'flags' => $F_RESTARTED | $F_IN_DEF | $F_BASEPAR | $F_IN_CAM,
         'cats' => '11',
         'subcats' => null,
         'mstatus' => 1,
@@ -1591,7 +1592,7 @@ avregd HTTP CGI-интерфейс</a>).</li>
         <div>В обоих случаях, если исходный поток не jpeg/mjpeg, нужно также вкл. {decode_video} (раздел Захват).</div>
         <div>Использования PDA-интерфейс в целом можно разрешить или запретить в настройках пользователя.</div>
         По умолчанию: <b>Вкл</b>.',
-        'flags' => $F_RELOADED | $F_BASEPAR | $F_IN_DEF | $F_IN_CAM,
+        'flags' => $F_BASEPAR | $F_IN_DEF | $F_IN_CAM,
         'cats' => '15',
         'subcats' => null,
         'mstatus' => 2,
@@ -1668,7 +1669,7 @@ avregd HTTP CGI-интерфейс</a>).</li>
         <br><div>Если установлено, в шапке окна камеры на странице просмотра в реальном времени при открытии
         &quot;панели управления&quot; появится кнопка &quot;PTZ&quot;.</div>
         <br>По умолчанию: не установлено.',
-        'flags' => $F_RELOADED | $F_BASEPAR | $F_IN_DEF | $F_IN_CAM,
+        'flags' => $F_BASEPAR | $F_IN_DEF | $F_IN_CAM,
         'cats' => '15.2',
         'subcats' => null,
         'mstatus' => 1,
@@ -1685,7 +1686,7 @@ avregd HTTP CGI-интерфейс</a>).</li>
 реальном времени веб-интерфейса AVReg.
 <br><br>По умолчанию: не установлено - URL будет построен как &quot;<b>http://{InetCAM_IP}:{InetCam_http_port}</b>
 &quot;, где параметры в фигурных скобках - параметры захвата с сетевых камер (см. раздел Захват - по сети).',
-        'flags' => $F_RELOADED | $F_IN_CAM,
+        'flags' => $F_IN_CAM,
         'cats' => '15.2',
         'subcats' => null,
         'mstatus' => 1,
@@ -1744,7 +1745,7 @@ http://<b>этот_сервер</b>/avreg-cgi/mjpg/video.cgi?camera=143</span>;<
 </ul>
 </div>
 По умолчанию: не установлено (получать видео от avregd)',
-        'flags' => $F_RELOADED | $F_IN_CAM,
+        'flags' => $F_IN_CAM,
         'cats' => '15.2',
         'subcats' => null,
         'mstatus' => 1,
@@ -1754,7 +1755,7 @@ http://<b>этот_сервер</b>/avreg-cgi/mjpg/video.cgi?camera=143</span>;<
         'type' => $STRING200_VAL,
         'def_val' => null,
         'desc' => 'Альтернативный <b>URL #1</b> для камеры развёрнутой в полный экран.',
-        'flags' => $F_RELOADED | $F_IN_CAM,
+        'flags' => $F_IN_CAM,
         'cats' => '15.2',
         'subcats' => null,
         'mstatus' => 1,
@@ -1764,7 +1765,7 @@ http://<b>этот_сервер</b>/avreg-cgi/mjpg/video.cgi?camera=143</span>;<
         'type' => $STRING200_VAL,
         'def_val' => null,
         'desc' => 'Альтернативный <b>URL #2</b> для камеры в раскладке.',
-        'flags' => $F_RELOADED | $F_IN_CAM,
+        'flags' => $F_IN_CAM,
         'cats' => '15.2',
         'subcats' => null,
         'mstatus' => 1,
@@ -1774,7 +1775,7 @@ http://<b>этот_сервер</b>/avreg-cgi/mjpg/video.cgi?camera=143</span>;<
         'type' => $STRING200_VAL,
         'def_val' => null,
         'desc' => 'Альтернативный <b>URL #2</b> для камеры развёрнутой в полный экран.</b>',
-        'flags' => $F_RELOADED | $F_IN_CAM,
+        'flags' => $F_IN_CAM,
         'cats' => '15.2',
         'subcats' => null,
         'mstatus' => 1,
@@ -1784,7 +1785,7 @@ http://<b>этот_сервер</b>/avreg-cgi/mjpg/video.cgi?camera=143</span>;<
         'type' => $STRING200_VAL,
         'def_val' => null,
         'desc' => 'ONVIF токен профиля медиа потока.',
-        'flags' => $F_RELOADED | $F_IN_CAM | $F_IN_DEF,
+        'flags' => $F_IN_CAM | $F_IN_DEF,
         'cats' => '15.2',
         'subcats' => null,
         'mstatus' => 1,

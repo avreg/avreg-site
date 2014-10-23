@@ -257,12 +257,11 @@ if (isset($categories)) {
         print '<tr style="vertical-align:top"><td nowrap><div>' . "\n";
 
         if ($FLAGS & $F_RELOADED) {
-            print '<img src="' . $conf['prefix'] . '/img/hotsync.gif" alt="Reloaded" border="0">&nbsp;';
-        } else {
-            print '<img src="' . $conf['prefix'] . '/img/hotsync_busy.gif" alt="Restarted" border="0">&nbsp;';
+            print '<img src="' . $conf['prefix'] . '/img/hotsync.gif" alt="Reloaded" border="0">';
+        } elseif ($FLAGS & $F_RESTARTED) {
+            print '<img src="' . $conf['prefix'] . '/img/hotsync_busy.gif" alt="Restarted" border="0">';
         }
-
-        print '<span>' . "\n";
+        print '&nbsp;<span>' . "\n";
         print "<a href='#' name='$parname1'></a>\n";
         $def_val = ($DEF_VALUE === '' || is_null($DEF_VALUE)) ? null : $DEF_VALUE;
         $val = null;
