@@ -78,8 +78,9 @@ class Gallery
         $this->db = $adb;
 
         // Если существует запрашиваемый метод, то его выполняем с указанными параметрами
-        // if (!empty($this->method) && method_exists($this, $this->method)) {
-        $this->{$this->method}($par_hash);
+        if (!empty($this->method) && method_exists($this, $this->method)) {
+            $this->{$this->method}($par_hash);
+        }
     } /* __construct() */
 
     // Функция получения событий
@@ -253,7 +254,7 @@ class Gallery
     // функция обновления дерева события
     public function updateTreeEvents($par_hash)
     {
-        $ret = 0; // success
+        $ret = 2; // not sync
 
         // устанавливаем блокировку
         if (!$this->cache->lockAtomicWait('gallery_update', self::UPDATE_TREE_WAIT)) {
@@ -272,6 +273,7 @@ class Gallery
             if ($start || $end) {
                 // вызов из CLI || avreg-unlink, обновляем без вариантов
                 $this->db->galleryUpdateTreeEvents($start, $end, $par_hash['to'], $cameras);
+                $ret = 0; // FIXME без проверки?
                 $update_invoke_db_nb++;
             } else {
                 // вызов запросом браузера || cron
@@ -309,6 +311,7 @@ class Gallery
 
                     if (count($resync_cases) === 0) {
                         // синхронизировано!!!
+                        $ret = 0;
                         break;
                     } elseif (in_array(self::HEAD_TIME_DIFFER, $resync_cases) && $tree_events_stat['files'] > 0) {
                         $resync_score = 1;
@@ -325,13 +328,13 @@ class Gallery
                     }
 
                     // обновляем
+                    // error_log("resync_score = $resync_score start=\"$start\"; end=\"$end\"");
                     $this->db->galleryUpdateTreeEvents($start, $end, $par_hash['to'], $cameras);
                     $update_invoke_db_nb++;
                 }
             }
 
             if ($update_invoke_db_nb > 0) {
-                // удаляем сохраненные в мемкеше деревья FIXME FIXME а ecли не синхронизировано?
                 $tree_events_keys = $this->cache->get('tree_events_keys');
                 if (!empty($tree_events_keys)) {
                     foreach ($tree_events_keys as $key) {
@@ -350,22 +353,10 @@ class Gallery
     } /* updateTreeEvents() */
 
     // функция запускается по крону, чтобы обновить последние события в дереве
-    // TODO FIXME FIXME use "gallery_update" lock
-    public function cronUpdateTreeEvents()
+    public function cliUpdateTreeEvents($par_hash)
     {
         $par_hash['to'] = date("Y-m-d H:i:s", time() - 1);
-        // последенее событие
-        $events_stat = $this->db->galleryEventsGetStat($par_hash);
-        // последнее событие в дереве
-        $tree_events_stat = $this->db->galleryTreeEventsGetStat($par_hash);
-        // обновляем дерево если оно не полное
-        if ($tree_events_stat['latest_update'] < $events_stat['latest']) {
-            $par_hash = array(
-                'start' => $tree_events_stat['latest_update'],
-                'end' => $events_stat['latest']
-            );
-            return $this->updateTreeEvents($par_hash);
-        }
+        return $this->updateTreeEvents($par_hash);
     } /* cronUpdateTreeEvents() */
 
     // функция полного обновления деоева события
