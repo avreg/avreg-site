@@ -208,7 +208,7 @@ class Gallery
             if (empty($tree_events_result)) {
                 $tree_events_result = $this->db->galleryGetTreeEvents($params);
                 if (!$this->cache->check($key)) {
-                    $this->cache->lock($key);
+                    $this->cache->lock($key); // FIXME для чего нужен этот lock?
                     $tree_events_keys = $this->cache->get('tree_events_keys');
                     if (empty($tree_events_keys)) {
                         $tree_events_keys = array();
