@@ -269,8 +269,8 @@ class Adb
      *
      * @param array $param Параметры
      * - $params['cameras']  список камер
-     * - $params['from']     дата from (LAST_UPDATE)
-     * - $params['to']       дата to (LAST_UPDATE)
+     * - $params['from']     дата from (from >= DT1)
+     * - $params['to']       дата to (to <= DT1)
      * @return array         with fields: files, latest and oldest
      */
     public function galleryEventsGetStat($params = array())
@@ -324,8 +324,8 @@ class Adb
      *
      * @param array $param Параметры
      * - $params['cameras']  список камер
-     * - $params['from']     дата from (LAST_UPDATE)
-     * - $params['to']       дата to (LAST_UPDATE)
+     * - $params['from']     дата from (from >= DT1_MIN)
+     * - $params['to']       дата to (to <= DT1_MAX)
      * @return array         with fields: files, latest_update and oldest_update
      */
     public function galleryTreeEventsGetStat($params = array())
@@ -337,7 +337,7 @@ class Adb
         );
 
         $query = 'select SUM(IMAGE_COUNT+VIDEO_COUNT+AUDIO_COUNT) as files,';
-        $query .= ' MAX(LAST_UPDATE) as latest_update, MIN(LAST_UPDATE) as oldest_update';
+        $query .= ' MAX(DT1_MAX) as latest_update, MIN(DT1_MIN) as oldest_update';
         $query .= ' from TREE_EVENTS';
         if (!empty($params)) {
             $query .= ' where 1=1';
@@ -351,10 +351,10 @@ class Adb
                         $query .= ' and ' . $this->whereIntColumnValue("CAM_NR", $value);
                         break;
                     case 'from':
-                        $query .= " and LAST_UPDATE >= '$value'";
+                        $query .= " and DT1_MIN >= '$value'";
                         break;
                     case 'to':
-                        $query .= " and LAST_UPDATE <= '$value'";
+                        $query .= " and DT1_MAX <= '$value'";
                         break;
                     case 'method':
                     case 'initially':
@@ -383,8 +383,8 @@ class Adb
      *
      * @param array $param Параметры
      * - $params['cameras']  список камер
-     * - $params['from']     дата from (LAST_UPDATE)
-     * - $params['to']       дата to (LAST_UPDATE)
+     * - $params['from']     дата from (from >= DT1_MIN)
+     * - $params['to']       дата to (to <= DT1_MAX)
      * @return array масив дерева событий со статистикой
      */
     public function galleryGetTreeEvents($params)
@@ -404,10 +404,10 @@ class Adb
                         $query .= ' and ' . $this->whereIntColumnValue("CAM_NR", $value);
                         break;
                     case 'from':
-                        $query .= " and LAST_UPDATE >= '$value'";
+                        $query .= " and DT1_MIN >= '$value'";
                         break;
                     case 'to':
-                        $query .= " and LAST_UPDATE <= '$value'";
+                        $query .= " and DT1_MAX <= '$value'";
                         break;
                     case 'method':
                     case 'initially':
@@ -418,7 +418,7 @@ class Adb
             }
             unset($key, $value);
         }
-        $query .= ' order by ' . $this->datePart('year', 'LAST_UPDATE') . ' desc, LAST_UPDATE asc';
+        $query .= ' order by ' . $this->datePart('year', 'DT1_MAX') . ' desc, DT1_MAX asc';
         $res = $this->db->query($query);
         $this->error($res);
         while ($res->fetchInto($v, DB_FETCHMODE_ASSOC)) {
@@ -472,7 +472,6 @@ class Adb
         }
         $query .= ' order by DT1 asc';
 
-        error_log($query);
         $res = $this->db->query($query);
         $this->error($res);
 
@@ -486,13 +485,14 @@ class Adb
                 $tree_events[$key] = array(
                     'DATE' => $date,
                     'CAM_NR' => $line[$this->key('CAM_NR')],
+                    'DT1_MAX' => $line[$this->key('DT1')],
+                    'DT1_MIN' => $line[$this->key('DT1')],
                     'IMAGE_COUNT' => 0,
                     'IMAGE_SIZE' => 0,
                     'VIDEO_COUNT' => 0,
                     'VIDEO_SIZE' => 0,
                     'AUDIO_COUNT' => 0,
-                    'AUDIO_SIZE' => 0,
-                    'LAST_UPDATE' => $line[$this->key('DT1')],
+                    'AUDIO_SIZE' => 0
                 );
             }
             $a = &$tree_events[$key];
@@ -514,12 +514,12 @@ class Adb
                     $a['AUDIO_SIZE'] += (int)$line[$this->key('FILESZ_KB')];
                     break;
             }
-
-            // FIXME FIXME TODO LAST_UPDATE заменить на DT1_OLDEST и DT1_LATEST
-            //  и тогда можно исп. чёткое сравнение
-            //  $events_stat['oldest'] > $tree_events_stat['oldest_update']
-            //  где $tree_events_stat['oldest_update'] - это MIN(DT1_OLDEST)
-            $a['LAST_UPDATE'] = $line[$this->key('DT1')];
+            if ($line[$this->key('DT1')] > $a['DT1_MAX']) {
+                $a['DT1_MAX'] = $line[$this->key('DT1')];
+            }
+            if ($line[$this->key('DT1')] < $a['DT1_MIN']) {
+                $a['DT1_MIN'] = $line[$this->key('DT1')];
+            }
         }
 
         $query = 'delete from TREE_EVENTS where 1=1';
@@ -530,23 +530,24 @@ class Adb
             $query .= " and BYHOUR <= '" . date('Y_m_d_H', strtotime($end_hb)) . "'";
         }
         if ($to) {
-            $query .= " and LAST_UPDATE <= '$to'";
+            $query .= " and DT1_MAX <= '$to'";
         }
         if ($cameras) {
             $query .= ' and ' . $this->whereIntColumnValue("CAM_NR", $cameras);
         }
 
-        error_log($query);
         $res = $this->db->query($query);
         $this->error($res);
 
         foreach ($tree_events as $row) {
             $query = 'insert into TREE_EVENTS ';
-            $query .= '(BYHOUR, CAM_NR, IMAGE_COUNT, IMAGE_SIZE, VIDEO_COUNT, ';
-            $query .= 'VIDEO_SIZE, AUDIO_COUNT, AUDIO_SIZE, LAST_UPDATE)';
-            $query .= " values ('" . $row['DATE'] . "'," . $row['CAM_NR'] . ',' . $row['IMAGE_COUNT'] . ','
-                . $row['IMAGE_SIZE'] . ',' . $row['VIDEO_COUNT'] . ',' . $row['VIDEO_SIZE'] . ','
-                . $row['AUDIO_COUNT'] . ',' . $row['AUDIO_SIZE'] . ",'" . $row['LAST_UPDATE'] . "')";
+            $query .= '(BYHOUR, CAM_NR, DT1_MAX, DT1_MIN, ';
+            $query .= 'IMAGE_COUNT, IMAGE_SIZE, VIDEO_COUNT, VIDEO_SIZE, AUDIO_COUNT, AUDIO_SIZE)';
+            $query .= " values('" . $row['DATE'] . "'," . $row['CAM_NR'] . ','
+                . "'" . $row['DT1_MAX'] . "','" . $row['DT1_MIN'] . "',"
+                . $row['IMAGE_COUNT'] . ',' . $row['IMAGE_SIZE'] . ','
+                . $row['VIDEO_COUNT'] . ',' . $row['VIDEO_SIZE'] . ','
+                . $row['AUDIO_COUNT'] . ',' . $row['AUDIO_SIZE'] . ")";
             $res = $this->db->query($query);
             $this->error($res);
         }

@@ -43,6 +43,14 @@ class Gallery
 {
     const UPDATE_TREE_WAIT = 10; ///< время ожидания блокировки обновления дерева
 
+    /***
+     * TreeEvents vs Events resync cases
+     */
+    const NO_DIFFER = 0x0;
+    const HEAD_TIME_DIFFER = 0x01;
+    const TAIL_TIME_DIFFER = 0x02;
+    const COUNT_DIFFER = 0x04;
+
     public $method = ''; // метод запроса
     public $result = array(); // ответ запроса
     private $cache;
@@ -155,8 +163,7 @@ class Gallery
 
             if ($events_stat['files'] != $tree_events_stat['files']  ||
                 $tree_events_stat['latest_update'] != $events_stat['latest'] ||
-                $events_stat['oldest'] > $tree_events_stat['oldest_update']) {
-                // FIXME по oldest > oldest_update см. FIXME ниже в updateTreeEvents()
+                $events_stat['oldest'] != $tree_events_stat['oldest_update']) {
                 /* need update tree_events */
                 $access_update_tree = in_array(
                     $GLOBALS['user_status'],
@@ -269,44 +276,54 @@ class Gallery
             } else {
                 // вызов запросом браузера || cron
                 // будем использовать умную индексацию
-                // FIXME FIXME остаётся один неохваченный вариант, редкий но возможный
+                // TODO остаётся один неохваченный вариант, редкий но возможный
                 // когда удалили одно и тоже количество в EVENTS: не последнюю
                 // (или несколько в одной самой старой секунде было в конце)
                 // и добавили в ту же секунду новые
                 // тогда времена и количество не изменятся, однако будет рассинхрон
 
-                /* head(1), tail(2), total(3)
-                 * head(1) + 3 x tail(2) = 7
-                 * head(1) + tail(2) + total(3) = 6
+                /* head = tail = 1, total = 3
+                 * head(1) + 2 x tail(1)  = 3
+                 * head(1) + tail(1)      = 2
+                 * head(1) + tail(1) + total(3) = 5
+                 * total(3) + total(3) = 6
                  */
-                $max_reindex_score = 6;
+                $max_reindex_score = 3; // допускаем только один total за раз
 
                 $sync_done = false;
-                $reindex_type = 555;
-                for ($i = 0; $i < $max_reindex_score; $i += $reindex_type) {
+                $resync_score = 555;
+                for ($i = 0; $i < $max_reindex_score; $i += $resync_score) {
                     $events_stat = $this->db->galleryEventsGetStat($par_hash);
                     $tree_events_stat = $this->db->galleryTreeEventsGetStat($par_hash);
 
+                    $resync_cases = array();
                     if ($events_stat['latest'] != $tree_events_stat['latest_update']) {
-                        $reindex_type = 1;
-                        $start = $this->sqlTimestampMin($events_stat['latest'], $tree_events_stat['latest_update']);
-                        $end = false;
-                    } elseif ($events_stat['oldest'] > $tree_events_stat['oldest_update']) {
-                        /* FIXME нечёткое сравнение, в теории если удалить ровно столько снизу TREE_EVENTS
-                         * и добавить в одну секунду столько же в EVENTS, удалённые записи не будут
-                         * показаны в галерее, хотя ....
-                         * TODO TREE_EVENTS->LAST_UPDATE разбить на 2 DT1_OLDEST и DT1_LATEST(= LAST_UPDATE сейчас) */
-                        $reindex_type = 2;
-                        $end = $this->sqlTimestampMax($events_stat['oldest'], $tree_events_stat['oldest_update']);
-                        $start = false;
-                    } elseif ($events_stat['files'] != $tree_events_stat['files']) {
-                        $reindex_type = 3;
-                        $start = $end = false;
-                    } else {
+                        $resync_cases[] = self::HEAD_TIME_DIFFER;
+                    }
+                    if ($events_stat['oldest'] != $tree_events_stat['oldest_update']) {
+                        $resync_cases[] = self::TAIL_TIME_DIFFER;
+                    }
+                    if ($events_stat['files'] != $tree_events_stat['files']) {
+                        $resync_cases[] = self::COUNT_DIFFER;
+                    }
+
+                    if (count($resync_cases) === 0) {
                         // синхронизировано!!!
                         break;
+                    } elseif (in_array(self::HEAD_TIME_DIFFER, $resync_cases) && $tree_events_stat['files'] > 0) {
+                        $resync_score = 1;
+                        $start = $this->sqlTimestampMin($events_stat['latest'], $tree_events_stat['latest_update']);
+                        $end = false;
+                    } elseif (in_array(self::TAIL_TIME_DIFFER, $resync_cases) && $tree_events_stat['files'] > 0) {
+                        $resync_score = 1;
+                        $end = $this->sqlTimestampMax($events_stat['oldest'], $tree_events_stat['oldest_update']);
+                        $start = false;
+                    } else {
+                        // нужна полная синхронизация
+                        $resync_score = 3;
+                        $start = $end = false;
                     }
-                    error_log("i=$i, reindex_type = $reindex_type");
+
                     // обновляем
                     $this->db->galleryUpdateTreeEvents($start, $end, $par_hash['to'], $cameras);
                     $update_invoke_db_nb++;
