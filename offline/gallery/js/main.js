@@ -219,13 +219,6 @@ var gallery = {
             } else {
                 gallery.cookie.set('resize_column', 300);
             }
-
-            // Устанавливаю отступ блока просмотра контента от блока выбора камер
-            //$("#win_bot").css("position", "absolute");
-            //alert();
-            if (MSIE) {
-
-            }
         }
     }, /* gallery.resize_column object */
 
@@ -248,13 +241,6 @@ var gallery = {
             gallery.cookie.set('type_event', cook);
             // обновляем дерево
             gallery.tree_events.reload();
-
-            if (MSIE) {
-                //Устанавливаем матрицу на начало диапазона
-                matrix.num = 0;
-                scroll.setposition(0);
-            }
-
         } else {
             // не дадим пользователю снять последний чекбокс
             //$(this).prop('checked', true);
@@ -284,12 +270,6 @@ var gallery = {
         gallery.cookie.set('cameras', cook);
         // обновляем дерево
         gallery.tree_events.reload();
-
-        if (MSIE) {
-            //устанавливаем на начало диапазона
-            matrix.num = 0;
-            scroll.setposition(0);
-        }
 
         if (count > 0) {
             //переключаем чекбокс всех камер в 'Отменить выбор всех камер'
@@ -2841,13 +2821,13 @@ var matrix = {
         }
 
         // если идет переход вверх по дереву, то показываем самый последние элементы в матрице нового диапазона
-        if (matrix.select_node == 'left') {
-            //отменяем показ последних - переходим в начало диапазона
+        if (scroll.position >= matrix.count_item || matrix.select_node == 'left') {
+            // отменяем показ последних - переходим в начало диапазона
             sp = 0;
             matrix.num = 0;
-//			sp = scroll.position;
         } else {
-            sp = 0;
+            sp = scroll.position; // FIXME а хорошо бы текущее время запомнить,
+                                  // чтобы не менять после tree_events.reload()
         }
 
         if (count_events < matrix.cell_count && count_events < matrix.curent_tree_events[matrix.tree].count) {
@@ -2865,6 +2845,8 @@ var matrix = {
             row_count: matrix.count_column,
             matrix_count: Math.ceil(matrix.cell_count / matrix.count_column)
         });
+        scroll.updateposition(sp);
+        scroll.setposition(sp);
         matrix.scroll = true;
     },
 
