@@ -86,11 +86,13 @@ DENY($arch_status);
 <?php
 $cams_params = get_cams_params(array('work', 'text_left', 'rec_mode'));
 $recorded_cams = array();
-reset($cams_params);
-each($cams_params); // пропускаем шаблонную
-while (list($_cam, $_opt) = each($cams_params)) {
-    if (((int)$_opt['rec_mode']) > 0) {
-        $recorded_cams[$_cam] = empty($_opt['text_left']['v']) ? "cam $_cam" : $_opt['text_left']['v'] . " ($_cam)";
+foreach ($cams_params as $__cam_nr => $_opt) {
+    if ($__cam_nr <= 0) {
+        continue;
+    }
+    if (((int)$_opt['rec_mode']['v']) > 0) {
+        $recorded_cams[$__cam_nr] = empty($_opt['text_left']['v']) ?
+            "cam $__cam_nr" : $_opt['text_left']['v'] . " ($__cam_nr)";
     }
 }
 
@@ -100,7 +102,7 @@ if (!count($recorded_cams)) {
     exit;
 }
 
-/// tohtml($recorded_cams);
+// tohtml($recorded_cams);
 
 /* presets */
 $range_checked = 'checked';
