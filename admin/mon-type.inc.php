@@ -505,6 +505,37 @@ $wide_15_18_wins = array(
     array(2, 5, 1, 1),
 );
 
+$wide_28_40_wins = array(
+    array(0, 0, 1, 1),
+    array(0, 1, 1, 1),
+    array(0, 2, 1, 1),
+    array(0, 3, 1, 1),
+    array(0, 4, 1, 1),
+    array(0, 5, 1, 1),
+    array(0, 6, 1, 1),
+    array(0, 7, 1, 1),
+    array(1, 0, 2, 2),
+    array(1, 2, 2, 2),
+    array(1, 4, 2, 2),
+    array(1, 6, 2, 2),
+    array(3, 0, 1, 1),
+    array(3, 1, 1, 1),
+    array(3, 2, 1, 1),
+    array(3, 3, 1, 1),
+    array(3, 4, 1, 1),
+    array(3, 5, 1, 1),
+    array(3, 6, 1, 1),
+    array(3, 7, 1, 1),
+    array(4, 0, 1, 1),
+    array(4, 1, 1, 1),
+    array(4, 2, 1, 1),
+    array(4, 3, 1, 1),
+    array(4, 4, 1, 1),
+    array(4, 5, 1, 1),
+    array(4, 6, 1, 1),
+    array(4, 7, 1, 1)
+);
+
 $wide_34_40_wins = array(
     array(0, 0, 1, 1),
     array(0, 1, 1, 1),
@@ -659,6 +690,7 @@ $layouts_defs = array(
     'WIDE_24_24' => array(24, 4, 6, &$wide_24_24_wins, 9, &$strWide_24_24),
     'QUAD_25_25' => array(25, 5, 5, &$quad_25_25_wins, 13, &$strQUAD_25_25),
     'WIDE_28_28' => array(28, 4, 7, &$wide_28_28_wins, 18, &$strWide_28_28),
+    'WIDE_28_40' => array(28, 5, 8, &$wide_28_40_wins, 10, &$strWide_28_40),
     'WIDE_34_40' => array(34, 5, 8, &$wide_34_40_wins, 11, &$strWide_34_40),
     'WIDE_40_40' => array(40, 5, 8, &$wide_40_40_wins, 20, &$strWide_40_40)
 );
@@ -786,3 +818,4 @@ function layout2table($mon_type, $max_width, $win_text_array = array(), $win_tex
     }
     print $tbl_end;
 }
+/* vim: set expandtab smartindent tabstop=4 shiftwidth=4: */

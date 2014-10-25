@@ -124,6 +124,7 @@ $strWide_21_24 = '21 камера' . $strWideScreen;
 $strWide_24_24 = '24 камеры' . $strWideScreen;
 $strWide_34_40 = '34 камеры' . $strWideScreen;
 $strWide_28_28 = '28 камер' . $strWideScreen;
+$strWide_28_40 =& $strWide_28_28;
 $strWide_40_40 = '40 камер' . $strWideScreen;
 
 $strWide_18_18 = '18 камер' . $strWideScreen;
