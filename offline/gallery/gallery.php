@@ -153,11 +153,11 @@ class Gallery
                 $params['to'] = date("Y-m-d H:i:s", time() - 1);
             }
 
-            global $cams_params; // offline/gallery.php
-            global $cams_array;  // offline/gallery.php
-            $cameras = implode(',', $cams_array);
+            global $REC_CAMS_PARAMS; // offline/gallery.php
+            global $REC_CAMS;  // offline/gallery.php
+            $cameras = implode(',', $REC_CAMS);
 
-            $params['cameras'] = $cams_array; // FIXME FIXME getTreeEvents() только со всеми камерами работает?
+            $params['cameras'] = $REC_CAMS; // FIXME FIXME getTreeEvents() только со всеми камерами работает?
 
             $events_stat = $this->db->galleryEventsGetStat($params);
             $tree_events_stat = $this->db->galleryTreeEventsGetStat($params);
@@ -242,7 +242,7 @@ class Gallery
                 'oldest_tree_date' => $tree_events_stat['oldest_update'],
                 'to' => $params['to'],
                 'tree_events' => $tree_events_result,
-                'cameras' => $cams_params
+                'cameras' => $REC_CAMS_PARAMS
             );
         } catch (\Exception $e) {
             $this->cache->delete('gallery_update');
@@ -362,8 +362,8 @@ class Gallery
     // функция полного обновления деоева события
     public function reindexTreeEvents($par_hash)
     {
-        global $cams_array; // offline/gallery.php
-        $par_hash['cameras'] = implode(',', $cams_array);
+        global $REC_CAMS; // offline/gallery.php
+        $par_hash['cameras'] = implode(',', $REC_CAMS);
         $par_hash['to'] = date("Y-m-d H:i:s", time() - 1);
         $this->updateTreeEvents($par_hash);
         $par_hash['initially'] = 'yes'; // чтобы getTreeEvents() возвратил данные

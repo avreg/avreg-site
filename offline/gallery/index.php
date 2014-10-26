@@ -77,21 +77,20 @@
                         }
                         ?>
                         <?php
-                        reset($cams_params);
-                        while (list($CAM_NR, $PARAM) = each($cams_params)) :
+                        foreach ($REC_CAMS_PARAMS as $__cam_nr => $__cam_params) {
                             // @codingStandardsIgnoreStart
-                            if ($CAM_NR <= 0) {
+                            if ($__cam_nr <= 0) {
                                 continue;
                             }
                             // @codingStandardsIgnoreEnd
                             ?>
                             <span class="new_Check" style="white-space: nowrap; ">
-                            <span class="niceCheck"><input type="checkbox" id="camera_<?= $CAM_NR; ?>" name="cameras"
-                                value="<?= $CAM_NR; ?>"
-                                <?= (@empty($cameras) || in_array($CAM_NR, $cameras)) ? ' checked' : '' ?>/>
+                            <span class="niceCheck"><input type="checkbox" id="camera_<?= $__cam_nr; ?>" name="cameras"
+                                value="<?= $__cam_nr; ?>"
+                                <?= (@empty($cameras) || in_array($__cam_nr, $cameras)) ? ' checked' : '' ?>/>
                             </span>
                                 <?php
-                                $name = $name_orig = $PARAM['text_left']['v'];
+                                $name = $name_orig = $__cam_params['text_left']['v'];
                                 // @codingStandardsIgnoreStart
                                 // probably bug in phpcs, as it forcing to use 4 spaces on next block
                                 if (mb_strlen($name) > 18) {
@@ -99,17 +98,18 @@
                                     $name .= '...';
                                 }
                                 // @codingStandardsIgnoreEnd
-                                $camColor = isset($cookies['camera_' . $CAM_NR . '_color']) && !empty($cookies['camera_'
-                                . $CAM_NR . '_color']) ? ' ' . $cookies['camera_' . $CAM_NR . '_color'] . '_font' : '';
+                                $camColor = isset($cookies['camera_' . $__cam_nr . '_color']) &&
+                                    !empty($cookies['camera_' . $__cam_nr . '_color']) ?
+                                    ' ' . $cookies['camera_' . $__cam_nr . '_color'] . '_font' : '';
                                 ?>
-                                <label style="float: none !important;" for="camera_<?= $CAM_NR; ?>">
-                                    <a href="#<?= $CAM_NR; ?>"
+                                <label style="float: none !important;" for="camera_<?= $__cam_nr; ?>">
+                                    <a href="#<?= $__cam_nr; ?>"
                                        class="set_camera_color<?= $camColor ?>"
                                        title="<?= ($name != $name_orig) ? $name_orig : '' ?>"><?= $name ?></a>
                                 </label>
                             </span>
                         <?php
-                        endwhile;
+                        }
                         ?>
 
                     </div>

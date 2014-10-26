@@ -900,10 +900,12 @@ function MYDIE($errstr = 'internal error', $file = '', $line = '')
     if (empty($file)) {
         $file = basename($_SERVER['SCRIPT_FILENAME']);
     }
-    print '<div><font color="' . $GLOBALS['error_color'] . '">' . "\n";
-    printf('Error in %s:%d<br>', $file, $line);
+    print '<div class="error">' . "\n";
     print $errstr;
-    print '</font></div>' . "\n";
+    print '</div>' . "\n";
+    if (!empty($file)) {
+        printf('<br><br><div>Error in %s:%d</div>' . "\n", $file, $line);
+    }
     if (!isset($GLOBALS['NOBODY'])) {
         print '</body>' . "\n";
     }

@@ -19,6 +19,25 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
+function get_recorded_cameras()
+{
+    $ret = array();
+    $cams = get_cams_params(array(
+        'work',
+        'text_left',
+        'rec_mode',
+        'Hx2'));
+    foreach ($cams as $__cam_nr => $_opt) {
+        if ($__cam_nr <= 0) {
+            continue;
+        }
+        if (((int)$_opt['rec_mode']['v']) > 0) {
+            $ret_a[$__cam_nr] = $_opt;
+        }
+    }
+    return $ret_a;
+}
+
 if (!isset($_POST['method']) && !isset($_GET['method'])) {
     /// Загрузка главной страницы галереи
     $pageTitle = 'gallery_title';
@@ -59,16 +78,14 @@ if (!isset($_POST['method']) && !isset($_GET['method'])) {
     require_once('../head.inc.php');
     require_once('../lib/get_cams_params.inc.php');
    
-    $cams_params = get_cams_params(array(
-        'work',
-        'text_left',
-        'Hx2'));
-    $cams_nbr = count($cams_params) - 1; // off template camera
-    if ($cams_nbr <= 0) {
-        die('There are no available cameras!');
+    $REC_CAMS_PARAMS = get_recorded_cameras();
+    if (count($REC_CAMS_PARAMS) <= 0) {
+        echo "<div class='error'>$strNotRecordableCams</div>\n";
+        print_go_back();
+        require_once('../foot.inc.php');
+        die(1);
     }
-    $cams_array = array_keys($cams_params);
-    unset($cams_array[0]); // remove template
+    $REC_CAMS = array_keys($REC_CAMS_PARAMS);
     $cookies = isset($_COOKIE['gallery']) ? (array)json_decode(base64_decode($_COOKIE['gallery'])) : array();
 
     /// Подключение самой страницы галереи
@@ -80,16 +97,11 @@ if (!isset($_POST['method']) && !isset($_GET['method'])) {
     require_once('../lib/adb.php');
     require_once('../lib/get_cams_params.inc.php');
    
-    $cams_params = get_cams_params(array(
-        'work',
-        'text_left',
-        'Hx2'));
-    $cams_nbr = count($cams_params) - 1; // off template camera
-    if ($cams_nbr <= 0) {
-        die('There are no available cameras!');
+    $REC_CAMS_PARAMS = get_recorded_cameras();
+    if (count($REC_CAMS_PARAMS) <= 0) {
+        die('There are no available recordable cameras!');
     }
-    $cams_array = array_keys($cams_params);
-    unset($cams_array[0]); // remove template
+    $REC_CAMS = array_keys($REC_CAMS_PARAMS);
 
     require_once 'gallery/memcache.php';
     require_once('gallery/gallery.php');
