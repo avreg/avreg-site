@@ -31,7 +31,7 @@ function get_recorded_cameras()
         if ($__cam_nr <= 0) {
             continue;
         }
-        if (((int)$_opt['rec_mode']['v']) > 0) {
+        if (((int)$_opt['work']['v']) > 0 && ((int)$_opt['rec_mode']['v']) > 0) {
             $ret_a[$__cam_nr] = $_opt;
         }
     }

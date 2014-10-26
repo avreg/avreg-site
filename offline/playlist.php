@@ -90,7 +90,7 @@ foreach ($cams_params as $__cam_nr => $_opt) {
     if ($__cam_nr <= 0) {
         continue;
     }
-    if (((int)$_opt['rec_mode']['v']) > 0) {
+    if (((int)$_opt['work']['v']) > 0 && ((int)$_opt['rec_mode']['v']) > 0) {
         $recorded_cams[$__cam_nr] = empty($_opt['text_left']['v']) ?
             "cam $__cam_nr" : $_opt['text_left']['v'] . " ($__cam_nr)";
     }
